@@ -21,6 +21,6 @@ _The aim of the script is:_
 - detect spikes, using or a digital filter or the comparison with the previous pulse
 
 
-3) __Filtgering.m__
+3) __Filtering.m__
 
 still a work in progress.... 

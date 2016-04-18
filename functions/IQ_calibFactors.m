@@ -1,4 +1,11 @@
 function calibFactors = IQ_calibFactors(channel)
+%	IQ_calibFactors.m:
+%   This function saves in the memory variables necessary to calibrate the IQ signals.
+%
+%   Inputs:
+%   - channel: is the name of channel (INC, TRA, REF)
+%
+%   Last modified: 13.04.2016 by Theodoros Argyropoulos 
     alpha = 'alpha';
     psi = 'psi';
     offset_I = 'offset_I';

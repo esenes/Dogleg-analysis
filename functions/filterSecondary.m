@@ -1,4 +1,4 @@
-function [keep_index] = filterSecondary(timeSeconds,deltaTime,varargin)
+function [keep_index, discard_index] = filterSecondary(timeSeconds,deltaTime,varargin)
 % deltaTime is in s
     N_all_BDs = length(timeSeconds);
     keep_index = ones(N_all_BDs,1);
@@ -29,5 +29,5 @@ function [keep_index] = filterSecondary(timeSeconds,deltaTime,varargin)
         end
 
     end
-    
+    discard_index = ~keep_index;
 end

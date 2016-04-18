@@ -1,6 +1,18 @@
 function [amplitude, phase] = IQ_cal(signal_I,signal_Q,sensitivity_I,sensitivity_Q,calibFactors)
-% Calibrate IQ-signals (written for Dogleg)
-
+%	IQ_cal.m Calibrate IQ-signals (written for Dogleg)
+%     
+%   Inputs:
+%     - signal_I: 
+%     - signal_Q: 
+%     - sensititvity_I: 
+%     - sensititvity_Q: 
+%     - calibFactors: 
+%     
+%   Outputs:
+%     - amplitude:
+%     - phase:
+%
+%   Modified before: 01.02.2016 by Robin Rajamäki 
     psi = calibFactors.psi;
     alpha = calibFactors.alpha;
     offset_I = calibFactors.offset_I;

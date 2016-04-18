@@ -1,4 +1,16 @@
 function [amplitude,phase,timescale] = getIQSignal(signalStruct_I,signalStruct_Q)
+%	getIQSignal.m extract the raw IQ signals from the data structure.
+%
+%   Inputs:
+%     - signalStruct_I: structure containing the I signal
+%     - signalStruct_Q: structure containing the Q signal
+%     
+%   Outputs:
+%     - amplitude:
+%     - phase:
+%     - timescale:
+%     
+%   Last modified: 13.04.2016 by Theodoros Argyropoulos 
     signal_I = signalStruct_I.data';
     signal_Q = signalStruct_Q.data';
     dt = signalStruct_I.Props.wf_increment;

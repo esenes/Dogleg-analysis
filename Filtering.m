@@ -45,6 +45,8 @@ bpm1_thr = -100;
 bpm2_thr = -90;
 % DELTA TIME FOR SECONDARY DUE TO BEAM LOST
 deltaTime = 90;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %% Load the files
@@ -78,8 +80,10 @@ clear j, foo;
     ts_array = zeros(1,length(event_name));
     %pulse past from previous BD list
     prev_pulse = zeros(1,length(event_name));
+    %beam lost events
+    beam_lost = false(1,length(event_name));
+% filling    
 for i = 1:length(event_name) 
-    disp(i)
     inc_tra(i) = data_struct.(event_name{i}).inc_tra;
     inc_ref(i) = data_struct.(event_name{i}).inc_ref;
     isSpike(i) = data_struct.(event_name{i}).spike.flag;
@@ -87,9 +91,10 @@ for i = 1:length(event_name)
     bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_calibrated;
     % build a timestamps array
     [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
-    %build the pulse past array
+    %build the number of pulse pulse between BD array
     prev_pulse(i) = data_struct.(event_name{i}).Props.Prev_BD_Pulse_Delay;
-    
+    %look for beam lost events and flag it
+    beam_lost(i) = beamWasLost(data_struct.(event_name{i}).name, bpm1_ch(i), bpm2_ch(i), bpm1_thr, bpm2_thr);
 end
 
 %% Metric plotting to check the tresholds
@@ -100,6 +105,7 @@ ylabel('(INC-REF)/(INC+REF)')
 axis([-0.2 0.5 0.2 0.8])
 line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
 line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+title('Interlock criteria review')
 legend('Interlocks')
 
 %% Start the filtering 
@@ -110,18 +116,20 @@ legend('Interlocks')
     %beam charge
     bpm1_flag = false(1,length(event_name));
     bpm2_flag = false(1,length(event_name));
+    %secondary 
+    sec_spike = false(1,length(event_name));
+    sec_beam_lost = false(1,length(event_name));
 % filling
-    inc_tra_flag = inc_tra > inc_tra_thr;
-    inc_ref_flag = inc_ref < inc_ref_thr;
-    bpm1_flag = bpm1_ch > bpm1_thr;
-    bpm2_flag = bpm2_ch > bpm2_thr;
-    hasBeam = bpm1_flag & bpm2_flag;
+    %metric criteria
+    [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
+    %beam charge
+    [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr);
+    %secondary filter by time after SPIKE
+    [~, sec_spike] = filterSecondary(ts_array,deltaTime,isSpike);
+    %secondary filter by time after BEAM LOST
+    [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime,beam_lost);
     
-%%%%% find command returns the indexes find(flag1 & flag2)
-%%% then do the function to select which events consider
-[keep_index] = filterSecondary(ts_array,deltaTime,isSpike);
-nm = find(inc_tra_flag & inc_ref_flag);
-
+    
 
 %% Metric plotting to check the tresholds
 figure

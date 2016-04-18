@@ -23,10 +23,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-% datapath_read = 'Z:\matfiles';
-% datapath_write = 'Y:\Processed_E';
-datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
-datapath_write = '/Users/esenes/Dropbox/work';
+datapath_read = 'Z:\matfiles';
+datapath_write = 'Y:\Processed_E';
+% datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
+% datapath_write = '/Users/esenes/Dropbox/work';
 
 startDate = '20160324';
 endDate = '20160330';
@@ -53,12 +53,13 @@ spike_thr = 0.015;
 %build file list
 [filenames_full] = files2Analyse(startDate, endDate, datapath_read, 1);
 filename = get_dates(filenames_full);
-disp(['Start processing files:'])
+disp('Start processing files:')
 
 %%
 
 for j = 1:length(filename) %loop over dates
     tic
+    disp(['Processing file ' num2str(j) ' on ' num2str(length(filename)) ])
     %% Load the files
     load([datapath_read filesep 'Prod_' filename{j} '.mat']);
     %% Init variables
@@ -291,18 +292,25 @@ for j = 1:length(filename) %loop over dates
     %export the data
     save([datapath_write filesep 'Data_' filename{j} '.mat'],'data_struct');
     disp(['Finished file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
-    disp(' ')
     toc
+    disp(' ')
 end
 disp(' ')
 disp('Data file generation complete')
 
 %% now merge files for every experiment
 if buildExperiment
+    tic
     disp(' ')
     disp('Start to assembly the experiment structure')
+    %clean memor before allocating the new structure
+    clearvars -except datapath_write startDate startTime endDate endTime expName
     data_struct = buildExperimentStruct(datapath_write,startDate,startTime,endDate,endTime);
+    toc
     disp('Saving ...')
     save([datapath_write filesep 'Exp_' expName '.mat'],'data_struct','-v7.3');
+    fileattrib([datapath_write filesep 'Exp_' expName '.mat'],'-w','a');
     disp('Done.')
+    toc
+    clearvars
 end

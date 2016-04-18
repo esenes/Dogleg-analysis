@@ -1,6 +1,5 @@
 function [amplitude, phase] = IQ_cal(signal_I,signal_Q,sensitivity_I,sensitivity_Q,calibFactors)
-%	IQ_cal.m Calibrate IQ-signals (written for Dogleg)
-%     
+%   IQ_cal.m Calibrate IQ-signals (written for Dogleg)
 %   Inputs:
 %     - signal_I: 
 %     - signal_Q: 

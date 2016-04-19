@@ -23,10 +23,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-datapath_read = 'Z:\matfiles';
-datapath_write = 'Y:\Processed_E';
-% datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
-% datapath_write = '/Users/esenes/Dropbox/work';
+% datapath_read = 'Z:\matfiles';
+% datapath_write = 'Y:\Processed_E';
+datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
+datapath_write = '/Users/esenes/Dropbox/work';
 
 startDate = '20160402';
 endDate = '20160402';
@@ -53,6 +53,9 @@ spike_thr = 8e6;
 filename = get_dates(filenames_full);
 disp('Start processing files:')
 
+
+counter = 0;
+failer=0;
 %%
 
 for j = 1:length(filename) %loop over dates
@@ -77,6 +80,9 @@ for j = 1:length(filename) %loop over dates
     INC_cal = zeros(1,800);
     TRA_cal = zeros(1,800);
     REF_cal = zeros(1,800);
+    %init calibrated prevous log signals
+    INC_cal_n1 = zeros(1,800);
+    TRA_cal_n2 = zeros(1,800);
     %init calibrated IQ signals
     amplitude = zeros(1,4000);
     phase = zeros(1,4000);
@@ -165,9 +171,23 @@ for j = 1:length(filename) %loop over dates
                         LL_ctr = LL_ctr +1; %increment the counter of usable BDs        
                         %filter the spikes
                         try
-                        [sf, ~, ~, ~, ~, ~, ~, str_1, str_2] = spike_test_cal( tdms_struct.(field_names{i}).INC.data,... 
+                        %calibrate the INC for all 3
+                        INC_cal_n1 = log_cal(tdms_struct.(field_names{i+1}).INC.data,...
+                            tdms_struct.(field_names{i+1}).INC.Props.Offset,...
+                            tdms_struct.(field_names{i+1}).INC.Props.Scale,...
+                            tdms_struct.(field_names{i+1}).INC.Props.Att__factor,...
+                            tdms_struct.(field_names{i+1}).INC.Props.Att__factor__dB_,...
+                            tdms_struct.(field_names{i+1}).INC.Props.Unit_scale);
+                        INC_cal_n2 = log_cal(tdms_struct.(field_names{i+2}).INC.data,...
+                            tdms_struct.(field_names{i+2}).INC.Props.Offset,...
+                            tdms_struct.(field_names{i+2}).INC.Props.Scale,...
+                            tdms_struct.(field_names{i+2}).INC.Props.Att__factor,...
+                            tdms_struct.(field_names{i+2}).INC.Props.Att__factor__dB_,...
+                            tdms_struct.(field_names{i+2}).INC.Props.Unit_scale);                        
+                        %test the spikes
+                        [sf, ~, ~, ~, ~, ~, ~, str_1, str_2] = spike_test_cal( INC_cal,... 
                             spike_window_start, spike_window_end, spike_thr,...
-                            tdms_struct.(field_names{i+1}).INC.data, tdms_struct.(field_names{i+2}).INC.data   );
+                            INC_cal_n1, INC_cal_n2   );
                             if sf
                                 %method flag = Prev_pulses
                                 data_struct.(field_names{i}).spike.method = 'Prev_pulses';
@@ -181,7 +201,7 @@ for j = 1:length(filename) %loop over dates
                         catch %if the method fails, then use the other method
                             warning(['Bad windowing detected for ' field_names{i} ' , will be processed using the digital filter'])
                             [hasSpike, filteredSignal] = filterSpikes(INC_cal,Hd);
-                            if sf
+                            if hasSpike
                                 %method flag = Freq_filter
                                 data_struct.(field_names{i}).spike.method = 'Freq_filter';
                                 data_struct.(field_names{i}).spike.flag = 1;
@@ -190,12 +210,13 @@ for j = 1:length(filename) %loop over dates
                                 data_struct.(field_names{i}).spike.method = 'Freq_filter';
                                 data_struct.(field_names{i}).spike.flag = 0;
                             end
+                            zfailer = failer+1;
                         end%of try/catch
                     %method2: events with B0 only 
                     else
                         FF_ctr = FF_ctr+1;                    
                         [hasSpike, filteredSignal] = filterSpikes(INC_cal,Hd);
-                        if sf
+                        if hasSpike
                             %method flag = Freq_filter
                             data_struct.(field_names{i}).spike.method = 'Freq_filter';
                             data_struct.(field_names{i}).spike.flag = 1;

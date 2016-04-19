@@ -26,8 +26,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-datapath_read = 'Y:\Processed_E';
-expname = 'Data_20160324';
+datapath_read = '/Users/esenes/Dropbox/work';
+expname = 'Data_20160402';
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -44,7 +44,8 @@ inc_tra_thr = -0.02;
 bpm1_thr = -100;
 bpm2_thr = -90;
 % DELTA TIME FOR SECONDARY DUE TO BEAM LOST
-deltaTime = 90;
+deltaTime_spike = 90;
+deltaTime_bem_lost = 90;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -125,19 +126,29 @@ legend('Interlocks')
     %beam charge
     [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr);
     %secondary filter by time after SPIKE
-    [~, sec_spike] = filterSecondary(ts_array,deltaTime,isSpike);
+    [~, sec_spike] = filterSecondary(ts_array,deltaTime_spike,isSpike);
     %secondary filter by time after BEAM LOST
-    [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime,beam_lost);
+    [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime_bem_lost,beam_lost);
     
     
 
 %% Metric plotting to check the tresholds
 figure
-plot(inc_tra, inc_ref,'b .',inc_tra(nm), inc_ref(nm),'r .',inc_tra(find(isSpike)), inc_ref(find(isSpike)),'g .',...
-    inc_tra(find(keep_index)), inc_ref(find(keep_index)),'c .','MarkerSize',12);
+plot(inc_tra, inc_ref,'b .',inc_tra(inMetric), inc_ref(inMetric),'r .',inc_tra(isSpike), inc_ref(isSpike),'g .',...
+    inc_tra(sec_spike), inc_ref(sec_spike),'c .',inc_tra(sec_beam_lost), inc_ref(sec_beam_lost),'m .','MarkerSize',15);
+legend('Interlocks','Metric','Spikes','After spike','After beam lost')
 xlabel('(INC-TRA)/(INC+TRA)')
 ylabel('(INC-REF)/(INC+REF)')
 axis([-0.2 0.5 0.2 0.8])
 line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
 line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
-legend('Interlocks','Metric','Spikes','BDs')
+
+%%
+ind = find(inMetric );
+for i=ind
+    figure(1)
+    plot(data_struct.(event_name{i}).INC.data_cal)
+    title([num2str(i) ' ' event_name{i} ' isSpike = ' num2str(isSpike(i))])
+    pause;
+    
+end

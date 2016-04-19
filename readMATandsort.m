@@ -28,12 +28,12 @@ datapath_write = 'Y:\Processed_E';
 % datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
 % datapath_write = '/Users/esenes/Dropbox/work';
 
-startDate = '20160324';
-endDate = '20160330';
-startTime = '18:00:00';
-endTime = '16:00:00';
+startDate = '20160402';
+endDate = '20160402';
+startTime = '00:00:00';
+endTime = '23:59:59';
 
-buildExperiment = true; %merge all files at the end
+buildExperiment = false; %merge all files at the end
 expName = 'Loaded43MW';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,12 +42,10 @@ expName = 'Loaded43MW';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SPIKE DETECTION (B0,F1,F2 method)
 %%windowing (bins)
-spike_window_start_1 = 140;
-spike_window_end_1 = 280;
-spike_window_start_2 = 330;
-spike_window_end_2 = 471;
+spike_window_start = 140;
+spike_window_end = 468;
 %%Threshold setting
-spike_thr = 0.015;
+spike_thr = 8e6;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %build file list
@@ -167,8 +165,8 @@ for j = 1:length(filename) %loop over dates
                         LL_ctr = LL_ctr +1; %increment the counter of usable BDs        
                         %filter the spikes
                         try
-                        [sf, ~, ~, ~, ~, ~, ~, str_1, str_2] = spike_test_prev2_OR( tdms_struct.(field_names{i}).INC.data,... 
-                            spike_window_start_1, spike_window_end_1, spike_window_start_2, spike_window_end_2, spike_thr,...
+                        [sf, ~, ~, ~, ~, ~, ~, str_1, str_2] = spike_test_cal( tdms_struct.(field_names{i}).INC.data,... 
+                            spike_window_start, spike_window_end, spike_thr,...
                             tdms_struct.(field_names{i+1}).INC.data, tdms_struct.(field_names{i+2}).INC.data   );
                             if sf
                                 %method flag = Prev_pulses

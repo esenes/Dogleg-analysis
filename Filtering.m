@@ -26,7 +26,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-datapath_read = '/Users/esenes/Dropbox/work';
+% datapath_read = '/Users/esenes/Dropbox/work';
+datapath_read = 'W:';
 expname = 'Data_20160402';
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -88,8 +89,8 @@ for i = 1:length(event_name)
     inc_tra(i) = data_struct.(event_name{i}).inc_tra;
     inc_ref(i) = data_struct.(event_name{i}).inc_ref;
     isSpike(i) = data_struct.(event_name{i}).spike.flag;
-    bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_calibrated;
-    bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_calibrated;
+    bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_cal;
+    bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_cal;
     % build a timestamps array
     [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
     %build the number of pulse pulse between BD array
@@ -99,7 +100,8 @@ for i = 1:length(event_name)
 end
 
 %% Metric plotting to check the tresholds
-figure
+f0 = figure;
+figure(f0)
 p1 = plot(inc_tra, inc_ref,'b .','MarkerSize',12);
 xlabel('(INC-TRA)/(INC+TRA)')
 ylabel('(INC-REF)/(INC+REF)')
@@ -109,18 +111,10 @@ line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
 title('Interlock criteria review')
 legend('Interlocks')
 
+
+
 %% Start the filtering 
-% allocation
-    %metric
-    inc_tra_flag = false(1,length(event_name));
-    inc_ref_flag = false(1,length(event_name));
-    %beam charge
-    bpm1_flag = false(1,length(event_name));
-    bpm2_flag = false(1,length(event_name));
-    %secondary 
-    sec_spike = false(1,length(event_name));
-    sec_beam_lost = false(1,length(event_name));
-% filling
+% filling bool arrays
     %metric criteria
     [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
     %beam charge
@@ -129,26 +123,287 @@ legend('Interlocks')
     [~, sec_spike] = filterSecondary(ts_array,deltaTime_spike,isSpike);
     %secondary filter by time after BEAM LOST
     [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime_bem_lost,beam_lost);
+% filling event arrays    
+    %in the metric
+    intoMetr = event_name(inMetric);
+    outOfMetr = event_name(~inMetric);
+    %candidates = inMetric, withBeam, not beam lost and not after spike
+    BD_candidates = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
+    BD_candidates_beam = event_name(inMetric & hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
+    BD_candidates_nobeam = event_name(inMetric & ~hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
+    %interlocks = "candidates" out of metric
+    interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
+    %spikes
+    spikes_inMetric =  event_name(inMetric & isSpike);
+    spikes_outMetric =  event_name(~inMetric & isSpike);
+    %missed beams
+    missed_beam_in = event_name(inMetric &beam_lost);
+    missed_beam_out = event_name(~inMetric &beam_lost);
+    %clusters
+    missed_beam_cluster = event_name(inMetric &sec_beam_lost);
+    spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
+    spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
     
-    
-
-%% Metric plotting to check the tresholds
-figure
-plot(inc_tra, inc_ref,'b .',inc_tra(inMetric), inc_ref(inMetric),'r .',inc_tra(isSpike), inc_ref(isSpike),'g .',...
-    inc_tra(sec_spike), inc_ref(sec_spike),'c .',inc_tra(sec_beam_lost), inc_ref(sec_beam_lost),'m .','MarkerSize',15);
-legend('Interlocks','Metric','Spikes','After spike','After beam lost')
-xlabel('(INC-TRA)/(INC+TRA)')
-ylabel('(INC-REF)/(INC+REF)')
-axis([-0.2 0.5 0.2 0.8])
-line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
-line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
-
 %%
-ind = find(inMetric );
-for i=ind
-    figure(1)
-    plot(data_struct.(event_name{i}).INC.data_cal)
-    title([num2str(i) ' ' event_name{i} ' isSpike = ' num2str(isSpike(i))])
-    pause;
-    
+% nominal = 43.3e6; %%%%%%% CAN WE GET PROJECTED POWER FROM STRUCT ????
+% thr1 = nominal*0.70;
+% thr2 = nominal*0.85;
+% thr3 = nominal*0.95;
+% win_start = 400;
+% win_end = 470;
+% 
+% ev_im = event_name(inMetric);
+% % ev_im = intersect( event_name(inMetric&sec_spike) , spikes_inMetric);
+% 
+% figure
+% 
+% thrs = [thr1,thr2,thr3];
+% thrs = [thrs fliplr(thrs)];
+% 
+% for i=1:length(ev_im)
+%     inc = data_struct.(ev_im{i}).INC.data_cal;
+%     plot(inc);
+% 
+%     j=0;
+%     flags = false(1,length(thrs));
+%     flagptr = 1;
+% 
+%     %check left treshold crossing
+%     while j < win_end-win_start 
+%         %check treshold overcome
+%         
+%         if inc(j + win_start-1) > thrs(flagptr) && flags(flagptr) == false && flagptr <= 0.5*length(thrs)
+%             %look for the first thr
+%             ou@t(flagptr) = (j+ win_start-2);
+%             line([out(flagptr) out(flagptr)], ylim, 'Color', 'm','LineWidth',1) %vertical line
+%             flags(flagptr) = true;
+%             flagptr = flagptr+1;
+%         elseif inc(j + win_start-1) < thrs(flagptr) && flags(flagptr) == false && flagptr > 0.5*length(thrs)
+%             %look for the first thr
+%             out(flagptr) = (j+ win_start -1);
+%             line([out(flagptr) out(flagptr)], ylim, 'Color', 'c','LineWidth',1) %vertical line
+%             flags(flagptr) = true;
+%             %last iteration correction
+%             if flagptr ~= length(thrs)
+%                 flagptr = flagptr+1;
+%             end
+%             
+%         end
+%         j = j+1;
+%     end
+%     disp(out)
+%     cross1 = out(1:0.5*end);
+%     cross2 = out(0.5*end+1:end);
+%     cross2 = fliplr(cross2);
+%     diff_bins = cross2-cross1
+% 
+% 
+%     line(xlim, [thr1 thr1], 'Color', 'r','LineWidth',1) %horizontal line
+%     line(xlim, [thr2 thr2], 'Color', 'r','LineWidth',1) %horizontal line
+%     line(xlim, [thr3 thr3], 'Color', 'r','LineWidth',1) %horizontal line
+%     line([win_start win_start], ylim, 'Color', 'g','LineWidth',1) %vertical line
+%     line([win_end win_end], ylim, 'Color', 'g','LineWidth',1) %vertical line
+% %     disp(data_struct.(ev_im{i}).spike)
+% %     disp(data_struct.(ev_im{i}).name)
+% %     disp(data_struct.(ev_im{i}).BPM1.sum_cal)
+%     pause;
+%     
+% end
+
+% %%
+% fakes = intersect(spike_cluster_im, spikes_inMetric);
+% win_start = 390;
+% win_end = 475;
+% 
+% figure
+% for i=1:length(test)
+%     inc = data_struct.(test{i}).INC.data_cal;
+%     plot(inc);
+%     disp(data_struct.(test{i}).spike)
+%     disp(data_struct.(test{i}).name)
+%     disp(data_struct.(test{i}).BPM1.sum_cal)
+%     pause;
+% end
+
+%% Report message and crosscheck of lengths
+disp(['Analysis done! '])
+disp(['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric'])
+disp('Into the metric:')
+l1 = length(BD_candidates);
+disp([' - ' num2str(l1) ' are good candidates'])
+l2 = length(spikes_inMetric);
+disp([' - ' num2str(l2) ' are spikes'])
+l3 = length(spike_cluster);
+disp([' - ' num2str(l3) ' are secondary triggered by spikes'])
+l4 = length(missed_beam_in);
+disp([' - ' num2str(l4) ' are missed beam pulses'])
+l5 = length(missed_beam_cluster);
+disp([' - ' num2str(l5) ' are secondary triggered by beam lost'])
+disp('-------')
+disp(['  ' num2str(l1+l2+l3+l4+l5) ' events in metric'])
+disp([' '])
+disp(['Of the ' num2str(l1) ' good candidates:'])
+disp([' - ' num2str(length(BD_candidates_beam)) ' have the beam'])
+disp([' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam'])
+disp('  ')
+
+
+%% Interactive plot (read version)
+%user ineraction
+gone = false;
+interactivePlot = false;
+while ~gone
+    str_input = input('Go to viewer ? (Y/N)','s');
+    switch lower(str_input)
+        case 'y'
+            interactivePlot = true;
+            gone = true;
+        case 'n'
+            interactivePlot = false;
+            gone = true;
+        otherwise
+            disp('Enter a valid character')
+            gone = false;
+    end
 end
+
+
+if interactivePlot
+    %Build the dataset to plot (IN METRIC):
+    %candidates
+    BDC_in_x = zeros(1,length(BD_candidates));
+    BDC_in_y = zeros(1,length(BD_candidates));
+    for k = 1:length(BD_candidates)
+        BDC_in_x(k) = data_struct.(BD_candidates{k}).inc_tra;
+        BDC_in_y(k) = data_struct.(BD_candidates{k}).inc_ref;
+    end
+    %spikes
+    sp_in_x = zeros(1,length(spikes_inMetric));
+    sp_in_y = zeros(1,length(spikes_inMetric));
+    for k = 1:length(spikes_inMetric)
+        sp_in_x(k) = data_struct.(spikes_inMetric{k}).inc_tra;
+        sp_in_y(k) = data_struct.(spikes_inMetric{k}).inc_ref;
+    end
+    %spike cluster
+    sp_c_in_x = zeros(1,length(spike_cluster));
+    sp_c_in_y = zeros(1,length(spike_cluster));
+    for k = 1:length(spike_cluster)
+        sp_c_in_x(k) = data_struct.(spike_cluster{k}).inc_tra;
+        sp_c_in_y(k) = data_struct.(spike_cluster{k}).inc_ref;
+    end   
+    %missed beam
+    miss_in_x = zeros(1,length(missed_beam_in));
+    miss_in_y = zeros(1,length(missed_beam_in));
+    for k = 1:length(missed_beam_in)
+        miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
+        miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
+    end
+    %missed beam cluster
+    miss_c_in_x = zeros(1,length(missed_beam_cluster));
+    miss_c_in_y = zeros(1,length(missed_beam_cluster));
+    for k = 1:length(missed_beam_cluster)
+        miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
+        miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
+    end
+    %OUT OF METRIC:
+    %interlocks
+    BDC_out_x = zeros(1,length(interlocks_out));
+    BDC_out_y = zeros(1,length(interlocks_out));
+    for k = 1:length(interlocks_out)
+        BDC_out_x(k) = data_struct.(interlocks_out{k}).inc_tra;
+        BDC_out_y(k) = data_struct.(interlocks_out{k}).inc_ref;
+    end
+    %spikes
+    sp_out_x = zeros(1,length(spikes_outMetric));
+    sp_out_y = zeros(1,length(spikes_outMetric));
+    for k = 1:length(spikes_outMetric)
+        sp_out_x(k) = data_struct.(spikes_outMetric{k}).inc_tra;
+        sp_out_y(k) = data_struct.(spikes_outMetric{k}).inc_ref;
+    end
+    %spike cluster
+    sp_c_out_x = zeros(1,length(spike_cluster_out));
+    sp_c_out_y = zeros(1,length(spike_cluster_out));
+    for k = 1:length(spike_cluster_out)
+        sp_c_out_x(k) = data_struct.(spike_cluster_out{k}).inc_tra;
+        sp_c_out_y(k) = data_struct.(spike_cluster_out{k}).inc_ref;
+    end   
+    % merge same type, in metric before
+    BDC_x = [BDC_in_x BDC_out_x];
+    BDC_y = [BDC_in_y BDC_out_y];
+    sp_x = [sp_in_x sp_out_x];
+    sp_y = [sp_in_y sp_out_y];
+    sp_c_x = [sp_c_in_x sp_c_out_x];
+    sp_c_y = [sp_c_in_y sp_c_out_y];
+
+    %finally plot
+    prompt = 'Select an event with the cursor and press ENTER (any other to exit)';
+    f1 = figure('Position',[50 50 1450 700]);
+    figure(f1);
+    datacursormode on;
+    subplot(2,4,[1 2 5 6])
+    plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+        miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    legend('BDs','Spikes','After spike','Missed beam','After missed beam')
+    xlabel('(INC-TRA)/(INC+TRA)')
+    ylabel('(INC-REF)/(INC+REF)')
+    axis([-0.2 0.5 0.2 0.8]);
+    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
+    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    title('Interlock distribution');
+
+    %x axis thicks for signals plotting
+    timescale = 1:800;
+    timescale = timescale*data_struct.(event_name{1}).INC.Props.wf_increment;
+
+    %init the small graphs
+    subplot(2,4,[3 4]) %RF signals plot
+    title('RF signals');
+    sp6 = subplot(2,4,[7 8]); %BPMs plot
+    ylim(sp6, [-1.8 0.05]);
+    title('BPM signals');
+
+    % user interaction
+    exitCond = false;
+    while isempty ( input(prompt,'s') )%keep on spinning while pressing enter
+        %get cursor position
+        dcm_obj = datacursormode(f1);
+        info_struct = getCursorInfo(dcm_obj);
+
+        switch info_struct.Target.DisplayName
+            % !!!! Must match the legend
+            case 'BDs'
+                if info_struct.DataIndex <= length(BDC_in_x)
+                    fname = BD_candidates{info_struct.DataIndex};
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                else
+                    fname = interlocks_out{info_struct.DataIndex-length(BDC_in_x)};
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                end
+            case 'Spikes'
+                if info_struct.DataIndex <= length(sp_in_x)
+                    fname = spikes_inMetric{info_struct.DataIndex};
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                else
+                    fname = spikes_outMetric{info_struct.DataIndex-length(sp_in_x)};
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                end
+            case 'After spike'
+                if info_struct.DataIndex <= length(sp_c_in_x)
+                    fname = spike_cluster{info_struct.DataIndex};
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                else
+                    fname = spike_cluster_out{info_struct.DataIndex-length(sp_c_in_x)};
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                end    
+            case 'Missed beam'
+                fname = missed_beam_in{info_struct.DataIndex};
+                print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+            case 'After missed beam'
+                fname = missed_beam_cluster{info_struct.DataIndex};
+                print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+            otherwise
+                warning('Type not recognized')
+        end
+
+    end
+end %end user choice

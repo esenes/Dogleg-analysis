@@ -23,10 +23,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-% datapath_read = 'Z:\matfiles';
-% datapath_write = 'Y:\Processed_E';
-datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
-datapath_write = '/Users/esenes/Dropbox/work';
+datapath_read = 'Z:\matfiles';
+datapath_write = 'W:';
+% datapath_read = '/Users/esenes/Dropbox/work/Analysis_with_beam';
+% datapath_write = '/Users/esenes/Dropbox/work';
 
 startDate = '20160402';
 endDate = '20160402';
@@ -159,12 +159,12 @@ for j = 1:length(filename) %loop over dates
                     %calibration and sum
                     BPM1 = tdms_struct.(field_names{i}).BPM1.data;
                     BPM1_cal = bpmcal(BPM1,'BPM1');
-                    data_struct.(field_names{i}).BPM1.data_calibrated = BPM1_cal;
-                    data_struct.(field_names{i}).BPM1.sum_calibrated = sum(BPM1_cal);
+                    data_struct.(field_names{i}).BPM1.data_cal = BPM1_cal;
+                    data_struct.(field_names{i}).BPM1.sum_cal = sum(BPM1_cal);
                     BPM2 = tdms_struct.(field_names{i}).BPM2.data;
                     BPM2_cal = bpmcal(BPM2,'BPM2');
-                    data_struct.(field_names{i}).BPM2.data_calibrated = BPM2_cal;
-                    data_struct.(field_names{i}).BPM2.sum_calibrated = sum(BPM2_cal);
+                    data_struct.(field_names{i}).BPM2.data_cal = BPM2_cal;
+                    data_struct.(field_names{i}).BPM2.sum_cal = sum(BPM2_cal);
                 %SPIKES
                     %method1: events with B0, L1 and L2
                     if ( strcmp(field_names{i+1}(end-1:end),'L1') && strcmp(field_names{i+2}(end-1:end),'L2') )%try to read the next 2 events

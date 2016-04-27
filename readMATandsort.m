@@ -49,14 +49,16 @@ spike_thr = 8e6;
 ratio_setPoint = 0.3;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%check the date and times input
+if datenum([startDate startTime],'YYYYmmddHH:MM:SS') > datenum([endDate endTime],'YYYYmmddHH:MM:SS')
+    error('End is preceding the start !')
+end
 %build file list
 [filenames_full] = files2Analyse(startDate, endDate, datapath_read, 1);
 filename = get_dates(filenames_full);
 disp('Start processing files:')
 
 
-counter = 0;
-failer=0;
 %%
 
 for j = 1:length(filename) %loop over dates
@@ -215,7 +217,6 @@ for j = 1:length(filename) %loop over dates
                                 data_struct.(field_names{i}).spike.method = 'Freq_filter';
                                 data_struct.(field_names{i}).spike.flag = 0;
                             end
-                            zfailer = failer+1;
                         end%of try/catch
                     %method2: events with B0 only 
                     else

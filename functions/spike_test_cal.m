@@ -1,4 +1,4 @@
-function [ tf, r1, m1, d1, r2, m2, d2, real_thr1, real_thr2] = spike_test_cal( data, win_start, win_end, thr, data_n1, data_n2 )
+function [ tf, r1, m1, d1, r2, m2, d2, real_thr1, real_thr2] = spike_test_cal( data, win_start, win_end, thr, data_n1, data_n2, ratio_setPoint )
 %	spike_test_prev2.m checks if a spike appened comparing the interlock
 %	pulse with the two backup pulses.
 %   The signal is first of all windowed, then is calculated the difference
@@ -15,7 +15,12 @@ function [ tf, r1, m1, d1, r2, m2, d2, real_thr1, real_thr2] = spike_test_cal( d
 %     - win_start1, win_end1: start and end of the first window (in bins)
 %     - win_start2, win_end2: start and end of the second window (in bins)
 %     - thr: level of treshold over the mean
-%     - data_n1, data_n2: previous pulses
+%     - data_n1, data_n2:   previous pulses
+%     - ratio_setPoint: compares the max of the pulse with the difference
+%           of the sum of the power of the compressed pulse in the current and 
+%           the last pulse. This difference cannot overcome a percentage 
+%           of the maximum of the current pulse. BE CARREFUL, could filter
+%           out the ramp-ups as well !
 %     
 %   Outputs:
 %     - ts: bool output: 1=spike, 0=no spike
@@ -33,7 +38,12 @@ function [ tf, r1, m1, d1, r2, m2, d2, real_thr1, real_thr2] = spike_test_cal( d
 % 
 %   Last modified: 11.04.2016 by Eugenio Senes
 
-%select just part of arrays and subtract
+%create a subarray with the plateau in order to check the setpoint
+dat_top = data(400:win_end); %400 is assumed as the beginning of the compressed pulse
+dat1_top = data_n1(400:win_end);
+dat2_top = data_n1(400:win_end);
+
+%select just part of arrays and subtract for calculation
 data = data(win_start:win_end);
 data_n1 = data_n1(win_start:win_end);
 data_n2 = data_n2(win_start:win_end);
@@ -60,4 +70,7 @@ if (r1(end)  > real_thr1 || r2(end) > real_thr2 )
     error('Bad windowing')
 end
 
+%klystron setpoint change from unloaded to loaded
+if (sum(dat_top) -  sum(dat1_top)) > ratio_setPoint*max(dat_top)
+    error('Setpoint has changed')
 end

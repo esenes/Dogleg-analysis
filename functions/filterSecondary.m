@@ -29,5 +29,6 @@ function [keep_index, discard_index] = filterSecondary(timeSeconds,deltaTime,var
         end
 
     end
+    keep_index = keep_index';
     discard_index = ~keep_index;
 end

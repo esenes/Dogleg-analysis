@@ -1,5 +1,6 @@
 function [ beamLost ] = beamWasLost( event_name, bpm1_sum, bpm2_sum, bpm1_thr, bpm2_thr  )
-%	beamWasLostk.m: check if the beam was lost using previous pulses
+%	beamWasLostk.m: check if the beam was lost using previous pulses.
+%	return boolean
 %
 %   Last modified: 18.04.2016 by Eugenio Senes
 try

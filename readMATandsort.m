@@ -30,11 +30,11 @@ datapath_write = 'W:';
 
 startDate = '20160402';
 endDate = '20160402';
-startTime = '00:00:00';
-endTime = '23:59:59';
+startTime = '18:30:00';
+endTime = '16:00:00';
 
 buildExperiment = false; %merge all files at the end
-expName = 'Loaded43MW';
+expName = 'Loaded43MW_2';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,6 +46,7 @@ spike_window_start = 140;
 spike_window_end = 468;
 %%Threshold setting
 spike_thr = 8e6;
+ratio_setPoint = 0.3;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %build file list
@@ -60,9 +61,11 @@ failer=0;
 
 for j = 1:length(filename) %loop over dates
     tic
-    disp(['Processing file ' num2str(j) ' on ' num2str(length(filename)) ])
+    disp(['Loading file ' num2str(j) ' on ' num2str(length(filename)) ])
     %% Load the files
     load([datapath_read filesep 'Prod_' filename{j} '.mat']);
+
+    
     %% Init variables
     %init some counters for the content of the file
     B0_ctr = 0;
@@ -90,9 +93,11 @@ for j = 1:length(filename) %loop over dates
     % Init for pulse difference counter
     pulseDelta = 0;
     lastBD_name = '';
+    % Open a progress bar
+    progBar = waitbar(0,['Elaborating ' filename{j}]);
 
     %% select just file B0 with L1 and L2
-    for i = 1:length(field_names)
+    for i = 1:length(field_names) %loop over events
         %Filter definition
         if i == 2
             dt = tdms_struct.(field_names{i}).INC.Props.wf_increment;
@@ -187,7 +192,7 @@ for j = 1:length(filename) %loop over dates
                         %test the spikes
                         [sf, ~, ~, ~, ~, ~, ~, str_1, str_2] = spike_test_cal( INC_cal,... 
                             spike_window_start, spike_window_end, spike_thr,...
-                            INC_cal_n1, INC_cal_n2   );
+                            INC_cal_n1, INC_cal_n2 ,ratio_setPoint  );
                             if sf
                                 %method flag = Prev_pulses
                                 data_struct.(field_names{i}).spike.method = 'Prev_pulses';
@@ -200,7 +205,7 @@ for j = 1:length(filename) %loop over dates
                             end
                         catch %if the method fails, then use the other method
                             warning(['Bad windowing detected for ' field_names{i} ' , will be processed using the digital filter'])
-                            [hasSpike, filteredSignal] = filterSpikes(INC_cal,Hd);
+                            [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd);
                             if hasSpike
                                 %method flag = Freq_filter
                                 data_struct.(field_names{i}).spike.method = 'Freq_filter';
@@ -215,7 +220,7 @@ for j = 1:length(filename) %loop over dates
                     %method2: events with B0 only 
                     else
                         FF_ctr = FF_ctr+1;                    
-                        [hasSpike, filteredSignal] = filterSpikes(INC_cal,Hd);
+                        [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd);
                         if hasSpike
                             %method flag = Freq_filter
                             data_struct.(field_names{i}).spike.method = 'Freq_filter';
@@ -302,15 +307,19 @@ for j = 1:length(filename) %loop over dates
                 %sum the pulse delay
                 pulseDelta = pulseDelta + tdms_struct.(field_names{i}).Props.Pulse_Delta;
         end
-    end 
+        %update the progress bar
+        prog = round(i/length(field_names),1);
+        waitbar(prog,progBar)
+    end
+    %close the progress bar
+    close(progBar);
     %save last BD pulse delta
     disp(['Pulse_delta_remaining from final BD: ' num2str(pulseDelta)])
     data_struct.('pulse_delay_from_last') = pulseDelta;
     toc
-    tic
     %export the data
     save([datapath_write filesep 'Data_' filename{j} '.mat'],'data_struct');
-    disp(['Finished file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
+    disp(['Saved file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
     toc
     disp(' ')
 end

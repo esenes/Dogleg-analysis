@@ -21,7 +21,7 @@
 % 
 % REV. 1. by Eugenio Senes and Theodoros Argyropoulos
 %
-% Last modified 15.04.2016 by Eugenio Senes
+% Last modified 22.04.2016 by Eugenio Senes
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -250,6 +250,17 @@ disp('  ')
 
 %% Interactive plot (read version)
 %user ineraction
+
+
+% split candidates in w/ and w/o beam
+% time delay
+% time interval in one file processing in readMATandsort.m
+
+% distribution of spikes and clusters and stuff in the last unloaded run
+
+
+
+
 gone = false;
 interactivePlot = false;
 while ~gone

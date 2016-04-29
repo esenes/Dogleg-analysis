@@ -7,7 +7,7 @@ The data are stored in TDMS files, to perform the analysis run these scripts in 
 to read the TDMS files in the specified range and convert TDMS files into `Prod_<date>.mat` files. 
 The content of the files are all the events which have triggered an interlock and the backup pulses.
 
-This script with the relative subfunctions is stored in another repository named `TDMStoMAT`
+This script with the relative subfunctions is stored in another repository named [TDMStoMAT](https://github.com/esenes/TDMStoMAT)
 
 2) __readMATandsort.m__
 

@@ -15,3 +15,20 @@ There are two types of fields:
 
 For every field are saved a lot of subfields containing the incident, transmitted and reflected power and a lot of more informations from the acquisition system.
 The complete reference to the content of the structure is available on the  [tdms_struct reference page](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)
+
+
+#### What is the idea behind the algorythm
+
+As it's easy to understand, the backup pulses are useless during the normal data analysis, and dealing with big files filled of useless data is not a great idea, so first of all the algorythm should select just the events which have triggered an interlock.
+The point is that **no more discard of data and manipulation is made in this stage of analysis**, the aim of the script is to **classify the data**, adding information but without lose the original one.
+
+The process can be resumed in
+
+* calculate and add the calibrated signals
+* estimate if the breakdown happened into the structure or into the waveguides
+* detect if the interlock was triggered by a spike
+
+
+
+
+##### Comment on the performance

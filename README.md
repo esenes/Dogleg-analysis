@@ -23,6 +23,12 @@ _The aim of the script is:_
 - detect spikes, using or a digital filter or the comparison with the previous pulse
 - detect if the Xbox's pulse compressor is properly tuned (WORK IN PROGRESS ...)
 
+_User input_
+goes here
+
+
+
+
 The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 
 3) __Filtering.m__

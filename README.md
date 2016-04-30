@@ -13,7 +13,7 @@ This script with the relative subfunctions is available in another repository na
 
 reads the files `Prod_<date>.mat`, discard the backup pulses, perform a first analysis and save as output files named `Data_<date>.mat`.
 If `buildExperiment=true` the Data files are merged in `Exp_<expname>.mat`.
-This feature is intended to group a long data acquisition into a single file.
+This feature is intended to group a long data acquisition into a single file. (link to the table on the wikis)
 
 _The aim of the script is:_
 - select just interlocks discarding the backup pulses
@@ -24,10 +24,14 @@ _The aim of the script is:_
 - detect if the Xbox's pulse compressor is properly tuned (WORK IN PROGRESS ...)
 
 _User input_
-goes here
-
-
-
+* datapath_read:  the path containing the `Prod_<date>.mat` files (without \ at the end)
+* datapath_write: the path of location to save data files (without \ at the end)
+* startDate = start date in the format 'yyyymmdd'
+* endDate =   end date in the format 'yyyymmdd'
+* startTime = start time in the format 'HH:MM:SS'
+* endTime =   end time in the format 'HH:MM:SS'
+* buildExperiment = true/false, at the end of the execution reads every file in the data folder and merges it a new file
+* expName = the name of the output file if merging the data files
 
 The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 

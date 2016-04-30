@@ -2,14 +2,14 @@
 The following scripts are intended to analyze the data of the test of the TD26 structure, under test in the dogleg of the CTF3 facility.
 The data are stored in TDMS files, to perform the analysis run these scripts in sequence:
 
-## 1) __read_TDMS_full.m__
+## 1) read_TDMS_full.m
 
 to read the TDMS files in the specified range and convert TDMS files into `Prod_<date>.mat` files. 
 The content of the files are all the events which have triggered an interlock and the backup pulses.
 
 This script with the relative subfunctions is available in another repository named [TDMStoMAT](https://github.com/esenes/TDMStoMAT)
 
-## 2) __readMATandsort.m__
+## 2) readMATandsort.m
 
 reads the files `Prod_<date>.mat`, discard the backup pulses, perform a first analysis and save as output files named `Data_<date>.mat`.
 If `buildExperiment=true` the Data files are merged in `Exp_<expname>.mat`.
@@ -35,7 +35,7 @@ _User input_
 
 The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 
-## 3) __Filtering.m__
+## 3) Filtering.m
 
 still a work in progress.... 
 

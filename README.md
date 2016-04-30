@@ -28,3 +28,9 @@ The full reference is available [here](https://github.com/esenes/Dogleg-analysis
 3) __Filtering.m__
 
 still a work in progress.... 
+
+
+
+#### Useful stuff:
+* [tdms_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)
+* [tdms_struct structure reference]()

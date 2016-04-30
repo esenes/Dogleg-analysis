@@ -21,7 +21,9 @@ _The aim of the script is:_
 - calculate and save the metric (both INC-TRA and INC-REF)
 - save fields for the calibrated signals of BPMs and the integral of the signals (-> info on charge)
 - detect spikes, using or a digital filter or the comparison with the previous pulse
+- detect if the Xbox's pulse compressor is properly tuned (WORK IN PROGRESS ...)
 
+The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 
 3) __Filtering.m__
 

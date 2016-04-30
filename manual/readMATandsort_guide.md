@@ -13,3 +13,5 @@ There are two types of fields:
   * _L1_: is the previous pulse to the interlock
   * _L2_: is the pulse before the previous pulse
 
+For every field are saved a lot of subfields containing the incident, transmitted and reflected power and a lot of more informations from the acquisition system.
+The complete reference to the content of the structure is available on the  [tdms_struct reference page](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)

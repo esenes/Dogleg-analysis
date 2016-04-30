@@ -30,7 +30,7 @@ The process can be resumed in
 
 ##### Comment on the performance
 
-The choice of using a structure insthead of arrays has been criticized due to the minor performance which is intrinsic in the structure. This choice is motivated by the need of having a data structure which is easily understandable even after long time.
+The choice of using a structure insthead of arrays has been criticized due to the minor performance which is intrinsic in the use of  structures. This choice is motivated by the need of having a data structure which is easily understandable even after long time.
 
 Anyway apart for the use of the structure, Theo and me put a lot of efforts in the optimization of the algorythm as much as our progamming skills allow us.
 

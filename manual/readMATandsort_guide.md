@@ -69,3 +69,7 @@ in the initialization section on top.
 The process require some time and a discrete amount of RAM memory, the output file is generally some GB big.
 
 **Important note:** this feature is intended to assembly file concerning the same data acquisition, every other use will lead to mistified data.
+
+The idea is to create an experiment file per every row of the table in the [cern Dogleg-operation wiki](https://wikis.cern.ch/display/CTF3OP/TD26+Structure+runnings) (which unfortunately is accessible just from inside the cern network) 
+
+![table](Dogleg-analysis/manual/images/Screenshot 2016-05-02 16.30.07.png)

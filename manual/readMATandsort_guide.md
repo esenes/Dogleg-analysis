@@ -75,3 +75,6 @@ The idea is to create an experiment file per every row of the table in the [cern
 ![table](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Screenshot%202016-05-02%2016.30.07.png)
 
 (Last table update: 02.05.2016)
+
+#### The data structure
+Into both the experiment file and every `Data_<date>.mat` file the data are contained into a structure called `data_struct` with the same fields. For more infos see the [data_struct reference page](https://github.com/esenes/Dogleg-analysis/blob/master/manual/data_struct%20structure.md)

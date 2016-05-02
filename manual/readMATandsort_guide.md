@@ -44,9 +44,10 @@ For the _B0_ ,_L1_ and _L2_ events:
 
 Additionally for the _B0_ files:
 * Are calibrated the **IQ signals** and saved the _amplitude_, _phase_ and _timescale_IQ_ for INC, REF and TRA power
-* Is calculated the number of pulses between the breakdowns
-* Are calculated and saved the two metrics
+* Is calculated the **number of pulses between the breakdowns**
+* Are calculated and saved the two **metrics**
 
 ![equation](http://www.sciweavers.org/tex2img.php?eq=inc%5C_tra%20%3D%20%5Cfrac%7B%5Cint%20INC%20-%20%5Cint%20TRA%7D%7B%5Cint%20INC%20%2B%20%5Cint%20TRA%7D%20%5Cqquad%20%5Cqquad%20inc%5C_ref%20%3D%20%5Cfrac%7B%5Cint%20INC%20-%20%5Cint%20REF%7D%7B%5Cint%20INC%20%2B%20%5Cint%20REF%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) 
 
-* Are applied algorithms for the spike detection:
+* Are applied algorithms for the **spike detection**
+ * The fast algorithm is compares the difference between the _B0_ pulse and the previous two.

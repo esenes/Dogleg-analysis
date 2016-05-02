@@ -36,6 +36,15 @@ Anyway apart for the use of the structure, Theo and me put a lot of efforts in t
 
 #### The workflow
 
-Now it's time to enter in the details: the files `Prod_<date>.mat` are opened one by one and only the fields ending with _B0_ ,_L1_ and _L2_ are used, while the backup events ending with the _L0_ are discarded. Please note that not every  _B0_ file have the backup pulses.
+Now it's time to enter in the details: the files `Prod_<date>.mat` are opened one by one and only the fields ending with _B0_ ,_L1_ and _L2_ are used, while the backup events ending with the _L0_ are discarded and not saved anymore. Please note that not every  _B0_ file have the backup pulses.
 
+For the _B0_ ,_L1_ and _L2_ events:
+* Are calculated and stored the **calbrated signals** for INC, TRA and REF and for both the upstream (BPM1) and downstream (BPM2) beam position monitors
+* Is calculated and stored the **sum of the BPMs signals** in order to apply a treshold later to detect the prescence of the beam, but no selection is done at the moment
 
+Additionally for the _B0_ files:
+* Are calibrated the **IQ signals** and saved the _amplitude_, _phase_ and _timescale_IQ_ for INC, REF and TRA power
+* Is calculated the number of pulses between the breakdowns
+* Are calculated and saved the two metrics
+![equation](http://www.sciweavers.org/tex2img.php?eq=inc%5C_tra%20%3D%20%5Cfrac%7B%5Cint%20INC%20-%20%5Cint%20TRA%7D%7B%5Cint%20INC%20%2B%20%5Cint%20TRA%7D%20%5Cqquad%20%5Cqquad%20inc%5C_ref%20%3D%20%5Cfrac%7B%5Cint%20INC%20-%20%5Cint%20REF%7D%7B%5Cint%20INC%20%2B%20%5Cint%20REF%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)
+* Are applied algorithms for the spike detection:

@@ -3,6 +3,6 @@ TODO: **readMATandsort_guide.md**
 - [ ] tuning check algorithm
 - [ ] fix folder stuff, so where to save what ecc ...
 - [ ] explain that the normal algorithm don't select the event by time
-- [ ] tdms_struct reference
+- [x] tdms_struct reference
 - [ ] data_struct reference
 - [x] images in frequency filter

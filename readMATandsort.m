@@ -100,7 +100,7 @@ for j = 1:length(filename) %loop over dates
 
     %% select just file B0 with L1 and L2
     for i = 1:length(field_names) %loop over events
-        %Filter definition
+        %Filter definition, once per file, skipping the 'Prop' field
         if i == 2
             dt = tdms_struct.(field_names{i}).INC.Props.wf_increment;
             fs = 1/dt;

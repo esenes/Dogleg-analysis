@@ -8,3 +8,40 @@ Every `Prod_<date>.mat` file is containing 2 variables, which are
   field_names = fieldnames(tdms_struct)
   ```
 * **tdms_struct:**  the real structure which is effectively containing the data
+
+The inner structure of the *tdms_struct* inherits directly form the tdms structure of the binary file where the data are stored by the acquisition system. More info about the structure can be found in [this reference](http://www.ni.com/white-paper/5696/en/). This is also the motivation for the presence of the _Props_ field in every file, field and subfield.
+
+**Note:** only the fields which were effectively used are commented
+
+#### internal structure of tdms_struct
+every `tdms_struct` contains two types of fields:
+* _Props_: which is containing the properties of the file
+* *'g_(date/time)_(flag)'*: where
+  * (date/time) is the timestamps in the format _yyyymmddHHMMSS_LLL_
+  * (flag) is the flag for the event 
+    * _B0_ for an event which triggered an interlock
+    * _L1_ for the event precedent the _B0_
+    * _L2_ for the event precedent the _L1_
+    * _L0_ for the backup pulses, acquired once per minute if no interlock is triggered
+
+#### internal structure of an event
+into every interlock event are saved this fields:
+* __Props__
+  * INC_PW_threshold_Threshold
+  * TRA_PW_threshold_Threshold
+  * PW_Start_sample
+  * PW_End_sample
+  * PW_int_diff_
+  * PW_diff_
+  * REF_Threshold
+  * KREF_Threshold
+  * TRA_sample_offset
+  * Breakdown_Flags
+  * Pulse_Delta: counts the number of pulses from the precedent interlock
+* __INC__  is the field containing data on the incident power
+  * name
+  * Props
+  * data: is a double array of 800 values of the ADC card 250 MSa/s
+
+
+**Note:** the other types of event do not have the same fields, in general the backup pulses have less fields.

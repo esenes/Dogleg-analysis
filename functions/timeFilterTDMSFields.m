@@ -12,4 +12,3 @@ function [tdms_struct_out] = timeFilterTDMSFields(data_struct,startTime_num,endT
             tdms_struct_out.(tdms_files{i})=data_struct.(tdms_files{i});
         end
     end
-end

@@ -53,7 +53,7 @@ Additionally for the _B0_ files:
  * The [fast algorithm](https://github.com/esenes/Dogleg-analysis/blob/master/manual/fastSpike.md) compares the difference between the _B0_ pulse and the previous two pulses (is applied only when both the backup pulses are available). Please note that is designed to trhrow an error very easily in order to avoid positive falses. In every case of indecision, the other algorithm is triggered.
  * The digital filter is applied in all the other cases or when the prevous algorithm fails. More infos on the filter design are available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/freqSpike.md)
 
-* Is applied an algorithm to detect the **proprer tuning of the klystron** compressed pulse, more infos (here)[https://github.com/esenes/Dogleg-analysis/blob/master/manual/tuningCheck.md]
+* Is applied an algorithm to detect the **proper tuning of the klystron** compressed pulse, more infos [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tuningCheck.md)
 
 At the end of the processing of every `Prod_<date>.mat` file is saved a file named `Data_<date>.mat` with the selected events (everything but the backup events) and the program skip to the next file.
 

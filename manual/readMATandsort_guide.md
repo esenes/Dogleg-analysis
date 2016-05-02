@@ -73,3 +73,5 @@ The process require some time and a discrete amount of RAM memory, the output fi
 The idea is to create an experiment file per every row of the table in the [cern Dogleg-operation wiki](https://wikis.cern.ch/display/CTF3OP/TD26+Structure+runnings) (which unfortunately is accessible just from inside the cern network) 
 
 ![table](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Screenshot%202016-05-02%2016.30.07.png)
+
+(Last table update: 02.05.2016)

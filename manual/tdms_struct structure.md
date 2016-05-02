@@ -31,6 +31,7 @@ In order to make the comprehension easier this is an example of the structure of
     * data
   * TRA
     * ...
+  * ...
 
 #### internal structure of tdms_struct
 every `tdms_struct` contains two types of fields:

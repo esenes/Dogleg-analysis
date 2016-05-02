@@ -40,7 +40,19 @@ into every interlock event are saved this fields:
   * Pulse_Delta: counts the number of pulses from the precedent interlock
 * __INC__  is the field containing data on the incident power
   * name
-  * Props
+  * Props: contains the properties of the DAQ system at the moment of the acquisition
+    *wf_start_time
+    *wf_start_offset
+    *wf_increment
+    *wf_samples
+    *Att__factor
+    *Att__factor__dB_
+    *Flat_top_duration
+    *Flat_top_start
+    *NI_ChannelName
+    *Offset
+    *Scale
+    *Unit_scale
   * data: is a double array of 800 values of the ADC card 250 MSa/s
 
 

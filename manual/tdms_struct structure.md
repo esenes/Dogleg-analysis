@@ -26,6 +26,7 @@ every `tdms_struct` contains two types of fields:
 
 #### internal structure of an event
 into every interlock event are saved this fields:
+* __name__
 * __Props__
   * INC_PW_threshold_Threshold
   * TRA_PW_threshold_Threshold
@@ -38,22 +39,50 @@ into every interlock event are saved this fields:
   * TRA_sample_offset
   * Breakdown_Flags
   * Pulse_Delta: counts the number of pulses from the precedent interlock
-* __INC__  is the field containing data on the incident power
-  * name
-  * Props: contains the properties of the DAQ system at the moment of the acquisition
-    * wf_start_time
-    * wf_start_offset
-    * wf_increment
-    * wf_samples
-    * Att__factor
-    * Att__factor__dB_
-    * Flat_top_duration
-    * Flat_top_start
-    * NI_ChannelName
-    * Offset
-    * Scale
-    * Unit_scale
-  * data: is a double array of 800 values of the ADC card 250 MSa/s
 
+All the other fields share the same basic inner structure: 
+
+**The meaning of the field is:**
+
+* __INC__  is the field containing data on the incident power
+* TRA
+* REF
+* KREF
+* BLM1
+* BPM1
+* BPM2
+* Fast_BLM2
+* Fast_BLM3
+* diodeINC
+* diodeTRA
+* diodeREF
+* Fast_INC_I
+* Fast_INC_Q
+* Fast_REF_I
+* Fast_REF_Q
+* Fast_TRA_I
+* Fast_TRA_Q
+* INC_average
+* INC_max
+*INC_pulse_width
+*TRA_max
+*Motor_Right
+
+**The inside base strtucture is**
+* name
+* Props: contains the properties of the DAQ system at the moment of the acquisition
+  * wf_start_time
+  * wf_start_offset
+  * wf_increment: is the period of sampling in seconds
+  * wf_samples: is the number of samples per acquisition
+  * Att__factor
+  * Att__factor__dB_
+  * Flat_top_duration
+  * Flat_top_start
+  * NI_ChannelName
+  * Offset
+  * Scale
+  * Unit_scale
+* data: is a double array of 800 values of the ADC card 250 MSa/s
 
 **Note:** the other types of event do not have the same fields, in general the backup pulses have less fields.

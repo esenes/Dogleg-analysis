@@ -17,7 +17,7 @@ The inner structure of the *tdms_struct* inherits directly form the tdms structu
 In order to make the comprehension easier this is an example of the structure of the data:
 
 * _Props_: which is containing the properties of the file
-* *'g_(date/time)_(flag)'*
+* *g_(date/time)_(flag)*
   * Props
     * INC_PW_threshold_Threshold
     * TRA_PW_threshold_Threshold
@@ -32,7 +32,7 @@ In order to make the comprehension easier this is an example of the structure of
   * TRA
     * ...
   * ...
-* *'g_(another date/time)_(another flag)'*
+* *g_(another date/time)_(another flag)*
 * ...
 
 #### internal structure of tdms_struct

@@ -36,5 +36,6 @@ Anyway apart for the use of the structure, Theo and me put a lot of efforts in t
 
 #### The workflow
 
-Now it's time to enter in the details:
+Now it's time to enter in the details: the files `Prod_<date>.mat` are opened one by one and only the fields ending with _B0_ ,_L1_ and _L2_ are used, while the backup events ending with the _L0_ are discarded. Please note that not every  _B0_ file have the backup pulses.
+
 

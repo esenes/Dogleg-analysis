@@ -64,11 +64,11 @@ Two algorithms have parameters which can be setted by the user in this section:
 
 1. **Spike** algorithm
  * Windowing : the start and end of the signal used in bins
-  * spike_window_start
-  * spike_window_end 
+   * spike_window_start
+   * spike_window_end 
  * Treshold
-  * spike_thr: treshold in watts
-  * ratio_setPoint: percentage of the integral power to make the fast algorythm fail
+   * spike_thr: treshold in watts
+   * ratio_setPoint: percentage of the integral power to make the fast algorythm fail
 
 2. **PC tuning**
  * Windowing : the start and end of the signal used in bins for compressed pulse and the flattop

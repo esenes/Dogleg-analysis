@@ -59,6 +59,26 @@ At the end of the processing of every `Prod_<date>.mat` file is saved a file nam
 
 A last field named **pulses_from_last_BD** is added to keep track of the number of pulses from the last breakdown in the next file.
 
+#### Parameters
+Two algorithms have parameters which can be setted by the user in this section:
+1. **Spike** algorithm
+ * Windowing : the start and end of the signal used in bins
+  * spike_window_start
+  * spike_window_end 
+ * Treshold
+  * spike_thr: treshold in watts
+  * ratio_setPoint: percentage of the integral power to make the fast algorythm fail
+2. **PC tuning**
+ * Windowing : the start and end of the signal used in bins for compressed pulse and the flattop
+  * comp_pulse_start
+  * comp_pulse_end
+  * flattop_start
+  * flattop_end
+ * Tresholds: percentage of the max of the signal where to take the reference points
+  * thr1
+  * thr2
+
+
 #### Build the experiment file
 When every file has been processed, it is possible to build a unique file which is contaning the whole interlocks events for the considered time period. This feature is accessible setting
 ```python

@@ -13,4 +13,4 @@ The **slope algorithm** has been developed to detect this type of common situati
 
 but fails is very patological situations. To partially avoid this, the points considered for the fitting are over the 85% treshold. If the window of the flattop overcomes thata point, the fitting interval is restricted to the interval (flattop_start:last_point_with_85%_power)
 
-The **width** algorithm 
+The **width** algorithm calculate the width of the pulse at two different tresholds the center of the interval at that power level. The disalignment of the centers gives an information on the pulse shape (rememeber that the beam loading affects the rising edge !). 

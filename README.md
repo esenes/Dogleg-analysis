@@ -41,6 +41,6 @@ still a work in progress....
 
 
 
-#### Useful stuff:
+#### Data structure:
 * [tdms_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)
 * [data_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/data_struct%20structure.md)

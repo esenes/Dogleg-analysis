@@ -7,12 +7,19 @@ This algorithm uses two different methods to check if the compressed pulse is no
 
 Please note that in the `readMATandsort.m` script are only calculated slope and widths, but the pulses are not tagged as tuned/detuned
 
+#### Slope algorithm
+
 The **slope algorithm** has been developed to detect this type of common situations
 
 ![sit](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/pjimage%20(1).jpg)
 
 but fails is very patological situations. To partially avoid this, the points considered for the fitting are over the 85% treshold. If the window of the flattop overcomes thata point, the fitting interval is restricted to the interval (flattop_start:last_point_with_85%_power)
 
+#### Width algorithm
+
 The **width** algorithm calculate the width of the pulse at two different tresholds the center of the interval at that power level. The disalignment of the centers gives an information on the pulse shape (rememeber that the beam loading affects the rising edge !). 
+
+A **nominal pulse** with beam present (g_20160324234157_415_L0) has been used to calibrate the algorithm:
+![np](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/nominal_pulse.bmp)
 
 ![slp](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/slopeMet.bmp)

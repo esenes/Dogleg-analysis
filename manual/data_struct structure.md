@@ -1,1 +1,68 @@
-structure of data_struct
+### data_struct data structure 
+
+Every `Data_<date>.mat` file is containing the copy of the interlock events with the relative backup pulses stored into the structure `data_struct`. Hence the internal structure is
+
+* *g_(date/time)_(flag)*
+  * Props
+    * INC_PW_threshold_Threshold
+    * ...
+  * INC
+    * name
+    * Props
+      * wf_start_time
+      * ...
+    * data
+  * TRA
+    * ...
+  * ...
+* *g_(another date/time)_(another flag)*
+* ...
+* *pulse_delay_from_last*
+
+#### fields added respect to tdms_struct
+
+into every interlock event are added these fields:
+* __Props__
+  * timestamp: in the format `dd-mm-yyyy HH:MM:SS.FFF`
+  * Prev_BD_Pulse_Delay: the number of pulses past from the last interlock event
+* __INC__
+  * data_cal: calibrated data for the log detector
+* __TRA__
+  * data_cal: calibrated data for the log detector
+* __REF__
+  * data_cal: calibrated data for the log detector
+* **Fast_INC_I**
+  * Amplitude
+  * Phase
+  * timescale_IQ
+* **Fast_TRA_I**
+  * Amplitude
+  * Phase
+  * timescale_IQ
+* **Fast_REF_I**
+  * Amplitude
+  * Phase
+  * timescale_IQ
+* inc_tra: the first metric
+* inc_ref: the second metric
+* **BPM1**
+  * data_cal: calibrated data
+  * sum_cal: the sum of the signal of the BPM for the current event
+* **BPM2**
+  * data_cal: calibrated data
+  * sum_cal: the sum of the signal of the BPM for the current event
+* **BPM1**
+  * data_cal: calibrated data
+  * sum_cal: the sum of the signal of the BPM for the current event
+* **spike**
+  * flag: boolean, 1 is a spike
+  * method: the name of the algorithm used for the spike detection
+    In case of spike, for the spike algorithm are added the fields:
+    * method = 'Prev_pulses'
+    * thr1: treshold used while comparing current event and previous pulse
+    * thr2: treshold used while comparing current event and the pulse before the previous
+    while for the digital filter are:
+    * method = 'Freq_filter'
+    * filtered_signal
+* **tuning** 
+  * still to do ..........

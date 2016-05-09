@@ -255,11 +255,8 @@ disp('  ')
 % split candidates in w/ and w/o beam
 % time delay
 % time interval in one file processing in readMATandsort.m
-% field for start and end date/timestamp of the file
 
 % distribution of spikes and clusters and stuff in the last unloaded run
-
-% delay inc/tra
 
 
 

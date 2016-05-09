@@ -1,6 +1,6 @@
 # readMATandsort.m reference
 
-This file means to be the detailed explanation of how readMATandsort.m works and which is the idea behind the algotyrhm.
+This file wants to be the detailed explanation of how readMATandsort.m works and which is the idea behind the algotyrhm.
 
 #### What we've got
 
@@ -27,6 +27,7 @@ The process can be resumed in
 * calculate and add the calibrated signals
 * estimate if the breakdown happened into the structure or into the waveguides
 * detect if the interlock was triggered by a spike
+* calculate useful estimators on the shape of the compressed pulse
 
 ##### Comment on the performance
 
@@ -36,9 +37,9 @@ Anyway apart for the use of the structure, Theo and me put a lot of efforts in t
 
 #### The workflow
 
-Now it's time to enter in the details: the files `Prod_<date>.mat` are opened one by one and only the fields ending with _B0_ ,_L1_ and _L2_ are used, while the backup events ending with the _L0_ are discarded and not saved anymore. Please note that not every  _B0_ file have the backup pulses.
+Now it's time to enter in the details: the files `Prod_<date>.mat` are opened one by one and only the fields ending with _B0_, _L1_ and _L2_ are used, while the backup events ending with the _L0_ are discarded and not saved anymore. Please note that not every  _B0_ file have the backup pulses.
 
-For the _B0_ ,_L1_ and _L2_ events:
+For the _B0_, _L1_ and _L2_ events:
 * Are calculated and stored the **calbrated signals** for INC, TRA and REF and for both the upstream (BPM1) and downstream (BPM2) beam position monitors
 * Is calculated and stored the **sum of the BPMs signals** in order to apply a treshold later to detect the prescence of the beam, but no selection is done at the moment
 

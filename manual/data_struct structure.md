@@ -43,8 +43,8 @@ into every interlock event are added these fields:
   * Amplitude
   * Phase
   * timescale_IQ
-* inc_tra: the first metric
-* inc_ref: the second metric
+* __inc_tra__: the first metric
+* __inc_ref__: the second metric
 * **BPM1**
   * data_cal: calibrated data
   * sum_cal: the sum of the signal of the BPM for the current event

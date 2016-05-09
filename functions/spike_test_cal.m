@@ -39,9 +39,8 @@ function [ tf, r1, m1, d1, r2, m2, d2, real_thr1, real_thr2] = spike_test_cal( d
 %   Last modified: 11.04.2016 by Eugenio Senes
 
 %create a subarray with the plateau in order to check the setpoint
-dat_top = data(400:win_end); %400 is assumed as the beginning of the compressed pulse
+dat_top = data(400:win_end);     %400 is assumed as the beginning of the compressed pulse
 dat1_top = data_n1(400:win_end);
-dat2_top = data_n1(400:win_end);
 
 %select just part of arrays and subtract for calculation
 data = data(win_start:win_end);
@@ -71,6 +70,6 @@ if (r1(end)  > real_thr1 || r2(end) > real_thr2 )
 end
 
 %klystron setpoint change from unloaded to loaded
-if (sum(dat_top) -  sum(dat1_top)) > ratio_setPoint*max(dat_top)
+if abs(sum(dat_top) -  sum(dat1_top)) > ratio_setPoint*sum(dat_top)
     error('Setpoint has changed')
 end

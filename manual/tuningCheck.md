@@ -19,7 +19,7 @@ but fails is very patological situations. To partially avoid this, the points co
 
 The **width** algorithm calculate the width of the pulse at two different tresholds the center of the interval at that power level. The disalignment of the centers gives an information on the pulse shape (rememeber that the beam loading affects the rising edge !). 
 
-The algorithm calculates the width at three levels and the position of the point in the middle. Then a straight line is fitted within the three central points and the slope of the line is saved as 'tilt of the pulse'.
+The algorithm calculates the width at three levels and the position of the point in the middle. Then a straight line could be fitted within the three central points and the slope of the line should be used as 'tilt indicator'. This last step is generally skipped in order to improve the performance. The fitting can be performed later in order to focus the analysis on a particular pulse shape or to exclude the detuned pulses.
 
 ![np1](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/nominal_p1.bmp)
 

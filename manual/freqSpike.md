@@ -5,7 +5,7 @@ This algorithm is in the subscript named [filterSpikes_W.m](https://github.com/e
 The subscript is just limiting to apply the filter `Hd` to the signal and check if the signal is still over the treshold after the filtering. The treshold is tuned to use a FIR passband digital filter of 10th order, within 15 and 50 MHz.
 
 The design of such filter is generally made once per file befor to call the subscript, for example
-```python
+```matlab
 dt = tdms_struct.(field_names{i}).INC.Props.wf_increment;
 fs = 1/dt;
 d = fdesign.bandpass('N,F3dB1,F3dB2',10,15e6,50e6,fs);

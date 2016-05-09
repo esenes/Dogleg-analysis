@@ -22,3 +22,9 @@ The **width** algorithm calculate the width of the pulse at two different tresho
 The algorithm calculates the width at three levels and the position of the point in the middle. Then a straight line is fitted within the three central points and the slope of the line is saved as 'tilt of the pulse'.
 
 ![np1](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/nominal_p1.bmp)
+
+#### Final result
+
+The final result is 
+
+![fr](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/full_tilt.bmp)

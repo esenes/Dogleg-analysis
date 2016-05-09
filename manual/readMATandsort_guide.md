@@ -83,7 +83,7 @@ Two algorithms have parameters which can be setted by the user in this section:
 
 #### Build the experiment file
 When every file has been processed, it is possible to build a unique file which is contaning the whole interlocks events for the considered time period. This feature is accessible setting
-```python
+```matlab
 buildExperiment = true
 ```
 in the initialization section on top. 

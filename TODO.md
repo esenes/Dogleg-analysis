@@ -7,6 +7,4 @@ TODO: **readMATandsort_guide.md**
 - [x] tdms_struct reference
 - [ ] data_struct reference (almost done, just add the tuning field)
 - [x] images in frequency filter
-- 
-
-difference between data_files and exp_files (Props field)
+- [x] difference between data_files and exp_files (Props field)

@@ -25,8 +25,9 @@ _The aim of the script is:_
 
 _User input_
 * datapath_read:  the path containing the `Prod_<date>.mat` files (without \ at the end)
-* datapath_write: the path of location to save data files (without \ at the end)
-* startDate = start date in the format 'yyyymmdd'
+* datapath_write: the path of location to save Data files (without \ at the end)
+* exppath_write: the path of location to save the Experiment files (without \ at the end)
+* startDate = start date in the format 'yyyymmdd' 
 * endDate =   end date in the format 'yyyymmdd'
 * startTime = start time in the format 'HH:MM:SS'
 * endTime =   end time in the format 'HH:MM:SS'

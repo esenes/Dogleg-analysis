@@ -2,6 +2,8 @@
 
 The structure of the files `Exp_<expname>.mat` file is based on the `Data_<date>.mat` but is missing the field *pulse_delay_from_last* at the end of the file (the pulse delay is inherited from a file to another one while merging the data files) and is present a field called *Props* on top which is containing the information on the dates of the files used for building the experiment file.
 
+So an example of the internal structure of the experiment files is:
+
 * *Props*
   * startDate: in format _yyyymmdd_
   * startTime: in format _HH:MM:SS_

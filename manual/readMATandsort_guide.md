@@ -77,9 +77,11 @@ Two algorithms have parameters which can be setted by the user in this section:
 		* comp_pulse_end
 		* flattop_start
 		* flattop_end
+		* flattop_end_off: see details on the pulse tuning check function
 	* Tresholds: percentage of the max of the signal where to take the reference points
-		* thr1
+		* thr1: the highest treshold
 		* thr2
+		* thr3: the lowest treshold
 
 
 #### Build the experiment file

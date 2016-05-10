@@ -2,6 +2,8 @@
 
 Every `Data_<date>.mat` file is containing the copy of the interlock events with the relative backup pulses stored into the structure `data_struct`. Hence the internal structure is
 
+* *Props*: props of the file, useful in the future ???
+ * datatype
 * *g_(date/time)_(flag)*
   * Props
     * INC_PW_threshold_Threshold

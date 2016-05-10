@@ -24,15 +24,15 @@ _The aim of the script is:_
 - detect if the Xbox's pulse compressor is properly tuned (WORK IN PROGRESS ...)
 
 _User input_
-* datapath_read:  the path containing the `Prod_<date>.mat` files (without \ at the end)
-* datapath_write: the path of location to save Data files (without \ at the end)
-* exppath_write: the path of location to save the Experiment files (without \ at the end)
-* startDate = start date in the format 'yyyymmdd' 
-* endDate =   end date in the format 'yyyymmdd'
-* startTime = start time in the format 'HH:MM:SS'
-* endTime =   end time in the format 'HH:MM:SS'
-* buildExperiment = true/false, at the end of the execution reads every file in the data folder and merges it a new file
-* expName = the name of the output file if merging the data files
+* **datapath_read**:  the path containing the `Prod_<date>.mat` files (without \ at the end)
+* **datapath_write**: the path of location to save Data files (without \ at the end)
+* **exppath_write**: the path of location to save the Experiment files (without \ at the end)
+* **startDate** = start date in the format 'yyyymmdd' 
+* **endDate** =   end date in the format 'yyyymmdd'
+* **startTime** = start time in the format 'HH:MM:SS'
+* **endTime** =   end time in the format 'HH:MM:SS'
+* **buildExperiment** = true/false, at the end of the execution reads every file in the data folder and merges it a new file
+* **expName** = the name of the output file if merging the data files
 
 The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 

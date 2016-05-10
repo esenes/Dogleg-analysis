@@ -67,4 +67,18 @@ into every interlock event are added these fields:
     * method = 'Freq_filter'
     * filtered_signal
 * **tuning** 
-  * still to do ..........
+  * fail_m1: error flag for method 1
+  * top: result of method 1, top threshold
+    *  x1
+    *  x2
+    *  xm
+    *  y
+    *  thr
+  * mid: result of method 1, top threshold
+    *  x1
+    *  ...
+  * bot: result of method 1, bottom threshold
+    *  x1
+    *  ...
+  * fail_m2: error flag for method 2
+  * slope: result of the method 2

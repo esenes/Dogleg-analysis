@@ -44,3 +44,4 @@ still a work in progress....
 #### Data structure:
 * [tdms_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)
 * [data_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/data_struct%20structure.md)
+* [experiment file data structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/experiment%20files.md)

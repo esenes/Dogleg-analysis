@@ -20,9 +20,9 @@ The results of this algorithm are also useful to adjust the ROI for the Slope al
 checkTuning( INC_data, comp_pulse_start, comp_pulse_end, ...
             flattop_start, flattop_end, ft_end_offset, thr1, thr2, thr3  )
 ```
-and the ROI is defined as the interval of pulse in the range (flattop_start:last_point_at_thr1 - ft_end_offset).
+and the ROI is defined as the interval of pulse in the range (flattop_start : last_point_at_thr1 - ft_end_offset).
 
-If this method is throwing a value which is smaller than *flattop_start*, then is used the user-defined parameter *flattop_end*.
+If this method is finding less than 5 points, then is used the user-defined parameter *flattop_end*.
 
 #### Slope algorithm
 
@@ -30,11 +30,12 @@ The **slope algorithm** has been developed to detect this type of common situati
 
 ![sit](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/pjimage%20(1).jpg)
 
-but fails is very patological situations. To partially avoid this, the points considered for the fitting are over the 85% treshold. If the window of the flattop overcomes thata point, the fitting interval is restricted to the interval (flattop_start:last_point_with_85%_power)
-
+and is basically just fitting using a straight line the flattop in the ROI.
 
 #### Final result
 
 The final result is 
 
 ![fr](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/full_tilt.bmp)
+
+(for plots refer to prova7.m in the test folder)

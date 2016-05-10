@@ -72,4 +72,3 @@ function [ str_out ] = checkTuning( INC_data, comp_pulse_start, comp_pulse_end, 
     end
 
 end
-

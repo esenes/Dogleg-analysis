@@ -19,5 +19,3 @@ title({'BPM signals', ['Integrated charge BPM1: ' num2str(data_struct.(fname).BP
 legend({'BPM1','BPM2'},'Location','northwest')
 
 end
-
-

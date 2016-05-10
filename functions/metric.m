@@ -10,4 +10,3 @@ TRA_sum = sum(TRA-mean(TRA(1:30)));
 val = (INC_sum - TRA_sum)/(INC_sum + TRA_sum);
 
 end
-

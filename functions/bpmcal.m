@@ -29,4 +29,3 @@ end
 cal_data = Slope*data + Offset;
 
 end
-

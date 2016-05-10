@@ -1,5 +1,5 @@
 function [MEAN, PEAK,x1,x2,y0] = fw(x,y,level)
-%
+% findwidth
 % 
 % 
 % Last modified 03.05.2016 by Theodoros Argyropoulos

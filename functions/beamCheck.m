@@ -10,4 +10,3 @@ function [ hasBeam, bpm1_flag, bpm2_flag ] = beamCheck( bpm1, bpm1_thr, bpm2, bp
     hasBeam = bpm1_flag & bpm2_flag;
 
 end
-

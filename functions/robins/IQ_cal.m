@@ -11,7 +11,7 @@ function [amplitude, phase] = IQ_cal(signal_I,signal_Q,sensitivity_I,sensitivity
 %     - amplitude:
 %     - phase:
 %
-%   Modified before: 01.02.2016 by Robin Rajamäki 
+%   Modified before: 01.02.2016 by Robin Rajam?ki 
     psi = calibFactors.psi;
     alpha = calibFactors.alpha;
     offset_I = calibFactors.offset_I;

@@ -51,4 +51,3 @@ cross2 = fliplr(cross2);
 width_bins = cross2-cross1;
 
 end
-

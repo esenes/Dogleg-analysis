@@ -7,4 +7,3 @@ function [timeStamp_str, timeStamp_string_form,timeStamp] = getFileTimeStamp(fil
     timeStamp = datenum(timeStamp_str,'yyyymmddHHMMSS.FFF');
     timeStamp_string_form = datestr(timeStamp,'dd-mm-yyyy HH:MM:SS.FFF');
 end
-

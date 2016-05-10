@@ -41,4 +41,3 @@ function [files2analyse] = files2Analyse(startDate, endDate, dir_analysis, filet
         end
     end    
 end
- 

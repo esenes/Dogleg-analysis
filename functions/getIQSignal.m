@@ -24,4 +24,4 @@ function [amplitude,phase,timescale] = getIQSignal(signalStruct_I,signalStruct_Q
     
     calibFactors = IQ_calibFactors(channel);
     [amplitude, phase] = IQ_cal(signal_I,signal_Q,sensitivity_I,sensitivity_Q,calibFactors);
-    
+end

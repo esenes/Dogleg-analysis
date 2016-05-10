@@ -35,6 +35,7 @@ for i = 1:length(filename)
     rem_pulses(i) = data_struct.pulse_delay_from_last;
     %delete the 'pulse_delay_from_last' field from the struct
     data_struct = rmfield(data_struct,'pulse_delay_from_last');
+    data_struct = rmfield(data_struct,'Props');
     
     %select only timestamps in range
     if i == 1 %discard everything before startTime

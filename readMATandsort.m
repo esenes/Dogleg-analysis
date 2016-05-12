@@ -33,17 +33,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-datapath_read = 'Z:\matfiles';
-datapath_write = 'W:\Datafiles';
-exppath_write = 'W:\Experiments_data';
+datapath_read = '/Users/esenes/swap';
+datapath_write = '/Users/esenes/swap_out/data';
+exppath_write = '/Users/esenes/swap_out/exp';
 
-startDate = '20160304';
-endDate = '20160307';
-startTime = '19:30:00';
-endTime = '08:00:00';
+startDate = '20160422';
+endDate = '20160422';
+startTime = '18:00:00';
+endTime = '23:00:00';
 
-buildExperiment = true; %merge all files at the end
-expName = 'Loaded43MW';
+buildExperiment = false; %merge all files at the end
+expName = 'Loaded43MW_6';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,9 +135,16 @@ for j = 1:length(filename) %loop over dates
                 %COPY THE FIELD the B0 field into the output struct           
                     data_struct.(field_names_out{i}) = tdms_struct.(field_names_out{i});
                 %ADD THE TIMESTAMPS IN THE 'Props' FIELD
-                    [~, data_struct.(field_names_out{i}).Props.timestamp, ~] = getFileTimeStamp(field_names_out{i});  
+                    data_struct.(field_names_out{i}).Props.timestamp = get_tsString(field_names_out{i});  
                 %ADD THE PROPS FIELD
                     data_struct.Props.filetype = 'Experiment';
+                %REMOVE MOTOR FIELDS
+                    if isfield(data_struct.(field_names_out{i}),'Motor_Right')
+                        data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'Motor_Right');
+                    end
+                    if isfield(data_struct.(field_names_out{i}),'Motor_Left')
+                        data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'Motor_Left');
+                    end
                 %INCLUDING CALIBRATING SIGNALS
                     %log detector
                     INC_cal = log_cal(tdms_struct.(field_names_out{i}).INC.data,...
@@ -162,6 +169,7 @@ for j = 1:length(filename) %loop over dates
                             tdms_struct.(field_names_out{i}).REF.Props.Unit_scale);   
                     data_struct.(field_names_out{i}).REF.data_cal = REF_cal;
                     %IQ signals
+                    disp(field_names_out{i})
                     [amplitude,phase,timescale_IQ] = getIQSignal(tdms_struct.(field_names_out{i}).Fast_INC_I,tdms_struct.(field_names_out{i}).Fast_INC_Q);
                     data_struct.(field_names_out{i}).Fast_INC_I.Amplitude = amplitude;
                     data_struct.(field_names_out{i}).Fast_INC_I.Phase = phase;
@@ -257,10 +265,21 @@ for j = 1:length(filename) %loop over dates
                             data_struct.(field_names_out{i}).spike.flag = 0;
                         end
                     end
-                % PULSE TUNING CHECK
-                [ tilt_str ] = checkTuning(INC_cal, comp_pulse_start, comp_pulse_end, ...
+                % PULSE TUNING CHECK AND AVERAGE/PEAK CALCULATION
+                [ tilt_str, peak_str, avg_str ] = checkTuning(INC_cal, comp_pulse_start, comp_pulse_end, ...
                                             flattop_start, flattop_end, flattop_end_off, thr1, thr2, thr3 );
                 data_struct.(field_names_out{i}).tuning = tilt_str;
+                % clean the unused fields
+                data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'INC_max');
+                data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'INC_average');
+                data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'TRA_max');
+                % fill it
+                data_struct.(field_names_out{i}).INC.max = peak_str;
+                data_struct.(field_names_out{i}).INC.avg = avg_str;
+                data_struct.(field_names_out{i}).REF.max = max(REF_cal);
+                data_struct.(field_names_out{i}).TRA.max = max(TRA_cal);
+                
+                
             case 'L1'
                 % copy also L1 and L2 fields to the structure
                 data_struct.(field_names_out{i}) = tdms_struct.(field_names_out{i});
@@ -374,6 +393,7 @@ if buildExperiment
     data_struct.Props.startTime = startTime;
     data_struct.Props.endDate = endDate;
     data_struct.Props.endTime = endTime;
+    disp('Done');
     toc
     %save the file
     disp('Saving ...')

@@ -27,8 +27,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
 % datapath_read = '/Users/esenes/Dropbox/work';
-datapath_read = 'W:';
-expname = 'Data_20160402';
+datapath_read = '/Users/esenes/swap_out/exp';
+expname = 'Exp_Loaded43MW_1';
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -39,7 +39,7 @@ expname = 'Data_20160402';
 
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%
 % METRIC
-inc_ref_thr = 0.5;
+inc_ref_thr = 0.48;
 inc_tra_thr = -0.02;
 % BPM CHARGE THRESHOLDS
 bpm1_thr = -100;
@@ -53,8 +53,11 @@ deltaTime_bem_lost = 90;
 
 %% Load the files
 tic
+disp('Loading the data file ....')
 load([datapath_read filesep expname '.mat']);
+disp('Done.')
 toc
+disp(' ')
 
 %% Get field names and list of B0 events in the file
 event_name = {};
@@ -241,12 +244,78 @@ l5 = length(missed_beam_cluster);
 disp([' - ' num2str(l5) ' are secondary triggered by beam lost'])
 disp('-------')
 disp(['  ' num2str(l1+l2+l3+l4+l5) ' events in metric'])
-disp([' '])
+disp(' ')
 disp(['Of the ' num2str(l1) ' good candidates:'])
 disp([' - ' num2str(length(BD_candidates_beam)) ' have the beam'])
 disp([' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam'])
 disp('  ')
 
+%% Signal alignment check
+init_delay = 60e-9;
+max_delay = 80e-9;
+step_len = 4e-9;
+nstep = round((max_delay-init_delay)/step_len);
+
+comp_start = 5e-7;
+comp_end = 5.5e-7;
+
+timescale = 1:800;
+timescale = timescale*data_struct.(event_name{1}).INC.Props.wf_increment;
+timescale_TRA = timescale;
+%find portion of timescale to compare
+ind_tsc = find(timescale<comp_end & timescale>comp_start );
+
+figure(1)
+for i=1:1%length(BD_candidates)
+    %grasp data
+    ev = BD_candidates{i};
+    y_INC = data_struct.(ev).INC.data_cal;
+    y_TRA = data_struct.(ev).TRA.data_cal;
+    %plot
+    subplot(3,1,1)
+    plot(timescale,y_INC,'b -',...
+        timescale_TRA,y_TRA,'r -')
+    title('Nominal signals')
+    %select ROI for INC signal
+    x_inc_ROI = timescale(ind_tsc);
+    y_inc_ROI = y_INC(ind_tsc);
+    
+    %alignment
+    %%just for plotting
+    tscale_min = timescale_TRA - init_delay;
+    tscale_max = timescale_TRA - max_delay;
+    %plot the attempts    
+    subplot(3,1,2)
+    plot(timescale,y_INC,'b -',...
+            tscale_min,y_TRA,'g --',...
+            tscale_max,y_TRA,'g --')
+    xlim([0.48e-6 0.6e-6])
+    title('Delayed signals')
+    hold on
+    %find minimum difference
+    for i = 0:nstep
+        timescale_TRA = timescale - init_delay - i*step_len;
+        disp(['Testing delay: ' num2str((init_delay + i*step_len)*1e9) ' ns'])
+        
+        subplot(3,1,2)
+        plot(timescale_TRA,y_TRA)
+        
+        ind_tsc_tra = find(timescale_TRA<comp_end & timescale_TRA>comp_start );
+        x_tra_ROI = timescale_TRA(ind_tsc_tra);
+        y_tra_ROI = y_TRA(ind_tsc_tra);
+        
+        diff = abs(y_inc_ROI-y_tra_ROI);
+        disp(['differernce is: ' num2str(sum(diff)*1e-6)])
+        disp(' ')
+        
+        subplot(3,1,3)
+%         plot(x_inc_ROI,y_inc_ROI,'b-',x_tra_ROI,y_tra_ROI)
+        plot(diff)
+        hold on
+    end   
+    
+   % pause;
+end
 
 %% Interactive plot (read version)
 %user ineraction
@@ -342,7 +411,7 @@ if interactivePlot
     BDC_x = [BDC_in_x BDC_out_x];
     BDC_y = [BDC_in_y BDC_out_y];
     sp_x = [sp_in_x sp_out_x];
-    sp_y = [sp_in_y sp_out_y];
+    sp_y = [sp_in_y sp_out_y]; 
     sp_c_x = [sp_c_in_x sp_c_out_x];
     sp_c_y = [sp_c_in_y sp_c_out_y];
 
@@ -351,7 +420,7 @@ if interactivePlot
     f1 = figure('Position',[50 50 1450 700]);
     figure(f1);
     datacursormode on;
-    subplot(2,4,[1 2 5 6])
+    subplot(5,5,[1 2 3 6 7 8 11 12 13])
     plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
         miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
@@ -367,12 +436,13 @@ if interactivePlot
     timescale = timescale*data_struct.(event_name{1}).INC.Props.wf_increment;
 
     %init the small graphs
-    subplot(2,4,[3 4]) %RF signals plot
+    subplot(5,5,[4 5 9 10 14 15]) %RF signals plot
     title('RF signals');
-    sp6 = subplot(2,4,[7 8]); %BPMs plot
-    ylim(sp6, [-1.8 0.05]);
+    sp6 = subplot(5,5,[19 20 24 25]); %pulse tuning plot
+    title('Pulse tuning')
+    sp7 = subplot(5,5,[16 17 18 21 22 23]); %BPMs plot
+    ylim(sp7, [-1.8 0.05]);
     title('BPM signals');
-
     % user interaction
     exitCond = false;
     while isempty ( input(prompt,'s') )%keep on spinning while pressing enter

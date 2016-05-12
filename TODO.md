@@ -8,3 +8,4 @@ TODO: **readMATandsort_guide.md**
 - [x] data_struct reference (almost done, just add the tuning field)
 - [x] images in frequency filter
 - [x] difference between data_files and exp_files (Props field)
+- [ ] coming back on getFileTimeStamp

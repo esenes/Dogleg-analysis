@@ -9,3 +9,4 @@ TODO: **readMATandsort_guide.md**
 - [x] images in frequency filter
 - [x] difference between data_files and exp_files (Props field)
 - [x] coming back on getFileTimeStamp
+- [ ] finsh the pulse alignment

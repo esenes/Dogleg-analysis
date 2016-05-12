@@ -29,10 +29,17 @@ into every interlock event are added these fields:
   * Prev_BD_Pulse_Delay: the number of pulses past from the last interlock event
 * __INC__
   * data_cal: calibrated data for the log detector
+  * avg
+    * INC_avg
+    * start: start bin
+    * end: end bin
+  * max: max of the calibrated power
 * __TRA__
   * data_cal: calibrated data for the log detector
+  * max: max of the calibrated power
 * __REF__
   * data_cal: calibrated data for the log detector
+  * max: max of the calibrated power
 * **Fast_INC_I**
   * Amplitude
   * Phase

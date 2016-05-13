@@ -54,7 +54,7 @@ __3) Calculate the delay between the transmitted and incident power__
 
 __4) Plot the events distribution__: many distributions are displayed (e.g. BDR, peak and average incident power, tuning of the pulse, BD cluster length)
 
-
+The detailed reference for this program is [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/filtering%20guide.md)
 
 still a work in progress.... 
 

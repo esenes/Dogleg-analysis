@@ -22,13 +22,17 @@
 % REV. 1. by Eugenio Senes and Theodoros Argyropoulos
 %
 % Last modified 22.04.2016 by Eugenio Senes
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+close all; clearvars; clc;
+if strcmp(computer,'MACI64')
+    addpath(genpath('/Users/esenes/scripts/Dogleg-analysis-master'))
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-close all; clearvars; clc;
-% datapath_read = '/Users/esenes/Dropbox/work';
 datapath_read = '/Users/esenes/swap_out/exp';
+datapath_write = '/Users/esenes/swap_out/exp';
 expname = 'Exp_Loaded43MW_1';
+savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -46,11 +50,27 @@ bpm1_thr = -100;
 bpm2_thr = -90;
 % DELTA TIME FOR SECONDARY DUE TO BEAM LOST
 deltaTime_spike = 90;
-deltaTime_bem_lost = 90;
+deltaTime_beam_lost = 90;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
+%% Create log file
+%create log file and add initial parameters
+logID = fopen([datapath_write filesep savename '.log'], 'w+' ); 
+msg1 = ['Analysis log for the file ' expname '.mat' '\n' ...
+'Created: ' datestr(datetime('now')) '\n \n' ...
+'User defined tresholds: \n' ...
+'METRIC: \n' ...
+'- inc_ref_thr: %3.2f \n' ... 
+'- inc_tra_thr: %3.2f \n' ... 
+'BPM charge' '\n' ...
+'- bpm1_thr: %3.2f' '\n' ...
+'- bpm2_thr: %3.2f' '\n' ...
+'Time window for clusters ' '\n' ...
+'- deltaTime_spike: %3.2f' '\n' ...
+'- deltaTime_bem_lost: %3.2f' '\n' ...
+'\n'];
+fprintf(logID,msg1,inc_ref_thr, inc_tra_thr, bpm1_thr, bpm2_thr,deltaTime_spike,deltaTime_beam_lost);
+fclose(logID);
 %% Load the files
 tic
 disp('Loading the data file ....')
@@ -121,11 +141,11 @@ legend('Interlocks')
     %metric criteria
     [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
     %beam charge
-    [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr);
+    [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr,'bpm1');
     %secondary filter by time after SPIKE
     [~, sec_spike] = filterSecondary(ts_array,deltaTime_spike,isSpike);
     %secondary filter by time after BEAM LOST
-    [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime_bem_lost,beam_lost);
+    [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime_beam_lost,beam_lost);
 % filling event arrays    
     %in the metric
     intoMetr = event_name(inMetric);
@@ -230,25 +250,31 @@ legend('Interlocks')
 
 %% Report message and crosscheck of lengths
 disp(['Analysis done! '])
-disp(['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric'])
-disp('Into the metric:')
+%open the log file and append
+logID = fopen([datapath_write filesep savename '.log'], 'a' ); 
+%gather data and build the message
 l1 = length(BD_candidates);
-disp([' - ' num2str(l1) ' are good candidates'])
 l2 = length(spikes_inMetric);
-disp([' - ' num2str(l2) ' are spikes'])
 l3 = length(spike_cluster);
-disp([' - ' num2str(l3) ' are secondary triggered by spikes'])
 l4 = length(missed_beam_in);
-disp([' - ' num2str(l4) ' are missed beam pulses'])
 l5 = length(missed_beam_cluster);
-disp([' - ' num2str(l5) ' are secondary triggered by beam lost'])
-disp('-------')
-disp(['  ' num2str(l1+l2+l3+l4+l5) ' events in metric'])
-disp(' ')
-disp(['Of the ' num2str(l1) ' good candidates:'])
-disp([' - ' num2str(length(BD_candidates_beam)) ' have the beam'])
-disp([' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam'])
-disp('  ')
+msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
+'Into the metric:' '\n' ...
+' - ' num2str(l1) ' are good candidates' '\n' ...
+' - ' num2str(l2) ' are spikes' '\n' ...
+' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+' - ' num2str(l4) ' are missed beam pulses' '\n' ...
+' - ' num2str(l5) ' are secondary triggered by beam lost' '\n' ...
+'-------' '\n' ...
+'  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
+'Of the ' num2str(l1) ' good candidates:' '\n' ...
+' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
+' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
+];
+% print to screen and to log file
+fprintf(1,msg2);
+fprintf(logID,msg2);
+fclose(logID);
 
 %% Signal alignment check
 init_delay = 60e-9;
@@ -321,7 +347,7 @@ for i=1:1%length(BD_candidates)
     subplot(2,1,1)
     plot(timescale,y_INC,'b -',...
         timescale,y_TRA,'r -',...
-        timescale-del+4e-9,y_TRA,'m -')
+        timescale-del,y_TRA,'m -')
     title('Nominal signals')
     legend('INC','TRA','Delayed TRA')
    % pause;

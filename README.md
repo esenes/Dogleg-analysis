@@ -38,6 +38,24 @@ The full reference is available [here](https://github.com/esenes/Dogleg-analysis
 
 ### 3) Filtering.m
 
+to apply the filters to the informations which were calculated and saved in the precedent step of the analysis.
+
+It reads directly the `Exp_<expname>.m` file and performs several analysis actions, which are:
+
+__1) Flag the events__: assign a boolean value comparing every feature with user-defined tresholds; in detail:
+*  detect if the event is **into the metric** or out of it
+*  check if the **beam is present** for the BD under examination
+*  check if the BD is **provoked by a spike**
+*  check if the BD is provoked by a **beam lost**
+  
+__2) Select the events__: using the flags are built lists of relevants events (e.g. spikes, BDs into the metric with beam, ....)
+
+__3) Calculate the delay between the transmitted and incident power__
+
+__4) Plot the events distribution__: many distributions are displayed (e.g. BDR, peak and average incident power, tuning of the pulse, BD cluster length)
+
+
+
 still a work in progress.... 
 
 

@@ -51,6 +51,12 @@ bpm2_thr = -90;
 % DELTA TIME FOR SECONDARY DUE TO BEAM LOST
 deltaTime_spike = 90;
 deltaTime_beam_lost = 90;
+% PULSE DELAY
+init_delay = 60e-9;
+max_delay = 80e-9;
+step_len = 4e-9;
+comp_start = 5e-7; %ROI start and end
+comp_end = 5.5e-7;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Create log file
@@ -271,87 +277,13 @@ msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(l
 ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
 ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
 ];
-% print to screen and to log file
+% print to screen (1) and to log file
 fprintf(1,msg2);
 fprintf(logID,msg2);
 fclose(logID);
 
 %% Signal alignment check
-init_delay = 60e-9;
-max_delay = 80e-9;
-step_len = 4e-9;
-nstep = round((max_delay-init_delay)/step_len);
-
-comp_start = 5e-7;
-comp_end = 5.5e-7;
-
-timescale = 1:800;
-timescale = timescale*data_struct.(event_name{1}).INC.Props.wf_increment;
-timescale_TRA = timescale;
-%find portion of timescale to compare
-ind_tsc = find(timescale<comp_end & timescale>comp_start );
-
-figure(1)
-for i=1:1%length(BD_candidates)
-    %grasp data
-    ev = BD_candidates{i};
-    y_INC = data_struct.(ev).INC.data_cal;
-    y_TRA = data_struct.(ev).TRA.data_cal;
-
-    %select ROI for INC signal
-    x_inc_ROI = timescale(ind_tsc);
-    y_inc_ROI = y_INC(ind_tsc);
-    
-    %alignment
-    %%just for plotting
-    tscale_min = timescale_TRA - init_delay;
-    tscale_max = timescale_TRA - max_delay;
-    %plot the attempts    
-    subplot(2,1,2)
-
-    %find minimum difference
-    scart = zeros(1,nstep);
-    
-    for i = 0:nstep
-        timescale_TRA = timescale - init_delay - i*step_len;
-        disp(['Testing delay: ' num2str((init_delay + i*step_len)*1e9) ' ns'])
-       
-        subplot(2,1,2)
-        plot(timescale_TRA,y_TRA)
-        ind_tsc_tra = find(timescale_TRA<comp_end & timescale_TRA>comp_start );
-        x_tra_ROI = timescale_TRA(ind_tsc_tra);
-        y_tra_ROI = y_TRA(ind_tsc_tra);
-        
-        diff = abs(y_inc_ROI-y_tra_ROI);
-        scart(i+1) = sum(diff);
-        disp(['differernce is: ' num2str(sum(diff)*1e-6)])
-        disp(' ')
-        
-        plot(diff)
-        hold on
-    end   
-    
-    plot(timescale,y_INC,'b -',...
-        tscale_min,y_TRA,'k --',...
-        tscale_max,y_TRA,'k --')
-    xlim([0.48e-6 0.6e-6])
-    title('Delayed signals')
-    legend('INC','TRA start','TRA end')
-    hold off
-    
-    [~, min_idx] = min(scart);%loop starts from zero!!!
-    del = init_delay + (min_idx -1 )*step_len;
-    disp(['Delay = ' num2str(del*1e9) 'ns']);
-    
-    %plot the result
-    subplot(2,1,1)
-    plot(timescale,y_INC,'b -',...
-        timescale,y_TRA,'r -',...
-        timescale-del,y_TRA,'m -')
-    title('Nominal signals')
-    legend('INC','TRA','Delayed TRA')
-   % pause;
-end
+data_struct = signalDelay( BD_candidates, data_struct, init_delay, max_delay, step_len, comp_start, comp_end);
 
 %% Interactive plot (read version)
 %user ineraction

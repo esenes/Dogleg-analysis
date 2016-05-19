@@ -1,17 +1,9 @@
 function [ result_lst  ] = eventSelection( startDate, endDate, startTime, endTime, filename, iteration, field_names )
-% eventselection.m: select the interesting events into the currently opened file in order 
-% to remain into the interval of time defined into the input.
-% This script is designed for tdms_struct ! (---> k starts by 2)
-%   
-%   Inputs:
-%     - startDate, endDate: in the format 'yyyymmdd'
-%     - stratTime, endTime: in the format 'HH:MM:SS'
-%     - filename: name of the file processed at the moment
-%     - iteration: number of the file processed at the moment
-%     - field_names: list of the fields in the current file
-%     
-%   Outputs:
-%     - cal_data: the list of calibrated data
+%UNTITLED2 Summary of this function goes here
+% %   Detailed explanation goes here
+% 
+% designed for tdms_struct ! (---> k starts by 2)
+% 
 % Last modified 27.04.2016 by Eugenio Senes
 
 result_lst = {};

@@ -1,5 +1,21 @@
 function [keep_index, discard_index] = filterSecondary(timeSeconds,deltaTime,varargin)
-% deltaTime is in s
+%	filtersecondary.m: checks if is there another event within deltatime
+%	from the trigger flag in the bool array varargin.
+%   Example of call: filterSecondary(timestampss_array,deltaTime_spike,isSpike)
+%
+%   NOTE: the events in the trigger list are flagged as ones.
+% 
+%   Inputs:
+%       - timeseconds:  list of timestamps in datetime matlab fromat
+%       - deltatime:    is the width of the search window
+%       - varagin:      is the trigger list 
+% 
+%   Outputs: (both are bool arrays)
+%       - keep_index:   elements out of the search window
+%       - discard_index:elements into the search windows
+% 
+%   Last modified ??? by Theodoros Argyropoulos  
+
     N_all_BDs = length(timeSeconds);
     keep_index = ones(N_all_BDs,1);
     

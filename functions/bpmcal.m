@@ -9,7 +9,7 @@ function [ cal_data ] = bpmcal( data , BPM_name)
 %       insensitive
 %     
 %   Outputs:
-%     - cal_data: the list of calibrated data
+%     - cal_data
 %     
 %   Last modified: 05.04.2016 by Eugenio Senes
 Slope = 0;

@@ -81,7 +81,7 @@ function [ str_out, str_peak, str_avg ] = checkTuning( INC_data, comp_pulse_star
         end
     catch
         str_out.fail_m1 = true;
-        str_peak.INC_max = max(INC_data);
+        str_peak = max(INC_data);
         %use default flattop end for fitting
     end
     

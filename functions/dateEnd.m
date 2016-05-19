@@ -1,8 +1,7 @@
 function [ tf ] = dateEnd( filename, currEvent, nextEvent )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-%
-%   Last modified: ??? by Theodoros Argyropoulos 
+
 
 %conversion
 filedate = datenum([filename '00:00:00'],'yyyymmddHH:MM:SS');

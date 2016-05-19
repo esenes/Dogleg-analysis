@@ -30,6 +30,8 @@
 % Last modified 10.05.2016 by Eugenio Senes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% TODO: move the spike left treshold
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
@@ -37,13 +39,13 @@ datapath_read = '/Users/esenes/swap';
 datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
 
-startDate = '20160422';
-endDate = '20160425';
-startTime = '18:00:00';
-endTime = '10:00:00';
+startDate = '20160408';
+endDate = '20160409';
+startTime = '17:30:00';
+endTime = '21:15:00';
 
 buildExperiment = true; %merge all files at the end
-expName = 'Loaded43MW_5';
+expName = 'Loaded38MW_1';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,6 +131,7 @@ for j = 1:length(filename) %loop over dates
             Hd = design(d,'butter');
         end
         %sorting
+        disp(field_names_out{i})
         switch field_names_out{i}(end-1:end)
             case 'B0' %bd detected
                 B0_ctr = B0_ctr +1;
@@ -169,7 +172,7 @@ for j = 1:length(filename) %loop over dates
                             tdms_struct.(field_names_out{i}).REF.Props.Unit_scale);   
                     data_struct.(field_names_out{i}).REF.data_cal = REF_cal;
                     %IQ signals
-                    disp(field_names_out{i})
+                    %disp(field_names_out{i})
                     [amplitude,phase,timescale_IQ] = getIQSignal(tdms_struct.(field_names_out{i}).Fast_INC_I,tdms_struct.(field_names_out{i}).Fast_INC_Q);
                     data_struct.(field_names_out{i}).Fast_INC_I.Amplitude = amplitude;
                     data_struct.(field_names_out{i}).Fast_INC_I.Phase = phase;

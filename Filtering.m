@@ -31,7 +31,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
-expname = 'Exp_Loaded43MW_1';
+expname = 'Exp_Loaded43MW_3';
 savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -113,6 +113,8 @@ clear j, foo;
     prev_pulse = zeros(1,length(event_name));
     %beam lost events
     beam_lost = false(1,length(event_name));
+    %peak power
+    pk_pwr = zeros(1,length(event_name));
 % filling    
 for i = 1:length(event_name) 
     inc_tra(i) = data_struct.(event_name{i}).inc_tra;
@@ -120,6 +122,7 @@ for i = 1:length(event_name)
     isSpike(i) = data_struct.(event_name{i}).spike.flag;
     bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_cal;
     bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_cal;
+    pk_pwr(i) = data_struct.(event_name{i}).INC.max;
     % build a timestamps array
     [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
     %build the number of pulse pulse between BD array
@@ -178,7 +181,7 @@ legend('Interlocks')
     missed_beam_cluster = event_name(inMetric &sec_beam_lost);
     spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
     spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
-    
+   
 
 %% Report message and crosscheck of lengths
 disp(['Analysis done! '])
@@ -209,7 +212,7 @@ l1 = length(interlocks_out);
 l2 = length(spikes_outMetric);
 l3 = length(spike_cluster_out);
 msg3 = ['Out of the metric:' '\n' ...
-' - ' num2str(l1) ' are good candidates' '\n' ...
+' - ' num2str(l1) ' are BDs ' '\n' ...
 ' - ' num2str(l2) ' are spikes' '\n' ...
 ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
 '-------' '\n' ...
@@ -224,6 +227,15 @@ fclose(logID);
 
 %% Signal alignment check
 data_struct = signalDelay( BD_candidates, data_struct, init_delay, max_delay, step_len, comp_start, comp_end);
+
+%% Distributions plots
+% figure(f3)
+% histogram(pk_pwr,1e6)
+% average power
+
+% cluster length
+
+
 
 %% Interactive plot (read version)
 %user ineraction

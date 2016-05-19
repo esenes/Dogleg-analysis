@@ -148,10 +148,16 @@ legend('Interlocks')
     [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
     %beam charge
     [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr,'bpm1');
+    %find indexes and elements for metric and non-metric events
+    metr_idx = find(inMetric);
+    nonmetr_idx = find(~inMetric);
     %secondary filter by time after SPIKE
-    [~, sec_spike] = filterSecondary(ts_array,deltaTime_spike,isSpike);
+    [~, sec_spike_in] = filterSecondary(ts_array(metr_idx),deltaTime_spike,isSpike(metr_idx));
+    [~, sec_spike_out] = filterSecondary(ts_array(nonmetr_idx),deltaTime_spike,isSpike(nonmetr_idx));
+    sec_spike = recomp_array(sec_spike_in,metr_idx,sec_spike_out,nonmetr_idx);
     %secondary filter by time after BEAM LOST
-    [~, sec_beam_lost] = filterSecondary(ts_array,deltaTime_beam_lost,beam_lost);
+    [~, sec_beam_lost_in] = filterSecondary(ts_array(metr_idx),deltaTime_beam_lost,beam_lost(metr_idx));
+    sec_beam_lost = recomp_array(sec_beam_lost_in,metr_idx,zeros(1,length(nonmetr_idx)),nonmetr_idx);
 % filling event arrays    
     %in the metric
     intoMetr = event_name(inMetric);
@@ -173,92 +179,13 @@ legend('Interlocks')
     spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
     spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
     
-%%
-% nominal = 43.3e6; %%%%%%% CAN WE GET PROJECTED POWER FROM STRUCT ????
-% thr1 = nominal*0.70;
-% thr2 = nominal*0.85;
-% thr3 = nominal*0.95;
-% win_start = 400;
-% win_end = 470;
-% 
-% ev_im = event_name(inMetric);
-% % ev_im = intersect( event_name(inMetric&sec_spike) , spikes_inMetric);
-% 
-% figure
-% 
-% thrs = [thr1,thr2,thr3];
-% thrs = [thrs fliplr(thrs)];
-% 
-% for i=1:length(ev_im)
-%     inc = data_struct.(ev_im{i}).INC.data_cal;
-%     plot(inc);
-% 
-%     j=0;
-%     flags = false(1,length(thrs));
-%     flagptr = 1;
-% 
-%     %check left treshold crossing
-%     while j < win_end-win_start 
-%         %check treshold overcome
-%         
-%         if inc(j + win_start-1) > thrs(flagptr) && flags(flagptr) == false && flagptr <= 0.5*length(thrs)
-%             %look for the first thr
-%             ou@t(flagptr) = (j+ win_start-2);
-%             line([out(flagptr) out(flagptr)], ylim, 'Color', 'm','LineWidth',1) %vertical line
-%             flags(flagptr) = true;
-%             flagptr = flagptr+1;
-%         elseif inc(j + win_start-1) < thrs(flagptr) && flags(flagptr) == false && flagptr > 0.5*length(thrs)
-%             %look for the first thr
-%             out(flagptr) = (j+ win_start -1);
-%             line([out(flagptr) out(flagptr)], ylim, 'Color', 'c','LineWidth',1) %vertical line
-%             flags(flagptr) = true;
-%             %last iteration correction
-%             if flagptr ~= length(thrs)
-%                 flagptr = flagptr+1;
-%             end
-%             
-%         end
-%         j = j+1;
-%     end
-%     disp(out)
-%     cross1 = out(1:0.5*end);
-%     cross2 = out(0.5*end+1:end);
-%     cross2 = fliplr(cross2);
-%     diff_bins = cross2-cross1
-% 
-% 
-%     line(xlim, [thr1 thr1], 'Color', 'r','LineWidth',1) %horizontal line
-%     line(xlim, [thr2 thr2], 'Color', 'r','LineWidth',1) %horizontal line
-%     line(xlim, [thr3 thr3], 'Color', 'r','LineWidth',1) %horizontal line
-%     line([win_start win_start], ylim, 'Color', 'g','LineWidth',1) %vertical line
-%     line([win_end win_end], ylim, 'Color', 'g','LineWidth',1) %vertical line
-% %     disp(data_struct.(ev_im{i}).spike)
-% %     disp(data_struct.(ev_im{i}).name)
-% %     disp(data_struct.(ev_im{i}).BPM1.sum_cal)
-%     pause;
-%     
-% end
-
-% %%
-% fakes = intersect(spike_cluster_im, spikes_inMetric);
-% win_start = 390;
-% win_end = 475;
-% 
-% figure
-% for i=1:length(test)
-%     inc = data_struct.(test{i}).INC.data_cal;
-%     plot(inc);
-%     disp(data_struct.(test{i}).spike)
-%     disp(data_struct.(test{i}).name)
-%     disp(data_struct.(test{i}).BPM1.sum_cal)
-%     pause;
-% end
 
 %% Report message and crosscheck of lengths
 disp(['Analysis done! '])
 %open the log file and append
 logID = fopen([datapath_write filesep savename '.log'], 'a' ); 
 %gather data and build the message
+%%INTO THE METRIC
 l1 = length(BD_candidates);
 l2 = length(spikes_inMetric);
 l3 = length(spike_cluster);
@@ -277,9 +204,22 @@ msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(l
 ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
 ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
 ];
+%%OUT OF THE METRIC
+l1 = length(interlocks_out);
+l2 = length(spikes_outMetric);
+l3 = length(spike_cluster_out);
+msg3 = ['Out of the metric:' '\n' ...
+' - ' num2str(l1) ' are good candidates' '\n' ...
+' - ' num2str(l2) ' are spikes' '\n' ...
+' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+'-------' '\n' ...
+'  ' num2str(l1+l2+l3) ' events out of the metric' '\n \n' ...
+];
 % print to screen (1) and to log file
 fprintf(1,msg2);
+fprintf(1,msg3);
 fprintf(logID,msg2);
+fprintf(logID,msg3);
 fclose(logID);
 
 %% Signal alignment check

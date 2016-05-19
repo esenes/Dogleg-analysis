@@ -38,12 +38,12 @@ datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
 
 startDate = '20160422';
-endDate = '20160422';
+endDate = '20160425';
 startTime = '18:00:00';
-endTime = '23:00:00';
+endTime = '10:00:00';
 
-buildExperiment = false; %merge all files at the end
-expName = 'Loaded43MW_6';
+buildExperiment = true; %merge all files at the end
+expName = 'Loaded43MW_5';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

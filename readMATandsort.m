@@ -35,6 +35,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
+if strcmp(computer,'MACI64')
+    addpath(genpath('/Users/esenes/scripts/Dogleg-analysis-master'))
+end
 datapath_read = '/Users/esenes/swap';
 datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
@@ -54,7 +57,7 @@ expName = 'Loaded38MW_1';
 % SPIKE DETECTION (B0,F1,F2 method)
 %%windowing (bins)
 spike_window_start = 140;
-spike_window_end = 468;
+spike_window_end = 466;
 %%Threshold setting
 spike_thr = 8e6;
 ratio_setPoint = .25;
@@ -131,7 +134,7 @@ for j = 1:length(filename) %loop over dates
             Hd = design(d,'butter');
         end
         %sorting
-        disp(field_names_out{i})
+%         disp(field_names_out{i})
         switch field_names_out{i}(end-1:end)
             case 'B0' %bd detected
                 B0_ctr = B0_ctr +1;
@@ -173,6 +176,7 @@ for j = 1:length(filename) %loop over dates
                     data_struct.(field_names_out{i}).REF.data_cal = REF_cal;
                     %IQ signals
                     %disp(field_names_out{i})
+                    try
                     [amplitude,phase,timescale_IQ] = getIQSignal(tdms_struct.(field_names_out{i}).Fast_INC_I,tdms_struct.(field_names_out{i}).Fast_INC_Q);
                     data_struct.(field_names_out{i}).Fast_INC_I.Amplitude = amplitude;
                     data_struct.(field_names_out{i}).Fast_INC_I.Phase = phase;
@@ -185,6 +189,8 @@ for j = 1:length(filename) %loop over dates
                     data_struct.(field_names_out{i}).Fast_REF_I.Amplitude = amplitude;
                     data_struct.(field_names_out{i}).Fast_REF_I.Phase = phase;
                     data_struct.(field_names_out{i}).Fast_REF_I.timescale_IQ = timescale_IQ;
+                    catch
+                    end
                 %NUMBER OF PULSES BETWEEN BDs
                     pulseDelta = pulseDelta + tdms_struct.(field_names_out{i}).Props.Pulse_Delta;
                     if i == 0 %first BD of the experiment don't have a previous one

@@ -31,7 +31,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
-expname = 'Exp_Loaded43MW_3';
+expname = 'Exp_Loaded43MW_5';
 savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -113,8 +113,9 @@ clear j, foo;
     prev_pulse = zeros(1,length(event_name));
     %beam lost events
     beam_lost = false(1,length(event_name));
-    %peak power
+    %peak and average power
     pk_pwr = zeros(1,length(event_name));
+    avg_pwr = zeros(1,length(event_name));
 % filling    
 for i = 1:length(event_name) 
     inc_tra(i) = data_struct.(event_name{i}).inc_tra;
@@ -123,6 +124,7 @@ for i = 1:length(event_name)
     bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_cal;
     bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_cal;
     pk_pwr(i) = data_struct.(event_name{i}).INC.max;
+    avg_pwr(i) = data_struct.(event_name{i}).INC.avg.INC_avg;
     % build a timestamps array
     [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
     %build the number of pulse pulse between BD array
@@ -229,13 +231,21 @@ fclose(logID);
 data_struct = signalDelay( BD_candidates, data_struct, init_delay, max_delay, step_len, comp_start, comp_end);
 
 %% Distributions plots
-% figure(f3)
-% histogram(pk_pwr,1e6)
+f3 = figure;
+figure(f3)
+hpp = histogram(pk_pwr,5e6);
+hpp.FaceColor = 'b';
+hpp.NumBins = 35;
+hold on
 % average power
-
-% cluster length
-
-
+hap = histogram(avg_pwr,5e6);
+hap.FaceColor = 'r';
+hap.NumBins = 35;
+legend('Peak power', 'Average power')
+xlabel('Power')
+ylabel('Number of pulses')
+print(f3,[datapath_write filesep expname '_power_distribution'],'-djpeg')
+hold off
 
 %% Interactive plot (read version)
 %user ineraction

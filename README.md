@@ -56,6 +56,13 @@ __4) Plot the events distribution__: many distributions are displayed (e.g. BDR,
 
 The detailed reference for this program is [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/filtering%20guide.md)
 
+_User input_
+* **datapath_read**:  the path containing the `Exp_<expname>.mat` files (without \ at the end)
+* **datapath_write**: the path of location to save Data files (without \ at the end)
+* **expName**: the full name of the experiment file to load (e.g. 'Exp_Loaded43MW_1')
+* **savename**: the name of output files 
+
+
 still a work in progress.... 
 
 

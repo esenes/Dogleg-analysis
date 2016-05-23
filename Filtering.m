@@ -31,7 +31,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
-expname = 'Exp_Loaded43MW_5';
+expname = 'Exp_Loaded43MW_2';
 savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -51,6 +51,7 @@ bpm2_thr = -90;
 % DELTA TIME FOR SECONDARY DUE TO BEAM LOST
 deltaTime_spike = 90;
 deltaTime_beam_lost = 90;
+deltaTime_cluster = 90;
 % PULSE DELAY
 init_delay = 60e-9;
 max_delay = 80e-9;
@@ -163,14 +164,23 @@ legend('Interlocks')
     %secondary filter by time after BEAM LOST
     [~, sec_beam_lost_in] = filterSecondary(ts_array(metr_idx),deltaTime_beam_lost,beam_lost(metr_idx));
     sec_beam_lost = recomp_array(sec_beam_lost_in,metr_idx,zeros(1,length(nonmetr_idx)),nonmetr_idx);
+    %secondary after a normal BD
+    BD_idx_met = inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & ~hasBeam;
+    [~,clusters]=filterSecondary(ts_array,deltaTime_cluster,BD_idx_met);
 % filling event arrays    
     %in the metric
     intoMetr = event_name(inMetric);
     outOfMetr = event_name(~inMetric);
-    %candidates = inMetric, withBeam, not beam lost and not after spike
+    %candidates = inMetric, withBeam, not beam lost and not after spike and
+    %not clusters
     BD_candidates = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
     BD_candidates_beam = event_name(inMetric & hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
     BD_candidates_nobeam = event_name(inMetric & ~hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
+    %clusters
+    clusters_wb = event_name(inMetric & clusters & hasBeam);
+    clusters_wob = event_name(inMetric & clusters & ~hasBeam);
+    %final breakdowns
+    BDs = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
     %interlocks = "candidates" out of metric
     interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
     %spikes
@@ -183,10 +193,21 @@ legend('Interlocks')
     missed_beam_cluster = event_name(inMetric &sec_beam_lost);
     spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
     spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
-   
+
+%% Cluster length detection
+ts_clust = ts_array(clusters & inMetric);
+trig_list = ts_array(~hasBeam & inMetric);
+cl_idx = find(clusters & inMetric);
+for b=1:length(cl_idx)
+   if b~=1 && cl_idx(b) == cl_idx(b-1)+1
+       continue;
+   end
+   %first of the cluster case
+   cl_idx(b)-1
+end
 
 %% Report message and crosscheck of lengths
-disp(['Analysis done! '])
+disp('Analysis done! ')
 %open the log file and append
 logID = fopen([datapath_write filesep savename '.log'], 'a' ); 
 %gather data and build the message
@@ -197,7 +218,7 @@ l3 = length(spike_cluster);
 l4 = length(missed_beam_in);
 l5 = length(missed_beam_cluster);
 msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
-'Into the metric:' '\n' ...
+    'Into the metric:' '\n' ...
 ' - ' num2str(l1) ' are good candidates' '\n' ...
 ' - ' num2str(l2) ' are spikes' '\n' ...
 ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
@@ -208,6 +229,11 @@ msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(l
 'Of the ' num2str(l1) ' good candidates:' '\n' ...
 ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
 ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
+'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
+' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
+' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
+'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
+'\n \n' ...
 ];
 %%OUT OF THE METRIC
 l1 = length(interlocks_out);
@@ -231,21 +257,36 @@ fclose(logID);
 data_struct = signalDelay( BD_candidates, data_struct, init_delay, max_delay, step_len, comp_start, comp_end);
 
 %% Distributions plots
+% peak power distribution
 f3 = figure;
 figure(f3)
-hpp = histogram(pk_pwr,5e6);
-hpp.FaceColor = 'b';
-hpp.NumBins = 35;
-hold on
-% average power
-hap = histogram(avg_pwr,5e6);
-hap.FaceColor = 'r';
-hap.NumBins = 35;
-legend('Peak power', 'Average power')
+xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
+h1 = hist(pk_pwr(inMetric & isSpike),xbins);
+h2 = hist(pk_pwr(inMetric & sec_spike & ~isSpike),xbins);
+h3 = hist(pk_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
+bar([h3;h1;h2]','stack')
+legend('BDs','Spikes', 'Secondaries after spikes')
 xlabel('Power')
-ylabel('Number of pulses')
-print(f3,[datapath_write filesep expname '_power_distribution'],'-djpeg')
+ylabel('Frequency')
+title('Overall distribution of peak incident power')
+print(f3,[datapath_write filesep expname '_peak_power_distribution'],'-djpeg')
 hold off
+% average power distribution
+% overall distribution
+f4 = figure;
+figure(f4)
+xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
+h1 = hist(avg_pwr(inMetric & isSpike),xbins);
+h2 = hist(avg_pwr(inMetric & sec_spike & ~isSpike),xbins);
+h3 = hist(avg_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
+bar([h3;h1;h2]','stack')
+legend('BDs','Spikes', 'Secondaries after spikes')
+xlabel('Power')
+ylabel('Frequency')
+title('Overall distribution of average incident power')
+print(f4,[datapath_write filesep expname '_average_power_distribution'],'-djpeg')
+hold off
+
 
 %% Interactive plot (read version)
 %user ineraction

@@ -47,12 +47,13 @@ __1) Flag the events__: assign a boolean value comparing every feature with user
 *  check if the **beam is present** for the BD under examination
 *  check if the BD is **provoked by a spike**
 *  check if the BD is provoked by a **beam lost**
+*  check if a BD into the structure have provoked a **cluster of secondaries** breakdowns
   
 __2) Select the events__: using the flags are built lists of relevants events (e.g. spikes, BDs into the metric with beam, ....)
 
-__3) Calculate the delay between the transmitted and incident power__
+__3) Calculate the delay between the transmitted and incident power__: this is made dynamically, with a resolution which is the sampling time of the sampler, 4 ns in the case of the *log detector*
 
-__4) Plot the events distribution__: many distributions are displayed (e.g. BDR, peak and average incident power, tuning of the pulse, BD cluster length)
+__4) Plot and save the events distribution__: Peak and average incident power distribution, tuning of the pulse, BD cluster length(work in progress)
 
 The detailed reference for this program is [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/filtering%20guide.md)
 

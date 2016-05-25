@@ -1,5 +1,7 @@
 function [ result_lst  ] = eventSelection( startDate, endDate, startTime, endTime, filename, iteration, field_names )
-%   eventSelection.m selects events within the range in input
+%   eventSelection.m selects events within the range in input.
+%   When processing consecutives files, uses the index iteration
+%   to manage the time limits for the events.
 %
 % designed for tdms_struct ! (---> k starts by 2)
 % 

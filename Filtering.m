@@ -31,7 +31,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
-expname = 'Exp_Loaded43MW_2';
+expname = 'Exp_Loaded43MW_3';
 savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -117,6 +117,12 @@ clear j, foo;
     %peak and average power
     pk_pwr = zeros(1,length(event_name));
     avg_pwr = zeros(1,length(event_name));
+    %tuning
+    tuning_slope = zeros(1,length(event_name));
+    tuning_delta = zeros(1,length(event_name));
+    failSlope = 0;
+    failDelta = 0;
+    fail1=false(1,length(event_name));
 % filling    
 for i = 1:length(event_name) 
     inc_tra(i) = data_struct.(event_name{i}).inc_tra;
@@ -124,8 +130,19 @@ for i = 1:length(event_name)
     isSpike(i) = data_struct.(event_name{i}).spike.flag;
     bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_cal;
     bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_cal;
+    % for plotting
     pk_pwr(i) = data_struct.(event_name{i}).INC.max;
     avg_pwr(i) = data_struct.(event_name{i}).INC.avg.INC_avg;
+    if data_struct.(event_name{i}).tuning.fail_m2 ~= true
+        tuning_slope(i) = data_struct.(event_name{i}).tuning.slope;
+        tuning_delta(i) = getDeltaPower(tuning_slope(i),data_struct.(event_name{i}).INC.avg.start,data_struct.(event_name{i}).INC.avg.end  );
+    else 
+        tuning_slope(i) = NaN;
+        tuning_delta = NaN;
+        failSlope = failSlope+1;
+        failDelta = failDelta+1;
+    end
+%     fail1(i)=data_struct.(event_name{i}).tuning.fail_m1;
     % build a timestamps array
     [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
     %build the number of pulse pulse between BD array
@@ -134,10 +151,19 @@ for i = 1:length(event_name)
     beam_lost(i) = beamWasLost(data_struct.(event_name{i}).name, bpm1_ch(i), bpm2_ch(i), bpm1_thr, bpm2_thr);
 end
 
-%% Metric plotting to check the tresholds
-f0 = figure;
+%% Parameters check plots 
+%Get screen parameters in order to resize the plots
+% screensizes = get(groot,'screensize'); %only MATLAB r2014b+
+% screenWidth = screensizes(3);
+% screenHeight = screensizes(4);
+% winW = screenWidth/2;
+% winH = screenHeight/2;
+winW = 1420;
+winH = 760;
+%Metric plotting to check the tresholds
+f0 = figure('position',[0 0 winW winH]);
 figure(f0)
-p1 = plot(inc_tra, inc_ref,'b .','MarkerSize',12);
+p1 = plot(inc_tra, inc_ref,'b .','MarkerSize',16);
 xlabel('(INC-TRA)/(INC+TRA)')
 ylabel('(INC-REF)/(INC+REF)')
 axis([-0.2 0.5 0.2 0.8])
@@ -145,8 +171,21 @@ line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal li
 line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
 title('Interlock criteria review')
 legend('Interlocks')
-
-
+%Charge distribution plot
+f1 = figure('position',[0 0 winW winH]);
+figure(f1)
+subplot(1,2,1)
+plot(bpm1_ch,'.','MarkerSize',12);
+line(xlim, [bpm1_thr bpm1_thr], 'Color', 'r','LineWidth',1) %horizontal line
+title('BPM1 charge distribution')
+xlabel('Event number')
+ylabel('Integrated charge')
+subplot(1,2,2)
+plot(bpm2_ch,'.','MarkerSize',12)
+line(xlim, [bpm2_thr bpm2_thr], 'Color', 'r','LineWidth',1) %horizontal line
+title('BPM2 charge distribution')
+xlabel('Event number')
+ylabel('Integrated charge')
 
 %% Start the filtering 
 % filling bool arrays
@@ -195,16 +234,41 @@ legend('Interlocks')
     spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
 
 %% Cluster length detection
-ts_clust = ts_array(clusters & inMetric);
-trig_list = ts_array(~hasBeam & inMetric);
-cl_idx = find(clusters & inMetric);
-for b=1:length(cl_idx)
-   if b~=1 && cl_idx(b) == cl_idx(b-1)+1
-       continue;
-   end
-   %first of the cluster case
-   cl_idx(b)-1
-end
+
+% Clusters from spikes
+clust_spike_length = clusterDistribution( isSpike(metr_idx), sec_spike_in );
+% Clusters from BD w/o beam
+clust_BD_no_beam_wobeam_after = clusterDistribution( BD_idx_met, inMetric & clusters & ~hasBeam);
+clust_BD_no_beam_wbeam_after = clusterDistribution( BD_idx_met, inMetric & clusters & hasBeam);
+% 
+% ts_clust = ts_array(metr_idx); %ts list used
+% trig_list = isSpike(metr_idx); %trigger list used
+% cl_list = sec_spike_in; %output of the function
+% cl_idx = find(cl_list);
+% trig_idx = find(trig_list);
+% clust_length = []; %number of BDs in every cluster
+% clust_size = 0;
+% index = 0;
+% for b=1:length(cl_idx)
+%    disp(['Cluster start: ' num2str(cl_idx(b)) ' trigger event is ' num2str(trig_list(cl_idx(b)-1))])
+%    if b~=1 && trig_list(cl_idx(b)-1) == 1 %there is a new trigger event
+%        %save the old event
+%        index = index+1;
+%        clust_length(index) = clust_size;
+%        %start counting for the new cluster
+%        clust_size = 1;
+%        disp(clust_size)
+%    elseif b==length(cl_idx)
+%        clust_size = clust_size+1;
+%        index = index+1;
+%        clust_length(index) = clust_size;
+%    else
+%        clust_size = clust_size+1;
+%        disp(clust_size)
+%    end
+%    
+% end
+
 
 %% Report message and crosscheck of lengths
 disp('Analysis done! ')
@@ -258,7 +322,7 @@ data_struct = signalDelay( BD_candidates, data_struct, init_delay, max_delay, st
 
 %% Distributions plots
 % peak power distribution
-f3 = figure;
+f3 = figure('position',[0 0 winW winH]);
 figure(f3)
 xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
 h1 = hist(pk_pwr(inMetric & isSpike),xbins);
@@ -266,26 +330,65 @@ h2 = hist(pk_pwr(inMetric & sec_spike & ~isSpike),xbins);
 h3 = hist(pk_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
 bar([h3;h1;h2]','stack')
 legend('BDs','Spikes', 'Secondaries after spikes')
-xlabel('Power')
-ylabel('Frequency')
+xlabel('Power (MW)')
+ylabel('Normalized frequency')
 title('Overall distribution of peak incident power')
 print(f3,[datapath_write filesep expname '_peak_power_distribution'],'-djpeg')
-hold off
 % average power distribution
-% overall distribution
-f4 = figure;
+f4 = figure('position',[0 0 winW winH]);
 figure(f4)
-xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
+xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1)); %1MW per bin
 h1 = hist(avg_pwr(inMetric & isSpike),xbins);
 h2 = hist(avg_pwr(inMetric & sec_spike & ~isSpike),xbins);
 h3 = hist(avg_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
 bar([h3;h1;h2]','stack')
 legend('BDs','Spikes', 'Secondaries after spikes')
-xlabel('Power')
+xlabel('Power (MW)')
 ylabel('Frequency')
 title('Overall distribution of average incident power')
 print(f4,[datapath_write filesep expname '_average_power_distribution'],'-djpeg')
-hold off
+% tuning distribution
+f5 = figure('position',[0 0 winW winH]);
+figure(f5)
+xbins = linspace(round(min(tuning_slope),-6),round(max(tuning_slope),-6),(1e-5*(round(max(tuning_slope),-6)-round(min(tuning_slope),-6))+1)); %1M per bin
+hist(tuning_slope,xbins)
+title({'Pulse tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+xlabel('Slope')
+ylabel('Frequency')
+print(f5,[datapath_write filesep expname '_tuning_distribution'],'-djpeg')
+% Spikes clusters length
+f6 = figure('position',[0 0 winW winH]);
+figure(f6)
+xb=1:max(clust_spike_length)+1;
+hist(clust_spike_length,xb)
+title({'Spike induced BDs distribution';['Interval duration = ' num2str(deltaTime_spike) ' s']})
+xlabel('# of BDs in the cluster')
+ylabel('Frequency')
+print(f6,[datapath_write filesep expname '_spike_clusters_length'],'-djpeg')
+% BD with no beam length
+f7 = figure('position',[0 0 winW winH]);
+figure(f7)
+xb=1:max(clust_BD_no_beam_wbeam_after)+1;
+h1 = hist(clust_BD_no_beam_wbeam_after,xb);
+h2 = hist(clust_BD_no_beam_wobeam_after,xb);
+bar([h1;h2]','stack')
+legend('Cluster with beam','Cluster w/o beam')
+title({'Normal BD induced BDs distribution';['Interval duration = ' num2str(deltaTime_cluster) ' s']})
+xlabel('# of BDs in the cluster')
+ylabel('Frequency')
+% print(f7,[datapath_write filesep expname '_spike_clusters_length'],'-djpeg')
+% tuning delta power distribution
+f8 = figure('position',[0 0 winW winH]);
+figure(f8)
+xbins = linspace(round(min(tuning_delta),-6),round(max(tuning_delta),-6),(1e-5*(round(max(tuning_delta),-6)-round(min(tuning_delta),-6))+1)); %1M per bin
+histogram(tuning_delta,xbins)
+title({'Pulse tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+xlabel('Power delta')
+ylabel('Frequency')
+%print(f8,[datapath_write filesep expname '_tuning_distribution'],'-djpeg')
+
+
+%% Save the data for further analysis
 
 
 %% Interactive plot (read version)

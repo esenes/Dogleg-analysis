@@ -30,8 +30,6 @@
 % Last modified 10.05.2016 by Eugenio Senes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% TODO: move the spike left treshold
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
@@ -42,13 +40,13 @@ datapath_read = '/Users/esenes/swap';
 datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
 
-startDate = '20160408';
-endDate = '20160409';
-startTime = '17:30:00';
-endTime = '21:15:00';
+startDate = '20160324';
+endDate = '20160330';
+startTime = '18:30:00';
+endTime = '16:00:00';
 
 buildExperiment = true; %merge all files at the end
-expName = 'Loaded38MW_1';
+expName = 'Loaded38MW_2';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -4,7 +4,10 @@ function [ str_out, str_peak, str_avg ] = checkTuning( INC_data, comp_pulse_star
 %	two methods:
 %   1) an interpolation method elaborated by theo in the script fw.m
 %   2) a linear fit of the flattop 
-%   It also calculate the peak and the average power in the pulse
+%   It also calculate the peak and the average power in the pulse. Note
+%   that the average is calculated between the lefter bin with 85% of the
+%   max power and the righter bin with the 85% of the max power. What happends
+%   in the middle is not considered
 % 
 %   NOTE:   the flattop_start generally is placed around 24 bins lefter 
 %           than comp_pulse_start

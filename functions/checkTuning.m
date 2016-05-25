@@ -69,12 +69,16 @@ function [ str_out, str_peak, str_avg ] = checkTuning( INC_data, comp_pulse_star
         str_out.bot.thr = thr3;
         %build the output 2
         str_peak = peak;
+        %build the output 3
+        str_avg.start = ceil(x1_1);
+        str_avg.end = ceil(x2_1);
+        str_avg.INC_avg = mean(y(str_avg.start:str_avg.end));
         
         %find the flattop end for fitting
         flattop_end = round(x2_1 - ft_end_offset);
         if flattop_end > flattop_start+minL
             %if the new end has at least 5 points, use the modified one,
-            %else the user setting
+            %else the 85% point
             flattop_end = round(x2_1 - ft_end_offset);
         else
             flattop_end = round(x2_1);
@@ -83,12 +87,13 @@ function [ str_out, str_peak, str_avg ] = checkTuning( INC_data, comp_pulse_star
         str_out.fail_m1 = true;
         str_peak = max(INC_data);
         %use default flattop end for fitting
+        
+        %for the average use the 
+        overthr = find(INC_data > thr1*max(INC_data));
+        str_avg.start = overthr(1);
+        str_avg.end = overthr(end);
+        str_avg.INC_avg = mean(y(str_avg.start:str_avg.end));
     end
-    
-    %build the output 3
-    str_avg.start = flattop_start;
-    str_avg.end = flattop_end;
-    str_avg.INC_avg = mean(y(flattop_start:flattop_end));
 
     %METHOD 2
     %good case, at least 2 points
@@ -100,6 +105,8 @@ function [ str_out, str_peak, str_avg ] = checkTuning( INC_data, comp_pulse_star
         fit2 = fit(x_ft,y_ft,'poly1');
         str_out.fail_m2 = false;
         str_out.slope = fit2.p1;
+        str_out.x1 = x(1);
+        str_out.x2 = x(end);
     catch
         str_out.fail_m2 = true;
     end

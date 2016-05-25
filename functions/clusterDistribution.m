@@ -1,6 +1,10 @@
 function [ clust_length ] = clusterDistribution( trig_list, cl_list )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%  clusterDistribution.m: looks for a trigger event in the trig list
+%  as start of the cluster in the cl_list. Then the cluster goes on 
+%  as long as there are consecutive BDs. If another trigger event 
+%  arrives during a cluster, the current cluster is termined and a 
+%  new one is started.
+%  This script was developed for the spike-induced clusters
 
 cl_idx = find(cl_list);
 clust_length = []; %number of BDs in every cluster

@@ -1,7 +1,6 @@
 function [ result_lst  ] = eventSelection( startDate, endDate, startTime, endTime, filename, iteration, field_names )
-%UNTITLED2 Summary of this function goes here
-% %   Detailed explanation goes here
-% 
+%   eventSelection.m selects events within the range in input
+%
 % designed for tdms_struct ! (---> k starts by 2)
 % 
 % Last modified 27.04.2016 by Eugenio Senes

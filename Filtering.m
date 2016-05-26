@@ -31,7 +31,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
-expname = 'Exp_Loaded43MW_3';
+expname = 'Exp_Loaded43MW_2';
 savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -114,6 +114,21 @@ clear j, foo;
     prev_pulse = zeros(1,length(event_name));
     %beam lost events
     beam_lost = false(1,length(event_name));
+% filling    
+for i = 1:length(event_name) 
+    inc_tra(i) = data_struct.(event_name{i}).inc_tra;
+    inc_ref(i) = data_struct.(event_name{i}).inc_ref;
+    isSpike(i) = data_struct.(event_name{i}).spike.flag;
+    bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_cal;
+    bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_cal;
+    % build a timestamps array
+    [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
+    %build the number of pulse pulse between BD array
+    prev_pulse(i) = data_struct.(event_name{i}).Props.Prev_BD_Pulse_Delay;
+    %look for beam lost events and flag it
+    beam_lost(i) = beamWasLost(data_struct.(event_name{i}).name, bpm1_ch(i), bpm2_ch(i), bpm1_thr, bpm2_thr);
+end
+%% filling for plotting
     %peak and average power
     pk_pwr = zeros(1,length(event_name));
     avg_pwr = zeros(1,length(event_name));
@@ -122,35 +137,36 @@ clear j, foo;
     tuning_delta = zeros(1,length(event_name));
     failSlope = 0;
     failDelta = 0;
-    fail1=false(1,length(event_name));
-% filling    
+    %pulse length
+    top_len = zeros(1,length(event_name));
+    mid_len = zeros(1,length(event_name));
+    bot_len = zeros(1,length(event_name));
+    fail_m1=0;
 for i = 1:length(event_name) 
-    inc_tra(i) = data_struct.(event_name{i}).inc_tra;
-    inc_ref(i) = data_struct.(event_name{i}).inc_ref;
-    isSpike(i) = data_struct.(event_name{i}).spike.flag;
-    bpm1_ch(i) = data_struct.(event_name{i}).BPM1.sum_cal;
-    bpm2_ch(i) = data_struct.(event_name{i}).BPM2.sum_cal;
-    % for plotting
     pk_pwr(i) = data_struct.(event_name{i}).INC.max;
     avg_pwr(i) = data_struct.(event_name{i}).INC.avg.INC_avg;
+    ft_end = 462; %change it if pulse length changes from nominal
     if data_struct.(event_name{i}).tuning.fail_m2 ~= true
         tuning_slope(i) = data_struct.(event_name{i}).tuning.slope;
-        tuning_delta(i) = getDeltaPower(tuning_slope(i),data_struct.(event_name{i}).INC.avg.start,data_struct.(event_name{i}).INC.avg.end  );
+        tuning_delta(i) = getDeltaPower(tuning_slope(i),...
+            data_struct.(event_name{i}).tuning.x1,ft_end);
     else 
         tuning_slope(i) = NaN;
-        tuning_delta = NaN;
+        tuning_delta(i) = NaN;
         failSlope = failSlope+1;
         failDelta = failDelta+1;
     end
-%     fail1(i)=data_struct.(event_name{i}).tuning.fail_m1;
-    % build a timestamps array
-    [~, ts_array(i)] = getFileTimeStamp(data_struct.(event_name{i}).name);
-    %build the number of pulse pulse between BD array
-    prev_pulse(i) = data_struct.(event_name{i}).Props.Prev_BD_Pulse_Delay;
-    %look for beam lost events and flag it
-    beam_lost(i) = beamWasLost(data_struct.(event_name{i}).name, bpm1_ch(i), bpm2_ch(i), bpm1_thr, bpm2_thr);
+    if data_struct.(event_name{i}).tuning.fail_m1 ~= true
+        top_len(i) = 4e-9*(data_struct.(event_name{i}).tuning.top.x2 - data_struct.(event_name{i}).tuning.top.x1);
+        mid_len(i) = 4e-9*(data_struct.(event_name{i}).tuning.mid.x2 - data_struct.(event_name{i}).tuning.mid.x1);
+        bot_len(i) = 4e-9*(data_struct.(event_name{i}).tuning.bot.x2 - data_struct.(event_name{i}).tuning.bot.x1);
+    else
+        top_len(i) = NaN;
+        mid_len(i) = NaN;
+        bot_len(i) = NaN;
+        fail_m1 = fail_m1+1;
+    end
 end
-
 %% Parameters check plots 
 %Get screen parameters in order to resize the plots
 % screensizes = get(groot,'screensize'); %only MATLAB r2014b+
@@ -348,14 +364,17 @@ ylabel('Frequency')
 title('Overall distribution of average incident power')
 print(f4,[datapath_write filesep expname '_average_power_distribution'],'-djpeg')
 % tuning distribution
-f5 = figure('position',[0 0 winW winH]);
-figure(f5)
-xbins = linspace(round(min(tuning_slope),-6),round(max(tuning_slope),-6),(1e-5*(round(max(tuning_slope),-6)-round(min(tuning_slope),-6))+1)); %1M per bin
-hist(tuning_slope,xbins)
-title({'Pulse tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
-xlabel('Slope')
-ylabel('Frequency')
-print(f5,[datapath_write filesep expname '_tuning_distribution'],'-djpeg')
+% % % f5 = figure('position',[0 0 winW winH]);
+% % % figure(f5)
+% % % % xbins = linspace(round(min(tuning_slope),-6),round(max(tuning_slope),-6),(1e-5*(round(max(tuning_slope),-6)-round(min(tuning_slope),-6))+1)); %1M per bin
+% % % % hist(tuning_slope,xbins)
+% % % tmp_tuning = tuning_slope(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+% % % xbins = linspace(round(min(tmp_tuning)),round(max(tmp_tuning),-6),(1e-4*(round(max(tuning_delta),-6)-round(min(tuning_delta),-6))+1)); %1M per bin
+% % % histogram(tmp_tuning,xbins)
+% % % title({'Pulse tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+% % % xlabel('Slope')
+% % % ylabel('Frequency')
+% % % print(f5,[datapath_write filesep expname '_tuning_distribution'],'-djpeg')
 % Spikes clusters length
 f6 = figure('position',[0 0 winW winH]);
 figure(f6)
@@ -365,7 +384,7 @@ title({'Spike induced BDs distribution';['Interval duration = ' num2str(deltaTim
 xlabel('# of BDs in the cluster')
 ylabel('Frequency')
 print(f6,[datapath_write filesep expname '_spike_clusters_length'],'-djpeg')
-% BD with no beam length
+% BD induced clusters with no beam length
 f7 = figure('position',[0 0 winW winH]);
 figure(f7)
 xb=1:max(clust_BD_no_beam_wbeam_after)+1;
@@ -376,20 +395,117 @@ legend('Cluster with beam','Cluster w/o beam')
 title({'Normal BD induced BDs distribution';['Interval duration = ' num2str(deltaTime_cluster) ' s']})
 xlabel('# of BDs in the cluster')
 ylabel('Frequency')
-% print(f7,[datapath_write filesep expname '_spike_clusters_length'],'-djpeg')
+print(f7,[datapath_write filesep expname '_BD_induced_clusters_length'],'-djpeg')
 % tuning delta power distribution
 f8 = figure('position',[0 0 winW winH]);
 figure(f8)
-xbins = linspace(round(min(tuning_delta),-6),round(max(tuning_delta),-6),(1e-5*(round(max(tuning_delta),-6)-round(min(tuning_delta),-6))+1)); %1M per bin
-histogram(tuning_delta,xbins)
+tmp_tuning = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+xbins = linspace(-20e6,20e6,61); %1M per bin
+histogram(tmp_tuning,xbins)
 title({'Pulse tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
-xlabel('Power delta')
+xlabel('Power delta (W)')
 ylabel('Frequency')
-%print(f8,[datapath_write filesep expname '_tuning_distribution'],'-djpeg')
+print(f8,[datapath_write filesep expname '_tuning_delta_power_distribution'],'-djpeg')
+
+
+f13 = figure('position',[0 0 winW winH]);
+figure(f13)
+tmp_tuning = tuning_delta;
+xbins = linspace(-20e6,20e6,61); %1M per bin
+histogram(tmp_tuning,xbins)
+title({'Pulse tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+xlabel('Power delta (W)')
+ylabel('Frequency')
+% peak normalized power distribution vs BDR
+f9 = figure('position',[0 0 winW winH]);
+figure(f9)
+xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
+h3 = hist(pk_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
+h3 = h3/sum(h3);
+bar(h3,'stack')
+hold on
+BDR = h3(43) * ( ((xbins+1e6)/(43e6)).^15 );
+plot(BDR,'r')
+axis([0 50 0 max(h3)+.01])
+axis autox
+hold off
+legend('BDs','BDR distribution')
+xlabel('Power (MW)')
+ylabel('Normalized frequency')
+title('Overall distribution of peak incident power')
+print(f9,[datapath_write filesep expname '_peak_power_distribution_vs_BDR'],'-djpeg')
+% pulse length
+% % 3 windows plot
+% % % f10 = figure('position',[0 0 winW winH*2/3]);
+% % % figure(f10)
+% % % title({'Pulse length distribution';['fitting errors = ' num2str(fail_m1) ' on ' num2str(length(event_name))]})
+% % % xbins = 0:4:(round(max(bot_len)*1e9)+2);
+% % % subplot(1,3,1)
+% % % hist(top_len*1e9, xbins)
+% % % legend('85%')
+% % % xlabel('Pulse length (ns)')
+% % % ylabel('Counts')
+% % % subplot(1,3,2)
+% % % hist(mid_len*1e9, xbins)
+% % % legend('65%')
+% % % xlabel('Pulse length (ns)')
+% % % ylabel('Counts')
+% % % subplot(1,3,3)
+% % % hist(bot_len*1e9, xbins)
+% % % legend('40%')
+% % % xlabel('Pulse length (ns)')
+% % % ylabel('Counts')
+f11 = figure('position',[0 0 winW winH]);
+figure(f11)
+top_tmp = top_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+mid_tmp = mid_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+bot_tmp = bot_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+xbins = 0:4:(round(max(bot_len)*1e9)+2);
+histogram(top_tmp*1e9,xbins);
+title('Pulse width at vaious height')
+hold on
+histogram(mid_tmp*1e9,xbins);
+hold on
+histogram(bot_tmp*1e9,xbins);
+l = legend({'85%','65%','40%'},'Position',[.15 .8 .085 .085]);
+hold off
+print(f11,[datapath_write filesep expname '_pulse_width_distribution'],'-djpeg')
 
 
 %% Save the data for further analysis
 
+
+%% debug tuning
+
+delta = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+xb = 462;
+
+figure
+for i = 1:length(BDs)
+    plot(data_struct.(BDs{i}).INC.data_cal)
+    x1 = data_struct.(BDs{i}).tuning.x1; x2 = data_struct.(BDs{i}).tuning.x2;
+    
+    y85 = 0.85*max(data_struct.(BDs{i}).INC.data_cal)
+    line(xlim, [y85 y85], 'Color', 'r','LineWidth',1) %horizontal line
+    
+    line([x1 x1], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    line([x2 x2], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    line([xb xb], ylim, 'Color', 'g','LineWidth',1) %vertical line
+    title({['Tuning delta = ' num2str(delta(i))] ; ...
+        ['x1 = ' num2str(x1) ' x2 =  ' num2str(x2)]; ...
+       [' Delta (MW) = ' num2str(1e-6* getDeltaPower(data_struct.(BDs{i}).tuning.slope,...
+            data_struct.(BDs{i}).tuning.x1,...
+            xb))];...
+            delta(i);
+            tuning_slope(i)})
+    if data_struct.(event_name{i}).tuning.fail_m1 ~= true
+        disp(top_tmp(i));
+        disp(mid_tmp(i));
+        disp(bot_tmp(i))
+    end
+    disp('  ')
+    pause
+end
 
 %% Interactive plot (read version)
 %user ineraction

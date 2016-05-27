@@ -68,7 +68,9 @@ _User input_
 
 still a work in progress.... 
 
+### 4) BDAnalysis.m
 
+still a work in progress.... 
 
 #### Data structure:
 * [tdms_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)

@@ -38,6 +38,8 @@ The full reference is available [here](https://github.com/esenes/Dogleg-analysis
 
 ### 3) Filtering.m
 
+> still a work in progress.... 
+
 to apply the filters to the informations which were calculated and saved in the precedent step of the analysis.
 
 It reads directly the `Exp_<expname>.m` file and performs several analysis actions, which are:
@@ -66,11 +68,10 @@ _User input_
 * **savename**: the name of output files 
 
 
-still a work in progress.... 
 
 ### 4) BDAnalysis.m
 
-still a work in progress.... 
+> still a work in progress.... 
 
 #### Data structure:
 * [tdms_struct structure reference](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tdms_struct%20structure.md)

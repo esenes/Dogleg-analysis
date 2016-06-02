@@ -24,10 +24,7 @@ exp_struct = struct();
 
 for i = 1:length(filename)
     load([datapath filesep fname filename{i} '.mat'])
-    %normal_struct is temporary now
-    rem_pulses(i) = normal_struct.pulse_delay_from_last;
-    %delete the 'pulse_delay_from_last' field from the struct
-    normal_struct = rmfield(normal_struct,'pulse_delay_from_last');
+    %delete the 'Props' field from the struct
     normal_struct = rmfield(normal_struct,'Props');
     
     %select only timestamps in range
@@ -55,7 +52,6 @@ for i = 1:length(filename)
     else %other dates, fully loaded
         % add the remaining pulse count from the last file to first event
         fnames = fieldnames(normal_struct);
-        normal_struct.(fnames{1}).Props.Prev_BD_Pulse_Delay = normal_struct.(fnames{1}).Props.Prev_BD_Pulse_Delay + rem_pulses(i-1);
         % then copy all to the output
         for j = 1:length(fnames)
             exp_struct.(fnames{j}) = normal_struct.(fnames{j});

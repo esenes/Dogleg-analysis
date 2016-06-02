@@ -33,7 +33,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-if strcmp(computer,'MACI64')
+if strcmp(computer,'MACI64') %just hit 'add to path' when running first time
     addpath(genpath('/Users/esenes/scripts/Dogleg-analysis-master'))
 end
 datapath_read = '/Users/esenes/swap';
@@ -503,7 +503,7 @@ if buildBackupPulses
     disp('Start to assembly the backup data structure')
     %clean memor before allocating the new structure
     clearvars -except datapath_write startDate startTime endDate endTime expName exppath_write
-    data_struct = buildExperimentStruct(datapath_write,startDate,startTime,endDate,endTime);
+    data_struct = buildBackupStruct(datapath_write,startDate,startTime,endDate,endTime);
     %add fields related to time interval
     data_struct.Props.filetype = 'Backup pulses';
     data_struct.Props.startDate = startDate;

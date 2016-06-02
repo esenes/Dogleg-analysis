@@ -83,7 +83,8 @@ msg1 = ['Analysis log for the file ' expname '.mat' '\n' ...
 '\n'];
 fprintf(logID,msg1,inc_ref_thr, inc_tra_thr, bpm1_thr, bpm2_thr,deltaTime_spike,deltaTime_beam_lost);
 fclose(logID);
-%% Load the files
+
+%% Load the BD files
 tic
 disp('Loading the data file ....')
 load([datapath_read filesep expname '.mat']);

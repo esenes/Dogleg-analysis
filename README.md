@@ -31,8 +31,10 @@ _User input_
 * **endDate** =   end date in the format 'yyyymmdd'
 * **startTime** = start time in the format 'HH:MM:SS'
 * **endTime** =   end time in the format 'HH:MM:SS'
-* **buildExperiment** = true/false, at the end of the execution reads every file in the data folder and merges it a new file
+* **buildExperiment** = true/false, at the end of the execution reads every BD file in the data folder and merges it a new file 
 * **expName** = the name of the output file if merging the data files
+* **buildBackupPulses** = true/false, at the end of the execution reads every data file containing the backup pulses in the data folder and merges it a new file 
+* **backupName** = name of the file containing all the backup pulses data for the current experiment
 
 The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 

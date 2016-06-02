@@ -40,13 +40,14 @@ datapath_read = '/Users/esenes/swap';
 datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
 
-startDate = '20160324';
-endDate = '20160330';
-startTime = '18:30:00';
-endTime = '16:00:00';
+startDate = '20160504';
+endDate = '20160509';
+startTime = '18:20:00';
+endTime = '09:30:00';
 
-buildExperiment = true; %merge all files at the end
-expName = 'Loaded38MW_2';
+buildExperiment = true; %merge all the data files at the end
+buildBackupPulses = true; %merge all the backupd data files at the end
+expName = 'Loaded43MW_7';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,8 +99,10 @@ for j = 1:length(filename) %loop over dates
     L0_ctr = 0; 
     LL_ctr = 0; %counts where are present B0,L1,L2
     FF_ctr = 0; %counts where is the B0, but not one of L1 or L2
-    %init the output structure
+    %init the output data structure
     data_struct = struct;
+    %init the output structure for backup pulses
+    normal_struct = struct;
     %init BPM signals
     BPM1 = zeros(1,800);
     BPM2 = zeros(1,800);
@@ -122,9 +125,9 @@ for j = 1:length(filename) %loop over dates
     % Open a progress bar
     progBar = waitbar(0,['Elaborating file ' num2str(j) ' on ' num2str(length(filename)) ]);
 
-    %% select just file B0 with L1 and L2
+    %% select file B0 with L1 and L2 for the data, the L0 for the normal operation check
     for i = 1:length(field_names_out) %loop over events
-        %Filter definition
+        %Filter definition for spike treatment
         if i == 2
             dt = tdms_struct.(field_names_out{i}).INC.Props.wf_increment;
             fs = 1/dt;
@@ -136,12 +139,12 @@ for j = 1:length(filename) %loop over dates
         switch field_names_out{i}(end-1:end)
             case 'B0' %bd detected
                 B0_ctr = B0_ctr +1;
-                %COPY THE FIELD the B0 field into the output struct           
-                    data_struct.(field_names_out{i}) = tdms_struct.(field_names_out{i});
                 %ADD THE TIMESTAMPS IN THE 'Props' FIELD
                     data_struct.(field_names_out{i}).Props.timestamp = get_tsString(field_names_out{i});  
+                %COPY THE FIELD the B0 field into the output struct           
+                    data_struct.(field_names_out{i}) = tdms_struct.(field_names_out{i});
                 %ADD THE PROPS FIELD
-                    data_struct.Props.filetype = 'Experiment';
+                    data_struct.Props.filetype = 'Data';
                 %REMOVE MOTOR FIELDS
                     if isfield(data_struct.(field_names_out{i}),'Motor_Right')
                         data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'Motor_Right');
@@ -280,6 +283,7 @@ for j = 1:length(filename) %loop over dates
                 data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'INC_max');
                 data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'INC_average');
                 data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'TRA_max');
+                data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'INC_pulse_width');
                 % fill it
                 data_struct.(field_names_out{i}).INC.max = peak_str;
                 data_struct.(field_names_out{i}).INC.avg = avg_str;
@@ -358,10 +362,86 @@ for j = 1:length(filename) %loop over dates
                     BPM2_cal = bpmcal(BPM2,'BPM2');
                     data_struct.(field_names_out{i}).BPM2.data_calibrated = BPM2_cal;
                     data_struct.(field_names_out{i}).BPM2.sum_calibrated = sum(BPM2_cal);
-            case 'L0' %no BD, not interesting
+            case 'L0' %no BD, not interesting unless for backup pulses
                 L0_ctr = L0_ctr +1;
                 %sum the pulse delay
                 pulseDelta = pulseDelta + tdms_struct.(field_names_out{i}).Props.Pulse_Delta;
+                %fill the backup data structure
+                %ADD THE TIMESTAMPS IN THE 'Props' FIELD
+                    normal_struct.(field_names_out{i}).Props.timestamp = get_tsString(field_names_out{i});  
+                %COPY THE FIELD the B0 field into the output struct           
+                    normal_struct.(field_names_out{i}) = tdms_struct.(field_names_out{i});
+                %ADD THE PROPS FIELD
+                    normal_struct.Props.filetype = 'Data';
+                %REMOVE MOTOR FIELDS
+                    if isfield(normal_struct.(field_names_out{i}),'Motor_Right')
+                        normal_struct.(field_names_out{i}) = rmfield(normal_struct.(field_names_out{i}),'Motor_Right');
+                    end
+                    if isfield(normal_struct.(field_names_out{i}),'Motor_Left')
+                        normal_struct.(field_names_out{i}) = rmfield(normal_struct.(field_names_out{i}),'Motor_Left');
+                    end
+                %INCLUDING CALIBRATING SIGNALS
+                    %log detector
+                    INC_cal = log_cal(tdms_struct.(field_names_out{i}).INC.data,...
+                            tdms_struct.(field_names_out{i}).INC.Props.Offset,...
+                            tdms_struct.(field_names_out{i}).INC.Props.Scale,...
+                            tdms_struct.(field_names_out{i}).INC.Props.Att__factor,...
+                            tdms_struct.(field_names_out{i}).INC.Props.Att__factor__dB_,...
+                            tdms_struct.(field_names_out{i}).INC.Props.Unit_scale);
+                    normal_struct.(field_names_out{i}).INC.data_cal = INC_cal;
+                    TRA_cal = log_cal(tdms_struct.(field_names_out{i}).TRA.data,...
+                            tdms_struct.(field_names_out{i}).TRA.Props.Offset,...
+                            tdms_struct.(field_names_out{i}).TRA.Props.Scale,...
+                            tdms_struct.(field_names_out{i}).TRA.Props.Att__factor,...
+                            tdms_struct.(field_names_out{i}).TRA.Props.Att__factor__dB_,...
+                            tdms_struct.(field_names_out{i}).TRA.Props.Unit_scale);
+                    normal_struct.(field_names_out{i}).TRA.data_cal = TRA_cal;
+                    REF_cal = log_cal(tdms_struct.(field_names_out{i}).REF.data,...
+                            tdms_struct.(field_names_out{i}).REF.Props.Offset,...
+                            tdms_struct.(field_names_out{i}).REF.Props.Scale,...
+                            tdms_struct.(field_names_out{i}).REF.Props.Att__factor,...
+                            tdms_struct.(field_names_out{i}).REF.Props.Att__factor__dB_,...
+                            tdms_struct.(field_names_out{i}).REF.Props.Unit_scale);   
+                    normal_struct.(field_names_out{i}).REF.data_cal = REF_cal;
+                %IQ signals
+                    try
+                    [amplitude,phase,timescale_IQ] = getIQSignal(tdms_struct.(field_names_out{i}).Fast_INC_I,tdms_struct.(field_names_out{i}).Fast_INC_Q);
+                    normal_struct.(field_names_out{i}).Fast_INC_I.Amplitude = amplitude;
+                    normal_struct.(field_names_out{i}).Fast_INC_I.Phase = phase;
+                    normal_struct.(field_names_out{i}).Fast_INC_I.timescale_IQ = timescale_IQ;
+                    [amplitude,phase,timescale_IQ] = getIQSignal(tdms_struct.(field_names_out{i}).Fast_TRA_I,tdms_struct.(field_names_out{i}).Fast_TRA_Q);
+                    normal_struct.(field_names_out{i}).Fast_TRA_I.Amplitude = amplitude;
+                    normal_struct.(field_names_out{i}).Fast_TRA_I.Phase = phase;
+                    normal_struct.(field_names_out{i}).Fast_TRA_I.timescale_IQ = timescale_IQ;
+                    [amplitude,phase,timescale_IQ] = getIQSignal(tdms_struct.(field_names_out{i}).Fast_REF_I,tdms_struct.(field_names_out{i}).Fast_REF_Q);
+                    normal_struct.(field_names_out{i}).Fast_REF_I.Amplitude = amplitude;
+                    normal_struct.(field_names_out{i}).Fast_REF_I.Phase = phase;
+                    normal_struct.(field_names_out{i}).Fast_REF_I.timescale_IQ = timescale_IQ;
+                    catch
+                    end
+                %BPMs
+                    %calibration and sum
+                    BPM1 = tdms_struct.(field_names_out{i}).BPM1.data;
+                    BPM1_cal = bpmcal(BPM1,'BPM1');
+                    normal_struct.(field_names_out{i}).BPM1.data_cal = BPM1_cal;
+                    normal_struct.(field_names_out{i}).BPM1.sum_cal = sum(BPM1_cal);
+                    BPM2 = tdms_struct.(field_names_out{i}).BPM2.data;
+                    BPM2_cal = bpmcal(BPM2,'BPM2');
+                    normal_struct.(field_names_out{i}).BPM2.data_cal = BPM2_cal;
+                    normal_struct.(field_names_out{i}).BPM2.sum_cal = sum(BPM2_cal);
+                % PULSE TUNING CHECK AND AVERAGE/PEAK CALCULATION
+                    [ tilt_str, peak_str, avg_str ] = checkTuning(INC_cal, comp_pulse_start, comp_pulse_end, ...
+                                                flattop_start, flattop_end, flattop_end_off, thr1, thr2, thr3 );
+                    normal_struct.(field_names_out{i}).tuning = tilt_str;
+                    % clean the unused fields
+                    normal_struct.(field_names_out{i}) = rmfield(normal_struct.(field_names_out{i}),'INC_max');
+                    normal_struct.(field_names_out{i}) = rmfield(normal_struct.(field_names_out{i}),'INC_average');
+                    normal_struct.(field_names_out{i}) = rmfield(normal_struct.(field_names_out{i}),'TRA_max');
+                    % fill it
+                    normal_struct.(field_names_out{i}).INC.max = peak_str;
+                    normal_struct.(field_names_out{i}).INC.avg = avg_str;
+                    normal_struct.(field_names_out{i}).REF.max = max(REF_cal);
+                    normal_struct.(field_names_out{i}).TRA.max = max(TRA_cal);
         end
         %update the progress bar
         prog = round(i/length(field_names_out),1);
@@ -375,9 +455,15 @@ for j = 1:length(filename) %loop over dates
     data_struct.('pulse_delay_from_last') = pulseDelta;
     toc
     %export the data
-    disp('Saving ......')
+    disp('Saving BD data ......')
     save([datapath_write filesep 'Data_' filename{j} '.mat'],'data_struct');
-    disp(['Saved file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
+    fileattrib([datapath_write filesep 'Data_' filename{j} '.mat'],'-w','a');
+    disp(['Saved BD file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
+    toc
+    disp('Saving normal data ......')
+    save([datapath_write filesep 'Norm_' filename{j} '.mat'],'normal_struct');
+    fileattrib([datapath_write filesep 'Norm_' filename{j} '.mat'],'-w','a');
+    disp(['Saved normal file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
     toc
     disp(' ')
 end
@@ -392,7 +478,7 @@ if buildExperiment
     disp(' ')
     disp('Start to assembly the experiment structure')
     %clean memor before allocating the new structure
-    clearvars -except datapath_write startDate startTime endDate endTime expName exppath_write
+    clearvars -except datapath_write startDate startTime endDate endTime expName exppath_write buildBackupPulses
     data_struct = buildExperimentStruct(datapath_write,startDate,startTime,endDate,endTime);
     %add fields related to time interval
     data_struct.Props.filetype = 'Experiment';
@@ -406,6 +492,30 @@ if buildExperiment
     disp('Saving ...')
     save([exppath_write filesep 'Exp_' expName '.mat'],'data_struct','-v7.3');
     fileattrib([exppath_write filesep 'Exp_' expName '.mat'],'-w','a');
+    disp('Done.')
+    toc
+    clearvars -except datapath_write startDate startTime endDate endTime expName exppath_write buildBackupPulses
+end
+
+if buildBackupPulses
+    tic
+    disp(' ')
+    disp('Start to assembly the backup data structure')
+    %clean memor before allocating the new structure
+    clearvars -except datapath_write startDate startTime endDate endTime expName exppath_write
+    data_struct = buildExperimentStruct(datapath_write,startDate,startTime,endDate,endTime);
+    %add fields related to time interval
+    data_struct.Props.filetype = 'Backup pulses';
+    data_struct.Props.startDate = startDate;
+    data_struct.Props.startTime = startTime;
+    data_struct.Props.endDate = endDate;
+    data_struct.Props.endTime = endTime;
+    disp('Done');
+    toc
+    %save the file
+    disp('Saving ...')
+    save([exppath_write filesep 'Norm_full_' expName '.mat'],'data_struct','-v7.3');
+    fileattrib([exppath_write filesep 'Norm_full_' expName '.mat'],'-w','a');
     disp('Done.')
     toc
     clearvars

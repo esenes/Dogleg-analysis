@@ -11,10 +11,10 @@ This script with the relative subfunctions is available in another repository na
 
 ### 2) readMATandsort.m
 
-reads the files `Prod_<date>.mat`, discard the backup pulses, perform a first analysis and save as output files named `Data_<date>.mat` containing the interlocks events and files named `Norm_<date>.mat` containing the backup pulses.
-If `buildExperiment=true` the Data files are merged in `Exp_<expname>.mat`.
+reads the files `Prod_<date>.mat`, perform a first analysis and save an output file named `Data_<date>.mat` containing the interlocks events and a file named `Norm_<date>.mat` containing the backup pulses.
+If `buildExperiment=true` the Data files are merged in `Exp_<expname>.mat` between the date of interest.
 If `buildBackupPulses=true` the Norm files are merged in `Norm_full_<expname>.mat`.
-This feature is intended to group a long data acquisition into a single file. (link to the table on the wikis)
+This feature is intended to group a long data acquisition into a single file.
 
 _The aim of the script is:_
 - select just interlocks discarding the backup pulses

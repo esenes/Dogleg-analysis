@@ -1,13 +1,12 @@
 # Dogleg-analysis
+The following scripts are intended to analyze the data of the test of the TD26 structure, under test in the dogleg of the CTF3 facility.
+The data are stored in TDMS files, to perform the analysis run these scripts in sequence:
 
 ---
 
 **Warning:** upgraded to MATLAB version 2016a on 06.06.2016
 
 ---
-
-The following scripts are intended to analyze the data of the test of the TD26 structure, under test in the dogleg of the CTF3 facility.
-The data are stored in TDMS files, to perform the analysis run these scripts in sequence:
 
 ### 1) read_TDMS_full.m
 

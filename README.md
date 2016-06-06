@@ -4,7 +4,7 @@ The data are stored in TDMS files, to perform the analysis run these scripts in 
 
 ---
 
-**Warning:** upgraded to MATLAB version 2016a on 06.06.2016
+> **Warning:** upgraded to MATLAB version 2016a on 06.06.2016
 
 ---
 

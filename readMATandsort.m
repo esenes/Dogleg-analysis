@@ -40,14 +40,15 @@ datapath_read = '/Users/esenes/swap';
 datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
 
-startDate = '20160504';
-endDate = '20160509';
-startTime = '18:20:00';
-endTime = '09:30:00';
+%run10
+startDate = '20160603';
+endDate = '20160606';
+startTime = '17:00:00';
+endTime = '10:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'Loaded43MW_7';
+expName = 'Unloaded43MW_2';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

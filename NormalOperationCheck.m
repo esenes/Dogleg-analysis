@@ -19,7 +19,7 @@ datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-fileName = 'Norm_full_Loaded43MW_3';
+fileName = 'Norm_full_Unoaded43MW_2';
 savename = fileName;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

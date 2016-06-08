@@ -19,7 +19,7 @@ datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-fileName = 'Norm_full_Unoaded43MW_2';
+fileName = 'Norm_full_Loaded43MW_3';
 savename = fileName;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,8 +173,9 @@ xlabel('Minutes')
 ylabel('Integrated charge')
 ylim([min(bpm2_ch)-5 5])
 legend({'Interlocks','threshold'},'Position',[.825 .35 .065 .065])
-print(f1,[datapath_write_plot filesep fileName '_charge_distribution'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_charge_distribution'])
+path1 = [datapath_write_plot filesep fileName '_charge_distribution'];
+print(f1,path1,'-djpeg')
+savefig(path1)
 %TRA time distribution plot
 f2 = figure('position',[0 0 winW winH]);
 figure(f2)
@@ -186,7 +187,9 @@ title('TRA peak power distribution in time')
 xlabel('Minutes')
 ylabel('SDtructure output Power (W)')
 legend({'With beam','Without Beam'},'Position',[.15 .8 .085 .085])
-ax = gca;
+path2 = [datapath_write_plot filesep fileName '_TRA_peak_vs_time'];
+print(f2,path2,'-djpeg')
+savefig(path2)
 %INC time distribution plot
 f3 = figure('position',[0 0 winW winH]);
 figure(f3)
@@ -198,9 +201,12 @@ title('TRA peak power distribution in time')
 xlabel('Minutes')
 ylabel('SDtructure output Power (W)')
 legend({'With beam','Without Beam'},'Position',[.15 .8 .085 .085])
+path3 = [datapath_write_plot filesep fileName '_INC_peak_vs_time'];
+print(f3,path3,'-djpeg')
+savefig(path3)
 %TUNING time distribution plot
-f3 = figure('position',[0 0 winW winH]);
-figure(f3)
+f4 = figure('position',[0 0 winW winH]);
+figure(f4)
 plot(xscale(hasBeam), tuning_delta(hasBeam),'.','MarkerSize',20);
 hold on
 plot(xscale(~hasBeam), tuning_delta(~hasBeam),'.','MarkerSize',20);
@@ -209,7 +215,9 @@ title('Pulse tuning distribution in time')
 xlabel('Minutes')
 ylabel('Power difference (W)')
 legend({'With beam','Without Beam'},'Position',[.15 .8 .085 .085])
-
+path4 = [datapath_write_plot filesep fileName '_tuning_vs_time'];
+print(f4,path4,'-djpeg')
+savefig(path4)
     
 %% Report message part 2
 disp('Analysis done! ')
@@ -230,32 +238,6 @@ fprintf(logID,msg2);
 fclose(logID);
 
 %% Distributions plots
-% peak INC power distribution
-f3 = figure('position',[0 0 winW winH]);
-figure(f3)
-xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
-h1 = hist(pk_pwr(hasBeam),xbins);
-h2 = hist(pk_pwr(~hasBeam),xbins);
-bar([h1;h2]','stack')
-legend({'With Beam','Without Beam'},'Position',[.15 .8 .085 .085])
-xlabel('Power (MW)')
-ylabel('Counts')
-title('Overall distribution of peak incident power for backup events')
-print(f3,[datapath_write_plot filesep fileName '_peak_power_distribution'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_peak_power_distribution'])
-% average INC power distribution
-f4 = figure('position',[0 0 winW winH]);
-figure(f4)
-xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1)); %1MW per bin
-h1 = hist(avg_pwr(hasBeam),xbins);
-h2 = hist(avg_pwr(~hasBeam),xbins);
-bar([h1;h2]','stack')
-legend({'With Beam','Without Beam'},'Position',[.15 .8 .085 .085])
-xlabel('Power (MW)')
-ylabel('Counts')
-title('Overall distribution of average incident power for backup events')
-print(f4,[datapath_write_plot filesep fileName '_average_power_distribution'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_average_power_distribution'])
 % Probability plot
 f5 = figure('position',[0 0 winW winH]);
 figure(f5)
@@ -263,13 +245,13 @@ xbins = 0:0.2e16:2e16;
 histogram(prob(hasBeam),xbins);
 hold on
 histogram(prob(~hasBeam),xbins);
-bar([h1;h2]','stack')
 legend({'With beam','Without beam'},'Position',[.15 .8 .085 .085])
 xlabel('$$ \int P^3 d \tau $$','interpreter','latex')
 ylabel('Counts')
 title('BD probability')
-print(f5,[datapath_write_plot filesep fileName '_BD_probability'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_BD_probability'])
+path5 = [datapath_write_plot filesep fileName '_BD_probability'];
+print(f5,path5,'-djpeg')
+savefig(path5)
 % peak TRA power distribution
 f6 = figure('position',[0 0 winW winH]);
 figure(f6)
@@ -281,8 +263,9 @@ legend({'With Beam','Without Beam'},'Position',[.15 .8 .085 .085])
 xlabel('Power (MW)')
 ylabel('Counts')
 title('Overall distribution of peak transmitted power for backup events')
-print(f6,[datapath_write_plot filesep fileName '_peak_TRA_power_distribution'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_peak_TRA_power_distribution'])
+path6 = [datapath_write_plot filesep fileName '_peak_TRA_power_distribution'];
+print(f6,path6,'-djpeg')
+savefig(path6)
 % tuning delta power distribution
 f7 = figure('position',[0 0 winW winH]);
 figure(f7)
@@ -300,8 +283,9 @@ histogram(tmp_tuning(~hasBeam),xbins)
 title('Backuo pulses tuning distribution: pulses without beam ')
 xlabel('Power delta (W)')
 ylabel('Counts')
-print(f7,[datapath_write_plot filesep fileName '_tuning_delta_power_distribution'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_tuning_delta_power_distribution'])
+path7 = [datapath_write_plot filesep fileName '_tuning_delta_power_distribution'];
+print(f7,path7,'-djpeg')
+savefig(path7)
 %pulse length
 f8 = figure('position',[0 0 winW winH]);
 figure(f8)
@@ -335,5 +319,67 @@ l = legend({'85%','65%','40%'},'Position',[.15 .8 .085 .085]);
 xlabel('Pulse width (ns)')
 ylabel('Counts')
 hold off
-print(f8,[datapath_write_plot filesep fileName '_pulse_width_distribution'],'-djpeg')
-savefig([datapath_write_fig filesep fileName '_pulse_width_distribution'])
+path8 = [datapath_write_plot filesep fileName '_pulse_width_distribution'];
+print(f8,path8,'-djpeg')
+savefig(path8)
+% peak INC power distribution
+f9 = figure('position',[0 0 winW winH]);
+figure(f9)
+xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
+h1 = hist(pk_pwr(hasBeam),xbins);
+h2 = hist(pk_pwr(~hasBeam),xbins);
+bar([h1;h2]','stack')
+legend({'With Beam','Without Beam'},'Position',[.15 .8 .085 .085])
+xlabel('Power (MW)')
+ylabel('Counts')
+title('Overall distribution of peak incident power for backup events')
+path9 = [datapath_write_plot filesep fileName '_peak_power_distribution'];
+print(f9,path9,'-djpeg')
+savefig(path9)
+% average INC power distribution
+f10 = figure('position',[0 0 winW winH]);
+figure(f10)
+xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1)); %1MW per bin
+h1 = hist(avg_pwr(hasBeam),xbins);
+h2 = hist(avg_pwr(~hasBeam),xbins);
+bar([h1;h2]','stack')
+legend({'With Beam','Without Beam'},'Position',[.15 .8 .085 .085])
+xlabel('Power (MW)')
+ylabel('Counts')
+title('Overall distribution of average incident power for backup events')
+path10 = [datapath_write_plot filesep fileName '_average_power_distribution'];
+print(f10,path10,'-djpeg')
+savefig(path10)
+
+%% Create tex file
+%adjust date format
+sdate = data_struct.Props.startDate;
+sdatenum = datenum(sdate,'yyyymmdd');
+sdatestr = datestr(sdatenum,'yyyy mmm dd');
+
+edate = data_struct.Props.endDate;
+edatenum = datenum(edate,'yyyymmdd');
+edatestr = datestr(edatenum,'yyyy mmm dd');
+%get number of pulses
+l1 = length(Beam);
+l2 = length(noBeam);
+%create the file
+texID = createTex(datapath_write,savename,'Normal run report', ...
+    sdatestr, data_struct.Props.startTime, edatestr, data_struct.Props.endTime,...
+    datestr(datetime('now')),...
+    fileName, bpm1_thr, bpm2_thr,...
+    l1,l2...
+    );
+
+addPlotTex(datapath_write,savename,path1,'jpg');
+addPlotTex(datapath_write,savename,path2,'jpg');
+addPlotTex(datapath_write,savename,path3,'jpg');
+addPlotTex(datapath_write,savename,path4,'jpg');
+addPlotTex(datapath_write,savename,path5,'jpg');
+addPlotTex(datapath_write,savename,path6,'jpg');
+addPlotTex(datapath_write,savename,path7,'jpg');
+addPlotTex(datapath_write,savename,path8,'jpg');
+addPlotTex(datapath_write,savename,path9,'jpg');
+addPlotTex(datapath_write,savename,path10,'jpg');
+
+closeTex(datapath_write,savename);

@@ -19,7 +19,8 @@ datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-fileName = 'Norm_full_Loaded43MW_3';
+datapath_write_report = '/Users/esenes/swap_out/exp/reports';
+fileName = 'Norm_full_Loaded43MW_8';
 savename = fileName;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,6 +156,49 @@ for k=1:length(ts_array)
     xscale(k) = etime(ts_array_vec(k,:),ts_array_vec(1,:));
 end
 xscale = xscale/60; %in minutes
+%calculate the ticks for the dates every 6 hours
+    daynumber = ceil(max(xscale)/(60*24)) -1;
+    sdate = data_struct.Props.startDate;
+    edate = data_struct.Props.endDate;
+    hstart = ts_array_vec(1,4);
+    stick = 0; %ticks for the first day
+    swlab = '';
+    if hstart < 8 
+        stick = 3;
+        slab = '00:00';
+    elseif hstart < 16 && hstart >= 8
+        stick = 2;
+        slab = '08:00';
+    elseif hstart >= 16
+        stick = 1;
+        slab = '16:00';
+    end
+    hstop = ts_array_vec(end,4)+1;
+    etick = 0;
+    elab = '';
+    if hstop < 8 
+        etick = 2;
+        elab = '08:00';
+    elseif hstop <= 16 && hstop >= 8
+        etick = 3;
+        elab = '16:00';
+    elseif hstop > 16
+        etick = 4;
+        elab = '00:00';
+        edate = datestr(datenum(edate,'yyyymmdd')+1,'yyyymmdd');
+    end
+    tickNum = 3*(daynumber) + stick + etick ;
+    firstTick = [sdate slab];
+    endTick = [edate elab];
+    xt = linspace(datenum(firstTick,'yyyymmddHH:SS'),datenum(endTick,'yyyymmddHH:SS'),tickNum);
+    xtL = {};
+    for l=1:length(xt)
+        xtL = [xtL datestr(xt(l),'dd-mmm HH:MM')];
+    end
+%end of ticks calculation
+
+
+
 %Charge time distribution plot
 f1 = figure('position',[0 0 winW winH]);
 figure(f1)
@@ -175,49 +219,62 @@ ylim([min(bpm2_ch)-5 5])
 legend({'Interlocks','threshold'},'Position',[.825 .35 .065 .065])
 path1 = [datapath_write_plot filesep fileName '_charge_distribution'];
 print(f1,path1,'-djpeg')
-savefig(path1)
+savefig([datapath_write_fig filesep fileName '_charge_distribution'])
+%TRA time distribution plot
 %TRA time distribution plot
 f2 = figure('position',[0 0 winW winH]);
 figure(f2)
-plot(xscale(hasBeam), pk_tra(hasBeam),'.','MarkerSize',20);
+plot(ts_array(~hasBeam), pk_tra(~hasBeam),'.','MarkerSize',20);
 hold on
-plot(xscale(~hasBeam), pk_tra(~hasBeam),'.','MarkerSize',20);
+plot(ts_array(hasBeam), pk_tra(hasBeam),'.','MarkerSize',20);
 hold off
 title('TRA peak power distribution in time')
-xlabel('Minutes')
-ylabel('SDtructure output Power (W)')
-legend({'With beam','Without Beam'},'Position',[.15 .8 .085 .085])
+xlabel('Date')
+ylabel('Structure output Power (W)')
+legend({'Without Beam','With beam'},'Position',[.15 .8 .085 .085])
+ax = gca;
+ax.XTick = xt;
+ax.XTickLabel = xtL;
+ax.XTickLabelRotation = 45;
 path2 = [datapath_write_plot filesep fileName '_TRA_peak_vs_time'];
 print(f2,path2,'-djpeg')
-savefig(path2)
+savefig([datapath_write_fig filesep fileName '_TRA_peak_vs_time'])
 %INC time distribution plot
 f3 = figure('position',[0 0 winW winH]);
 figure(f3)
-plot(xscale(hasBeam), pk_pwr(hasBeam),'.','MarkerSize',20);
+plot(ts_array(~hasBeam), pk_pwr(~hasBeam),'.','MarkerSize',20);
 hold on
-plot(xscale(~hasBeam), pk_pwr(~hasBeam),'.','MarkerSize',20);
+plot(ts_array(hasBeam), pk_pwr(hasBeam),'.','MarkerSize',20);
 hold off
-title('TRA peak power distribution in time')
-xlabel('Minutes')
+title('INC peak power distribution in time')
+xlabel('Date')
 ylabel('SDtructure output Power (W)')
-legend({'With beam','Without Beam'},'Position',[.15 .8 .085 .085])
+ax = gca;
+ax.XTick = xt;
+ax.XTickLabel = xtL;
+ax.XTickLabelRotation = 45;
+legend({'Without Beam','With beam'},'Position',[.15 .8 .085 .085])
 path3 = [datapath_write_plot filesep fileName '_INC_peak_vs_time'];
 print(f3,path3,'-djpeg')
-savefig(path3)
+savefig([datapath_write_fig filesep fileName '_INC_peak_vs_time'])
 %TUNING time distribution plot
 f4 = figure('position',[0 0 winW winH]);
 figure(f4)
-plot(xscale(hasBeam), tuning_delta(hasBeam),'.','MarkerSize',20);
+plot(ts_array(~hasBeam), tuning_delta(~hasBeam),'.','MarkerSize',20);
 hold on
-plot(xscale(~hasBeam), tuning_delta(~hasBeam),'.','MarkerSize',20);
+plot(ts_array(hasBeam), tuning_delta(hasBeam),'.','MarkerSize',20);
 hold off
 title('Pulse tuning distribution in time')
-xlabel('Minutes')
+ax = gca;
+ax.XTick = xt;
+ax.XTickLabel = xtL;
+ax.XTickLabelRotation = 45;
+xlabel('Date')
 ylabel('Power difference (W)')
-legend({'With beam','Without Beam'},'Position',[.15 .8 .085 .085])
+legend({'Without Beam','With beam'},'Position',[.15 .8 .085 .085])
 path4 = [datapath_write_plot filesep fileName '_tuning_vs_time'];
 print(f4,path4,'-djpeg')
-savefig(path4)
+savefig([datapath_write_fig filesep fileName '_tuning_vs_time'])
     
 %% Report message part 2
 disp('Analysis done! ')
@@ -251,7 +308,7 @@ ylabel('Counts')
 title('BD probability')
 path5 = [datapath_write_plot filesep fileName '_BD_probability'];
 print(f5,path5,'-djpeg')
-savefig(path5)
+savefig([datapath_write_fig filesep fileName '_BD_probability'])
 % peak TRA power distribution
 f6 = figure('position',[0 0 winW winH]);
 figure(f6)
@@ -265,7 +322,7 @@ ylabel('Counts')
 title('Overall distribution of peak transmitted power for backup events')
 path6 = [datapath_write_plot filesep fileName '_peak_TRA_power_distribution'];
 print(f6,path6,'-djpeg')
-savefig(path6)
+savefig([datapath_write_fig filesep fileName '_peak_TRA_power_distribution'])
 % tuning delta power distribution
 f7 = figure('position',[0 0 winW winH]);
 figure(f7)
@@ -285,7 +342,7 @@ xlabel('Power delta (W)')
 ylabel('Counts')
 path7 = [datapath_write_plot filesep fileName '_tuning_delta_power_distribution'];
 print(f7,path7,'-djpeg')
-savefig(path7)
+savefig([datapath_write_fig filesep fileName '_tuning_delta_power_distribution'])
 %pulse length
 f8 = figure('position',[0 0 winW winH]);
 figure(f8)
@@ -321,7 +378,7 @@ ylabel('Counts')
 hold off
 path8 = [datapath_write_plot filesep fileName '_pulse_width_distribution'];
 print(f8,path8,'-djpeg')
-savefig(path8)
+savefig([datapath_write_fig filesep fileName '_pulse_width_distribution'])
 % peak INC power distribution
 f9 = figure('position',[0 0 winW winH]);
 figure(f9)
@@ -335,7 +392,7 @@ ylabel('Counts')
 title('Overall distribution of peak incident power for backup events')
 path9 = [datapath_write_plot filesep fileName '_peak_power_distribution'];
 print(f9,path9,'-djpeg')
-savefig(path9)
+savefig([datapath_write_fig filesep fileName '_peak_power_distribution'])
 % average INC power distribution
 f10 = figure('position',[0 0 winW winH]);
 figure(f10)
@@ -349,7 +406,7 @@ ylabel('Counts')
 title('Overall distribution of average incident power for backup events')
 path10 = [datapath_write_plot filesep fileName '_average_power_distribution'];
 print(f10,path10,'-djpeg')
-savefig(path10)
+savefig([datapath_write_fig filesep fileName '_average_power_distribution'])
 
 %% Create tex file
 %adjust date format
@@ -364,22 +421,24 @@ edatestr = datestr(edatenum,'yyyy mmm dd');
 l1 = length(Beam);
 l2 = length(noBeam);
 %create the file
-texID = createTex(datapath_write,savename,'Normal run report', ...
+texID = createTex(datapath_write_report,savename,'Normal run report', ...
     sdatestr, data_struct.Props.startTime, edatestr, data_struct.Props.endTime,...
     datestr(datetime('now')),...
     fileName, bpm1_thr, bpm2_thr,...
     l1,l2...
     );
 
-addPlotTex(datapath_write,savename,path1,'jpg');
-addPlotTex(datapath_write,savename,path2,'jpg');
-addPlotTex(datapath_write,savename,path3,'jpg');
-addPlotTex(datapath_write,savename,path4,'jpg');
-addPlotTex(datapath_write,savename,path5,'jpg');
-addPlotTex(datapath_write,savename,path6,'jpg');
-addPlotTex(datapath_write,savename,path7,'jpg');
-addPlotTex(datapath_write,savename,path8,'jpg');
-addPlotTex(datapath_write,savename,path9,'jpg');
-addPlotTex(datapath_write,savename,path10,'jpg');
+beg_lscape(datapath_write_report,savename);
+addPlotTex(datapath_write_report,savename,path1,'jpg');
+addPlotTex(datapath_write_report,savename,path2,'jpg');
+addPlotTex(datapath_write_report,savename,path3,'jpg');
+addPlotTex(datapath_write_report,savename,path4,'jpg');
+addPlotTex(datapath_write_report,savename,path5,'jpg');
+addPlotTex(datapath_write_report,savename,path6,'jpg');
+addPlotTex(datapath_write_report,savename,path7,'jpg');
+addPlotTex(datapath_write_report,savename,path8,'jpg');
+addPlotTex(datapath_write_report,savename,path9,'jpg');
+addPlotTex(datapath_write_report,savename,path10,'jpg');
+end_lscape(datapath_write_report,savename);
 
-closeTex(datapath_write,savename);
+closeTex(datapath_write_report,savename);

@@ -10,6 +10,8 @@ The data are stored in TDMS files, to perform the analysis run these scripts in 
 
 ---
 
+![workflow](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Untitled%20Diagram.png)
+
 ### 1) read_TDMS_full.m
 
 to read the TDMS files in the specified range and convert TDMS files into `Prod_<date>.mat` files. 

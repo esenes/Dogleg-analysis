@@ -53,7 +53,7 @@ The full reference is available [here](https://github.com/esenes/Dogleg-analysis
 
 to apply the filters to the informations which were calculated and saved in the precedent step of the analysis.
 
-It reads directly the `Exp_<expname>.m` file and performs several analysis actions, which are:
+It reads directly the `Exp_<expname>.mat` file and performs several analysis actions, which are:
 
 __1) Flag the events__: assign a boolean value comparing every feature with user-defined tresholds; in detail:
 *  detect if the event is **into the metric** or out of it

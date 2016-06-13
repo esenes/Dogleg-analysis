@@ -22,6 +22,8 @@ The complete reference to the content of the structure is available on the  [tdm
 As it's easy to understand, the backup pulses are useless during the normal data analysis, and dealing with big files filled of useless data is not a great idea, so first of all the algorythm should select just the events which have triggered an interlock.
 The point is that **no more discard of data and manipulation is made in this stage of analysis**, the aim of the script is to **classify the data**, adding information but without lose the original one.
 
+The backup pulses are saved into the `Norm_<date>.mat` files, and are useful to understand the running conditions of the machine
+
 The process can be resumed in
 
 * calculate and add the calibrated signals

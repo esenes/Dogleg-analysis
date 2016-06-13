@@ -47,7 +47,20 @@ _User input_
 
 The full reference is available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/readMATandsort_guide.md)
 
-### 3) Filtering.m
+At this point the analysis forks in two branches: 
+* To analyze the operation of the machine during the normal pulses is used the script *NormalOperationCheck.m* (3.1)
+* To analyze the BD events is used the script *Filtering.m* (3.2)
+
+### 3.1) NormalOperationCheck.m 
+
+> still a work in progress....
+
+Analyze the backup pulses of the files called `Norm_full_<expname>.mat` and print some plots to understand the stability of the machine. 
+
+The typical output can be found [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/NormalOperationCheck.md)
+
+
+### 3.2) Filtering.m
 
 > still a work in progress.... 
 

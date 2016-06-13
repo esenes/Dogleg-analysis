@@ -89,3 +89,10 @@ into every interlock event are added these fields:
     *  ...
   * fail_m2: error flag for method 2
   * slope: result of the method 2
+
+and these fields are deleted
+* **INC_average**: is recalculated and saved into the INC.avg field, which contains the boundary bins used for the calculation
+* **INC_MAX**: is recalculated and saved into the INC.max field
+* **INC_pulse_width**
+* **Motor_right**
+* **Motor_left**

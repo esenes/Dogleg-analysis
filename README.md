@@ -55,8 +55,6 @@ At this point the analysis forks in two branches:
 
 ### 3.1) NormalOperationCheck.m 
 
-> still a work in progress....
-
 Analyze the backup pulses of the files called `Norm_full_<expname>.mat` and print some plots to understand the stability of the machine. 
 
 The typical output can be found [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/NormalOperationCheck.md)

@@ -12,3 +12,5 @@ Various informations are generated, such as:
 ![p4](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Norm_full_Loaded43MW_1_TRA_peak_vs_time.jpg)
 
 ![p5](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Norm_full_Loaded43MW_1_tuning_vs_time.jpg)
+
+(and much more)

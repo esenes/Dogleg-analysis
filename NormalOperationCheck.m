@@ -20,7 +20,7 @@ datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
 datapath_write_report = '/Users/esenes/swap_out/exp/reports';
-fileName = 'Norm_full_Loaded43MW_9';
+fileName = 'Norm_full_Loaded43MW_10';
 savename = fileName;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -203,14 +203,22 @@ xscale = xscale/60; %in minutes
 f1 = figure('position',[0 0 winW winH]);
 figure(f1)
 subplot(2,1,1)
-plot(xscale, bpm1_ch,'.','MarkerSize',12);
+plot(ts_array, bpm1_ch,'.','MarkerSize',12);
+ax = gca;
+ax.XTick = xt;
+ax.XTickLabel = xtL;
+ax.XTickLabelRotation = 45;
 line(xlim, [bpm1_thr bpm1_thr], 'Color', 'r','LineWidth',1) %horizontal line
 title('BPM1 charge distribution')
 xlabel('Minutes')
 ylabel('Integrated charge')
 legend({'Acquisition','threshold'},'Position',[.825 .825 .065 .065])
 subplot(2,1,2)
-plot(xscale,bpm2_ch,'.','MarkerSize',12)
+plot(ts_array,bpm2_ch,'.','MarkerSize',12)
+ax = gca;
+ax.XTick = xt;
+ax.XTickLabel = xtL;
+ax.XTickLabelRotation = 45;
 line(xlim, [bpm2_thr bpm2_thr], 'Color', 'r','LineWidth',1) %horizontal line
 title('BPM2 charge distribution')
 xlabel('Minutes')

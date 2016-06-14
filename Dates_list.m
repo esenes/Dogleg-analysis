@@ -54,3 +54,31 @@ startDate = '20160527';
 endDate = '20160530';
 startTime = '17:30:00';
 endTime = '09:00:00';
+
+%% 38MW
+
+%run1
+startDate = '20160408';
+endDate = '20160409';
+startTime = '17:30:00';
+endTime = '21:15:00';
+
+%% Anti-loaded 6.5MW
+
+%run1
+startDate = '20160404';
+endDate = '20160408';
+startTime = '18:30:00';
+endTime = '16:00:00';
+
+%run2
+startDate = '20160603';
+endDate = '20160606';
+startTime = '17:00:00';
+endTime = '10:00:00';
+
+%run3
+startDate = '20160610';
+endDate = '20160613';
+startTime = '17:00:00';
+endTime = '09:00:00';

@@ -21,7 +21,7 @@
 % 
 % REV. 1. by Eugenio Senes and Theodoros Argyropoulos
 %
-% Last modified 22.04.2016 by Eugenio Senes
+% Last modified 13.06.2016 by Eugenio Senes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
 if strcmp(computer,'MACI64') %just hit add to path when prompted

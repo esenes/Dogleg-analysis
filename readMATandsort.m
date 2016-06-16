@@ -40,15 +40,15 @@ datapath_read = '/Users/esenes/swap';
 datapath_write = '/Users/esenes/swap_out/data';
 exppath_write = '/Users/esenes/swap_out/exp';
 
-%run2
-startDate = '20160603';
-endDate = '20160606';
-startTime = '17:00:00';
-endTime = '10:00:00';
+%run10
+startDate = '20160527';
+endDate = '20160530';
+startTime = '17:30:00';
+endTime = '09:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'Antiloaded43MW_2';
+expName = 'Loaded43MW_10';
 
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,7 +59,7 @@ expName = 'Antiloaded43MW_2';
 spike_window_start = 140;
 spike_window_end = 466;
 %%Threshold setting
-spike_thr = 8e6;
+spike_thr = 5e5;
 ratio_setPoint = .25;
 % TUNING DETECTION PARAMETERS
 %%windowing (bins)
@@ -126,6 +126,9 @@ for j = 1:length(filename) %loop over dates
     % Open a progress bar
     progBar = waitbar(0,['Elaborating file ' num2str(j) ' on ' num2str(length(filename)) ]);
 
+    %ADD THE PROPS FIELD
+    data_struct.Props.filetype = 'Data';
+
     %% select file B0 with L1 and L2 for the data, the L0 for the normal operation check
     for i = 1:length(field_names_out) %loop over events
         %Filter definition for spike treatment
@@ -144,8 +147,6 @@ for j = 1:length(filename) %loop over dates
                     data_struct.(field_names_out{i}).Props.timestamp = get_tsString(field_names_out{i});  
                 %COPY THE FIELD the B0 field into the output struct           
                     data_struct.(field_names_out{i}) = tdms_struct.(field_names_out{i});
-                %ADD THE PROPS FIELD
-                    data_struct.Props.filetype = 'Data';
                 %REMOVE MOTOR FIELDS
                     if isfield(data_struct.(field_names_out{i}),'Motor_Right')
                         data_struct.(field_names_out{i}) = rmfield(data_struct.(field_names_out{i}),'Motor_Right');
@@ -221,48 +222,17 @@ for j = 1:length(filename) %loop over dates
                     if ( strcmp(field_names_out{i+1}(end-1:end),'L1') && strcmp(field_names_out{i+2}(end-1:end),'L2') )%try to read the next 2 events
                         LL_ctr = LL_ctr +1; %increment the counter of usable BDs        
                         %filter the spikes
-                        try
-                        %calibrate the INC for spare pulse
-                        INC_cal_n1 = log_cal(tdms_struct.(field_names_out{i+1}).INC.data,...
-                            tdms_struct.(field_names_out{i+1}).INC.Props.Offset,...
-                            tdms_struct.(field_names_out{i+1}).INC.Props.Scale,...
-                            tdms_struct.(field_names_out{i+1}).INC.Props.Att__factor,...
-                            tdms_struct.(field_names_out{i+1}).INC.Props.Att__factor__dB_,...
-                            tdms_struct.(field_names_out{i+1}).INC.Props.Unit_scale);
-                        INC_cal_n2 = log_cal(tdms_struct.(field_names_out{i+2}).INC.data,...
-                            tdms_struct.(field_names_out{i+2}).INC.Props.Offset,...
-                            tdms_struct.(field_names_out{i+2}).INC.Props.Scale,...
-                            tdms_struct.(field_names_out{i+2}).INC.Props.Att__factor,...
-                            tdms_struct.(field_names_out{i+2}).INC.Props.Att__factor__dB_,...
-                            tdms_struct.(field_names_out{i+2}).INC.Props.Unit_scale);                        
-                        %test the spikes
-                        [sf, ~, ~, ~, ~, ~, ~, str_1, str_2] = spike_test_cal( INC_cal,... 
-                            spike_window_start, spike_window_end, spike_thr,...
-                            INC_cal_n1, INC_cal_n2 ,ratio_setPoint  );
-                            if sf
-                                %method flag = Prev_pulses
-                                data_struct.(field_names_out{i}).spike.method = 'Prev_pulses';
-                                data_struct.(field_names_out{i}).spike.flag = 1;
-                                data_struct.(field_names_out{i}).spike.thr1 = str_1;
-                                data_struct.(field_names_out{i}).spike.thr2 = str_2;
-                            else
-                                data_struct.(field_names_out{i}).spike.method = 'Prev_pulses';
-                                data_struct.(field_names_out{i}).spike.flag = 0;
-                            end
-                        catch %if the method fails, then use the other method
-%                             warning(['Bad windowing detected or power setpoint changed for ' field_names_out{i} ' , will be processed using the digital filter'])
-                            [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd);
-                            if hasSpike
-                                %method flag = Freq_filter
-                                data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
-                                data_struct.(field_names_out{i}).spike.flag = 1;
-                                data_struct.(field_names_out{i}).spike.filtered_signal = filteredSignal;
-                            else
-                                data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
-                                data_struct.(field_names_out{i}).spike.flag = 0;
-                            end
-                        end%of try/catch
-                    %method2: events with B0 only 
+                        [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd);
+                        if hasSpike
+                            %method flag = Freq_filter
+                            data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
+                            data_struct.(field_names_out{i}).spike.flag = 1;
+                            data_struct.(field_names_out{i}).spike.filtered_signal = filteredSignal;
+                        else
+                            data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
+                            data_struct.(field_names_out{i}).spike.flag = 0;
+                        end
+                    %method2: events with B0 only
                     else
                         FF_ctr = FF_ctr+1;                    
                         [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd);

@@ -31,10 +31,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
-expname = 'Exp_Loaded43MW_8';
+datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
+datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
+expname = 'Exp_Loaded43MW_10';
 savename = expname;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 
@@ -202,8 +203,8 @@ line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal li
 line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
 title('Interlock criteria review')
 legend('Interlocks','Threshold')
-savefig([datapath_write filesep expname '_Metric_plot'])
-print(f0,[datapath_write filesep expname '_Metric_plot'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_Metric_plot'])
+print(f0,[datapath_write_plot filesep expname '_Metric_plot'],'-djpeg')
 %Charge distribution plot
 f1 = figure('position',[0 0 winW winH]);
 figure(f1)
@@ -221,8 +222,8 @@ title('BPM2 charge distribution')
 xlabel('Event number')
 ylabel('Integrated charge')
 legend('Interlocks','threshold')
-print(f1,[datapath_write filesep expname '_charge_distribution'],'-djpeg')
-savefig([datapath_write filesep expname '_charge_distribution'])
+print(f1,[datapath_write_plot filesep expname '_charge_distribution'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_charge_distribution'])
 
 
 %% Start the filtering 
@@ -342,8 +343,8 @@ legend({'BDs','Spikes', 'Secondaries after spikes'},'Position',[.15 .8 .085 .085
 xlabel('Power (MW)')
 ylabel('Counts')
 title('Overall distribution of peak incident power')
-print(f3,[datapath_write filesep expname '_peak_power_distribution'],'-djpeg')
-savefig([datapath_write filesep expname '_peak_power_distribution'])
+print(f3,[datapath_write_plot filesep expname '_peak_power_distribution'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_peak_power_distribution'])
 % average power distribution
 f4 = figure('position',[0 0 winW winH]);
 figure(f4)
@@ -356,8 +357,8 @@ legend({'BDs','Spikes', 'Secondaries after spikes'},'Position',[.15 .8 .085 .085
 xlabel('Power (MW)')
 ylabel('Counts')
 title('Overall distribution of average incident power')
-print(f4,[datapath_write filesep expname '_average_power_distribution'],'-djpeg')
-savefig([datapath_write filesep expname '_average_power_distribution'])
+print(f4,[datapath_write_plot filesep expname '_average_power_distribution'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_average_power_distribution'])
 
 
 % Probability plot
@@ -368,92 +369,92 @@ histogram(prob(inMetric));
 xlabel('$$ \int P^3 d \tau $$','interpreter','latex')
 ylabel('Counts')
 title('BD probability')
-print(f5,[datapath_write filesep expname '_BD_probability_metric'],'-djpeg')
-savefig([datapath_write filesep expname '_BD_probability_metric'])
-
-
-% Spikes clusters length
-f6 = figure('position',[0 0 winW winH]);
-figure(f6)
-xb=1:max(clust_spike_length)+1;
-hist(clust_spike_length,xb)
-title({'Spike induced BDs distribution';['Interval duration = ' num2str(deltaTime_spike) ' s']})
-xlabel('# of BDs in the cluster')
-ylabel('Counts')
-print(f6,[datapath_write filesep expname '_spike_clusters_length'],'-djpeg')
-savefig([datapath_write filesep expname '_spike_clusters_length'])
-% BD induced clusters with no beam length
-f7 = figure('position',[0 0 winW winH]);
-figure(f7)
-xb=1:max(clust_BD_no_beam_wbeam_after)+1;
-h1 = hist(clust_BD_no_beam_wbeam_after,xb);
-h2 = hist(clust_BD_no_beam_wobeam_after,xb);
-bar([h1;h2]','stack')
-legend('Cluster with beam','Cluster w/o beam')
-title({'Normal BD induced BDs distribution';['Interval duration = ' num2str(deltaTime_cluster) ' s']})
-xlabel('# of BDs in the cluster')
-ylabel('Frequency')
-print(f7,[datapath_write filesep expname '_BD_induced_clusters_length'],'-djpeg')
-savefig([datapath_write filesep expname '_BD_induced_clusters_length'])
-% tuning delta power distribution
-f8 = figure('position',[0 0 winW winH]);
-figure(f8)
-subplot(2,1,1)
-tmp_tuning = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-xbins = linspace(-20e6,20e6,41); %1M per bin
-histogram(tmp_tuning,xbins)
-title({'BD pulses tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
-xlabel('Power delta (W)')
-ylabel('Counts')
-subplot(2,1,2)
-tmp_tuning = tuning_delta(inMetric & ~isSpike );
-xbins = linspace(-20e6,20e6,41); %1M per bin
-histogram(tmp_tuning,xbins)
-title({'Pulses in metric tuning distribution (Spikes sorted out)';...
-    ['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
-xlabel('Power delta (W)')
-ylabel('Counts')
-print(f8,[datapath_write filesep expname '_tuning_delta_power_distribution'],'-djpeg')
-savefig([datapath_write filesep expname '_tuning_delta_power_distribution'])
-% peak normalized power distribution vs BDR
-f9 = figure('position',[0 0 winW winH]);
-figure(f9)
-xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
-h3 = hist(pk_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
-h3 = h3/sum(h3);
-bar(h3,'stack')
-hold on
-BDR = h3(43) * ( ((xbins+1e6)/(43e6)).^15 );
-plot(BDR,'r')
-axis([0 50 0 max(h3)+.01])
-axis autox
-hold off
-legend({'BDs','BDR distribution'},'Position',[.15 .8 .085 .085])
-xlabel('Power (MW)')
-ylabel('Normalized frequency')
-title('Overall distribution of peak incident power')
-print(f9,[datapath_write filesep expname '_peak_power_distribution_vs_BDR'],'-djpeg')
-savefig([datapath_write filesep expname '_peak_power_distribution_vs_BDR'])
-% pulse length
-f10 = figure('position',[0 0 winW winH]);
-figure(f10)
-top_tmp = top_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-mid_tmp = mid_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-bot_tmp = bot_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-xbins = 0:4:(round(max(bot_len)*1e9)+2);
-histogram(top_tmp*1e9,xbins);
-title('Pulse width at various heights')
-hold on
-histogram(mid_tmp*1e9,xbins);
-hold on
-histogram(bot_tmp*1e9,xbins);
-l = legend({'85%','65%','40%'},'Position',[.15 .8 .085 .085]);
-xlabel('Pulse width (ns)')
-ylabel('Counts')
-hold off
-print(f10,[datapath_write filesep expname '_pulse_width_distribution'],'-djpeg')
-savefig([datapath_write filesep expname '_pulse_width_distribution'])
-
+print(f5,[datapath_write_plot filesep expname '_BD_probability_metric'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_BD_probability_metric'])
+% 
+% 
+% % Spikes clusters length
+% f6 = figure('position',[0 0 winW winH]);
+% figure(f6)
+% xb=1:max(clust_spike_length)+1;
+% hist(clust_spike_length,xb)
+% title({'Spike induced BDs distribution';['Interval duration = ' num2str(deltaTime_spike) ' s']})
+% xlabel('# of BDs in the cluster')
+% ylabel('Counts')
+% print(f6,[datapath_write_plot filesep expname '_spike_clusters_length'],'-djpeg')
+% savefig([datapath_write_fig filesep expname '_spike_clusters_length'])
+% % BD induced clusters with no beam length
+% f7 = figure('position',[0 0 winW winH]);
+% figure(f7)
+% xb=1:max(clust_BD_no_beam_wbeam_after)+1;
+% h1 = hist(clust_BD_no_beam_wbeam_after,xb);
+% h2 = hist(clust_BD_no_beam_wobeam_after,xb);
+% bar([h1;h2]','stack')
+% legend('Cluster with beam','Cluster w/o beam')
+% title({'Normal BD induced BDs distribution';['Interval duration = ' num2str(deltaTime_cluster) ' s']})
+% xlabel('# of BDs in the cluster')
+% ylabel('Frequency')
+% print(f7,[datapath_write_plot filesep expname '_BD_induced_clusters_length'],'-djpeg')
+% savefig([datapath_write_fig filesep expname '_BD_induced_clusters_length'])
+% % tuning delta power distribution
+% f8 = figure('position',[0 0 winW winH]);
+% figure(f8)
+% subplot(2,1,1)
+% tmp_tuning = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+% xbins = linspace(-20e6,20e6,41); %1M per bin
+% histogram(tmp_tuning,xbins)
+% title({'BD pulses tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+% xlabel('Power delta (W)')
+% ylabel('Counts')
+% subplot(2,1,2)
+% tmp_tuning = tuning_delta(inMetric & ~isSpike );
+% xbins = linspace(-20e6,20e6,41); %1M per bin
+% histogram(tmp_tuning,xbins)
+% title({'Pulses in metric tuning distribution (Spikes sorted out)';...
+%     ['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+% xlabel('Power delta (W)')
+% ylabel('Counts')
+% print(f8,[datapath_write_plot filesep expname '_tuning_delta_power_distribution'],'-djpeg')
+% savefig([datapath_write_fig filesep expname '_tuning_delta_power_distribution'])
+% % peak normalized power distribution vs BDR
+% f9 = figure('position',[0 0 winW winH]);
+% figure(f9)
+% xbins = linspace(0,round(max(pk_pwr),-6),(1e-6*round(max(pk_pwr),-6)+1));
+% h3 = hist(pk_pwr(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters),xbins);
+% h3 = h3/sum(h3);
+% bar(h3,'stack')
+% hold on
+% BDR = h3(43) * ( ((xbins+1e6)/(43e6)).^15 );
+% plot(BDR,'r')
+% axis([0 50 0 max(h3)+.01])
+% axis autox
+% hold off
+% legend({'BDs','BDR distribution'},'Position',[.15 .8 .085 .085])
+% xlabel('Power (MW)')
+% ylabel('Normalized frequency')
+% title('Overall distribution of peak incident power')
+% print(f9,[datapath_write_plot filesep expname '_peak_power_distribution_vs_BDR'],'-djpeg')
+% savefig([datapath_write_fig filesep expname '_peak_power_distribution_vs_BDR'])
+% % pulse length
+% f10 = figure('position',[0 0 winW winH]);
+% figure(f10)
+% top_tmp = top_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+% mid_tmp = mid_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+% bot_tmp = bot_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+% xbins = 0:4:(round(max(bot_len)*1e9)+2);
+% histogram(top_tmp*1e9,xbins);
+% title('Pulse width at various heights')
+% hold on
+% histogram(mid_tmp*1e9,xbins);
+% hold on
+% histogram(bot_tmp*1e9,xbins);
+% l = legend({'85%','65%','40%'},'Position',[.15 .8 .085 .085]);
+% xlabel('Pulse width (ns)')
+% ylabel('Counts')
+% hold off
+% print(f10,[datapath_write_plot filesep expname '_pulse_width_distribution'],'-djpeg')
+% savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
+% 
 
 %% Save the data for further analysis
 
@@ -618,8 +619,8 @@ if interactivePlot
     line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
     line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
     title('Interlock distribution');
-    print(f2,[datapath_write filesep expname '_metric_check_color'],'-djpeg')
-    savefig([datapath_write filesep expname '_metric_check_color'])
+    print(f2,[datapath_write_plot filesep expname '_metric_check_color'],'-djpeg')
+    savefig([datapath_write_fig filesep expname '_metric_check_color'])
     close(f2);
 
 

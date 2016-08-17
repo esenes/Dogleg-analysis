@@ -20,7 +20,7 @@ datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
 datapath_write_report = '/Users/esenes/swap_out/exp/reports';
-fileName = 'Norm_full_Loaded43MW_10';
+fileName = 'Norm_full_UnLoaded_8';
 savename = fileName;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -415,6 +415,57 @@ title('Overall distribution of average incident power for backup events')
 path10 = [datapath_write_plot filesep fileName '_average_power_distribution'];
 print(f10,path10,'-djpeg')
 savefig([datapath_write_fig filesep fileName '_average_power_distribution'])
+
+%comparison current / TRA power
+% f11 = figure('position',[0 0 winW winH]);
+% figure(f11)
+% [ha,hp1,hp2] = plotyy(ts_array(hasBeam), pk_tra(hasBeam),ts_array, bpm2_ch);%'b .','MarkerSize',20);
+% %plot appeareance
+% hp1.LineStyle = 'none'; hp1.Marker = '.'; hp1.MarkerSize = 20;
+% hp2.LineStyle = 'none'; hp2.Marker = '.'; hp2.MarkerSize = 20;
+% %axis management
+% ha(1).YLabel.String = 'TRA peak power (W)';
+% ha(2).YLabel.String = 'BPM2 charge';
+% ha(1).YLim = [(ha(1).YLim(2)-ha(1).YLim(1)), ha(1).YLim(2)];
+% ha(2).YLim = [-250 0];
+% ax = gca;
+% ax.XTick = xt;
+% ax.XTickLabel = xtL;
+% ax.XTickLabelRotation = 45;
+% ax.XLabel.String = 'Date';
+% 
+% %title
+% title('TRA peak vs downstream beam current')
+% 
+% %legend({'Peak TRA','Beam charge'},'Position',[.15 .8 .085 .085])
+% path11 = [datapath_write_plot filesep fileName '_TRA_vs_current'];
+% print(f11,path11,'-djpeg')
+% savefig([datapath_write_fig filesep fileName '_TRA_vs_current'])
+
+
+%% Check metric values for nominal pulses
+
+inc_tra = zeros(1,length(event_name));
+inc_ref = zeros(1,length(event_name));
+
+for i=1:length(event_name)
+    inc_tra(i) = metric(data_struct.(event_name{i}).INC.data,data_struct.(event_name{i}).TRA.data);
+    inc_ref(i) = metric(data_struct.(event_name{i}).INC.data,data_struct.(event_name{i}).REF.data);
+end
+
+figure
+plot(1:length(inc_tra),inc_tra,1:length(inc_ref),inc_ref,'.','MarkerSize',20)
+title('Metric values for normal pulses')
+xlabel('Event number')
+ylabel('Metric value')
+legend({'(INC-TRA)/(INC+TRA)','(INC-REF)/(INC+REF)'})
+
+figure
+plot(inc_tra,inc_ref,'.','MarkerSize',20)
+xlabel('(INC-TRA)/(INC+TRA)')
+ylabel('(INC-REF)/(INC+REF)')
+axis([-0.2 0.5 0.2 0.8])
+
 
 %% Create tex file
 %adjust date format

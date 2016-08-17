@@ -33,8 +33,9 @@ datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-expname = 'Exp_Loaded43MW_10';
+expname = 'Exp_Loaded43MW_7';
 savename = expname;
+positionAnalysis = true;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -45,6 +46,7 @@ savename = expname;
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%
 % METRIC
 inc_ref_thr = 0.48;
+% inc_ref_thr = 0.6; %%antiloaded
 inc_tra_thr = -0.02;
 % BPM CHARGE THRESHOLDS
 bpm1_thr = -100;
@@ -59,6 +61,10 @@ max_delay = 80e-9;
 step_len = 4e-9;
 comp_start = 5e-7; %ROI start and end
 comp_end = 5.5e-7;
+%JITTER
+sf = 4e-9;
+sROI = 100;
+eROI = 200;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pulse begin/end for probability
 pbeg = 400;
@@ -148,6 +154,8 @@ end
     %peak and average power
     pk_pwr = zeros(1,length(event_name));
     avg_pwr = zeros(1,length(event_name));
+    pk_tra = zeros(1,length(event_name));
+    pk_ref = zeros(1,length(event_name));
     %tuning
     tuning_slope = zeros(1,length(event_name));
     tuning_delta = zeros(1,length(event_name));
@@ -161,6 +169,8 @@ end
 for i = 1:length(event_name) 
     pk_pwr(i) = data_struct.(event_name{i}).INC.max;
     avg_pwr(i) = data_struct.(event_name{i}).INC.avg.INC_avg;
+    pk_tra(i) = max(data_struct.(event_name{i}).TRA.data_cal);
+    pk_ref(i) = max(data_struct.(event_name{i}).REF.data_cal);
     ft_end = 462; %change it if pulse length changes from nominal
     if data_struct.(event_name{i}).tuning.fail_m2 ~= true
         tuning_slope(i) = data_struct.(event_name{i}).tuning.slope;
@@ -192,13 +202,14 @@ end
 % winH = screenHeight/2;
 winW = 1420;
 winH = 760;
+moff = 0.05;%metric offset
 %Metric plotting to check the tresholds
 f0 = figure('position',[0 0 winW winH]);
 figure(f0)
 p1 = plot(inc_tra, inc_ref,'b .','MarkerSize',16);
 xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
 ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-axis([-0.2 0.5 0.2 0.8])
+axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff])
 line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
 line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
 title('Interlock criteria review')
@@ -304,7 +315,7 @@ msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(l
 ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
 ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
 'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
-' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
+' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened with beam' '\n'...
 ' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
 'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
 '\n \n' ...
@@ -345,6 +356,24 @@ ylabel('Counts')
 title('Overall distribution of peak incident power')
 print(f3,[datapath_write_plot filesep expname '_peak_power_distribution'],'-djpeg')
 savefig([datapath_write_fig filesep expname '_peak_power_distribution'])
+
+f60 = figure('position',[0 0 winW winH]);
+figure(f60)
+xbins = linspace(0,round(max(pk_ref(inMetric & ~isSpike)),-6),(1e-6*round(max(pk_ref(inMetric & ~isSpike)),-6)+1));
+h1 = hist(pk_ref(inMetric & hasBeam & ~isSpike),xbins);
+h2 = hist(pk_ref(inMetric & ~hasBeam & ~isSpike),xbins);
+bar([h1;h2]','stack')
+ax=gca;
+%ax.XLim = [0 20]
+legend({'With Beam','Without Beam'},'Position',[.15 .8 .085 .085])
+xlabel('Power (MW)')
+ylabel('Counts')
+title('Distribution of peak reflected power of the BDs ')
+% path60 = [datapath_write_plot filesep fileName '_peak_TRA_power_distribution'];
+% print(f60,path60,'-djpeg')
+% savefig([datapath_write_fig filesep fileName '_peak_TRA_power_distribution'])
+
+
 % average power distribution
 f4 = figure('position',[0 0 winW winH]);
 figure(f4)
@@ -396,26 +425,26 @@ savefig([datapath_write_fig filesep expname '_BD_probability_metric'])
 % ylabel('Frequency')
 % print(f7,[datapath_write_plot filesep expname '_BD_induced_clusters_length'],'-djpeg')
 % savefig([datapath_write_fig filesep expname '_BD_induced_clusters_length'])
-% % tuning delta power distribution
-% f8 = figure('position',[0 0 winW winH]);
-% figure(f8)
-% subplot(2,1,1)
-% tmp_tuning = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-% xbins = linspace(-20e6,20e6,41); %1M per bin
-% histogram(tmp_tuning,xbins)
-% title({'BD pulses tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
-% xlabel('Power delta (W)')
-% ylabel('Counts')
-% subplot(2,1,2)
-% tmp_tuning = tuning_delta(inMetric & ~isSpike );
-% xbins = linspace(-20e6,20e6,41); %1M per bin
-% histogram(tmp_tuning,xbins)
-% title({'Pulses in metric tuning distribution (Spikes sorted out)';...
-%     ['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
-% xlabel('Power delta (W)')
-% ylabel('Counts')
-% print(f8,[datapath_write_plot filesep expname '_tuning_delta_power_distribution'],'-djpeg')
-% savefig([datapath_write_fig filesep expname '_tuning_delta_power_distribution'])
+% tuning delta power distribution
+f8 = figure('position',[0 0 winW winH]);
+figure(f8)
+subplot(2,1,1)
+tmp_tuning = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+xbins = linspace(-20e6,20e6,41); %1M per bin
+histogram(tmp_tuning,xbins)
+title({'BD pulses tuning distribution';['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+xlabel('Power delta (W)')
+ylabel('Counts')
+subplot(2,1,2)
+tmp_tuning = tuning_delta(inMetric & ~isSpike );
+xbins = linspace(-20e6,20e6,41); %1M per bin
+histogram(tmp_tuning,xbins)
+title({'Pulses in metric tuning distribution (Spikes sorted out)';...
+    ['fitting errors = ' num2str(failSlope) ' on ' num2str(length(event_name))]})
+xlabel('Power delta (W)')
+ylabel('Counts')
+print(f8,[datapath_write_plot filesep expname '_tuning_delta_power_distribution'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_tuning_delta_power_distribution'])
 % % peak normalized power distribution vs BDR
 % f9 = figure('position',[0 0 winW winH]);
 % figure(f9)
@@ -435,26 +464,178 @@ savefig([datapath_write_fig filesep expname '_BD_probability_metric'])
 % title('Overall distribution of peak incident power')
 % print(f9,[datapath_write_plot filesep expname '_peak_power_distribution_vs_BDR'],'-djpeg')
 % savefig([datapath_write_fig filesep expname '_peak_power_distribution_vs_BDR'])
-% % pulse length
-% f10 = figure('position',[0 0 winW winH]);
-% figure(f10)
-% top_tmp = top_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-% mid_tmp = mid_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-% bot_tmp = bot_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-% xbins = 0:4:(round(max(bot_len)*1e9)+2);
-% histogram(top_tmp*1e9,xbins);
-% title('Pulse width at various heights')
-% hold on
-% histogram(mid_tmp*1e9,xbins);
-% hold on
-% histogram(bot_tmp*1e9,xbins);
-% l = legend({'85%','65%','40%'},'Position',[.15 .8 .085 .085]);
-% xlabel('Pulse width (ns)')
-% ylabel('Counts')
-% hold off
-% print(f10,[datapath_write_plot filesep expname '_pulse_width_distribution'],'-djpeg')
-% savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
-% 
+% pulse length
+f10 = figure('position',[0 0 winW winH]);
+figure(f10)
+top_tmp = top_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+mid_tmp = mid_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+bot_tmp = bot_len(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+xbins = 0:4:(round(max(bot_len)*1e9)+2);
+histogram(top_tmp*1e9,xbins);
+title('Pulse width at various heights')
+hold on
+histogram(mid_tmp*1e9,xbins);
+hold on
+histogram(bot_tmp*1e9,xbins);
+l = legend({'85%','65%','40%'},'Position',[.15 .8 .085 .085]);
+xlabel('Pulse width (ns)')
+ylabel('Counts')
+hold off
+print(f10,[datapath_write_plot filesep expname '_pulse_width_distribution'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
+
+%% Jitter
+
+%needs a decent call
+[ delay, delay_time ] = jitterCheck( sig_last, sig_prev, sf, sROI, eROI)
+
+%% Positioning
+if positionAnalysis
+
+    figure(666);
+    timescale = 0:4e-9:799*4e-9;
+    winStart = 1.6e-6;
+    winStart_corr = 2.0e-6;
+    wind = (001:70);
+    %fill a matrix with data of the BDs
+    for n=1:length(BDs)
+        %get the current data
+        INC_c = data_struct.(BDs{n}).INC.data;%%%%%%%%%%%%%%%%%Q1: do we use the TRA UNCALIBRATED ?
+        TRA_c = data_struct.(BDs{n}).TRA.data;
+        REF_c = data_struct.(BDs{n}).REF.data;
+        %check if the backup pulses are recorded
+        precName = [BDs{n}(1:end-2) 'L1'];
+        if isfield(data_struct,precName)
+            % The backup pulse is present
+            %
+            INC_prev = data_struct.(precName).INC.data;
+            TRA_prev = data_struct.(precName).TRA.data;
+            REF_prev = data_struct.(precName).REF.data;
+            % Calculate the delay
+            
+            %general plot
+            subplot(4,1,[1 2])
+            hold off
+            plot(1:800, INC_c, 'b -', 1:800, INC_prev, 'b --',...
+                1:800, TRA_c, 'r -',1:800, TRA_prev, 'r --',...
+                1:800 ,REF_c, 'c -', 1:800, REF_prev, 'c --')
+            legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
+            title('Raw signals')
+            
+            %TRA
+            ind_TRA = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
+            disp(ind_TRA)
+            
+            subplot(4,1,4)
+            plot(1:800, TRA_c, 'r -',1:800, TRA_prev, 'r --')
+            line([ind_TRA ind_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            legend({'TRA','prev TRA'})
+            xlim([400 800])
+
+            %REF
+            ind_REF = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
+            disp(ind_REF)
+             
+            subplot(4,1,3)
+            plot(1:800, REF_c, 'b -',1:800, REF_prev, 'b --')
+            line([ind_REF ind_REF], ylim, 'Color', 'b','LineWidth',1) %vertical line
+            legend({'REF','prev REF'})
+            xlim([400 800])
+            
+            %add vertical bars to main plot
+            subplot(4,1,[1 2])
+            hold on;
+            line([ind_TRA ind_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([ind_REF ind_REF], ylim, 'Color', 'c','LineWidth',1) %vertical line
+            
+            %CORRELATION
+%             [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c,timescale,REF_c,wind,winStart_corr);
+%             disp(['coeff=' num2str(coeff_corr) ' ; error= ' num2str(corr_err) ])
+            
+            %%%%%%%%%%%%%%%%%%%Q2: what is wind ? Which are the outputs in
+            %%%%%%%%%%%%%%%%%%%detail ???
+            
+            %CREATE OUTPUT STRUCT
+            %edge
+            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
+            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
+            %correlation
+%             data_struct.(BDs{n}).position.correlation.error = corr_err;
+%             if corr_err ~= true
+%                 data_struct.(BDs{n}).position.correlation.ind_corr = coeff_corr(1); 
+%             end
+
+            %METRIC CHECK
+            disp(data_struct.(BDs{n}).name);
+            disp([ 'INC_TRA = ' num2str(data_struct.(BDs{n}).inc_tra) ' / >' num2str(inc_tra_thr)])
+            disp([ 'INC_REF = ' num2str(data_struct.(BDs{n}).inc_ref) ' / <' num2str(inc_ref_thr)])
+
+            
+            %JITTER
+            [ ~, delay_time ] = jitterCheck( data_struct.(BDs{n}).INC.data_cal, data_struct.(precName).INC.data_cal, sf, sROI, eROI);
+            disp(['delay = ' num2str(delay_time) ' ns'])
+            
+            
+            manualCorrection = true;
+            if manualCorrection
+                    str = input('Will you do any correction ?   ','s');
+                    if strcmp(str,'y')
+                        str = input('Correct Edge Method ?   ','s');
+                        if strcmp(str,'y')
+                            str = input('time_ind_TRA =   ','s');
+                            ind_TRA = str2double(str);
+                            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
+                            str = input('time_ind_REF =   ','s');
+                            ind_REF = str2double(str);
+                            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
+                            td(i) = 1e9*(ind_REF-ind_TRA);                
+        %                 else
+        %                     continue;
+                        end  
+                        str = input('Correct Correlation Method ?   ','s');
+                        if strcmp(str,'y')
+                            str = input('td_corr =   ','s');
+                            td_corr(i) = str2double(str);             
+                        else
+                            continue;
+                        end
+                    else
+                        continue;
+                    end
+            end
+
+            
+
+            
+            
+        
+        else
+            % No backup pulse recorded
+        end
+
+
+
+
+
+%         pause;
+    end
+
+    %flag data as positioning done
+    data_struct.Analysis.postioning = true;
+
+    % figure
+    % plot(timescale, REF_c, 'r -',timescale, REF_prev, 'r --')
+    % xlim([winStart 800*4e-9])
+    % 
+    % figure
+    % plot(timescale,(REF_c - REF_prev))
+    % xlim([winStart 800*4e-9])
+
+else
+    %flag data as positioning not done
+    data_struct.Analysis.positioning = false;
+end
+
 
 %% Save the data for further analysis
 
@@ -601,7 +782,7 @@ if interactivePlot
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
     xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
     ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-    axis([-0.2 0.5 0.2 0.8]);
+    axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff]);
     line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
     line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
     title('Interlock distribution');
@@ -615,7 +796,7 @@ if interactivePlot
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
     xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
     ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-    axis([-0.2 0.5 0.2 0.8]);
+    axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff]);
     line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
     line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
     title('Interlock distribution');
@@ -681,3 +862,46 @@ if interactivePlot
 
     end
 end %end user choice
+
+%% Checking
+% figure
+% BDs = event_name;
+% 
+% 
+% for i=1:length(BDs)
+% %     BDs = {'g_20160604025302_201_B0'};
+%     disp(max(data_struct.(BDs{i}).INC.data_cal))
+%     disp(data_struct.(BDs{i}).name)
+%     subplot(3,1,[1 2])
+%     plot(timescale,data_struct.(BDs{i}).INC.data_cal);
+%     hold on
+%     plot(timescale-68e-9,data_struct.(BDs{i}).TRA.data_cal);
+%     plot(timescale,data_struct.(BDs{i}).REF.data_cal);
+%     hold off
+%     legend({'INC','TRA','REF'})
+%     title(data_struct.(BDs{i}).name)
+%     xlabel('Time (s)')
+%     ylabel('Power (W)')
+%      
+%     
+%     subplot(3,1,3)
+%     plot(timescale,data_struct.(BDs{i}).BPM1.data_cal)
+%     hold on
+%     plot(timescale,data_struct.(BDs{i}).BPM2.data_cal)
+%     hold off
+%     legend({'BPM1','BPM2'})
+%     xlabel('Time (s)')
+%     ylabel('Beam current (A)')
+%     
+% %     figure(5)
+% %     plot(timescale,data_struct.(BDs{i}).INC.data);
+% %     hold on
+% %     plot(timescale-68e-9,data_struct.(BDs{i}).TRA.data);
+% %     plot(timescale,data_struct.(BDs{i}).REF.data);
+% %         plot(timescale,data_struct.(BDs{i}).KREF.data);
+% % 
+% %     hold off
+% %     legend({'INC','TRA','REF','KREF'})
+%     
+%     pause
+% end

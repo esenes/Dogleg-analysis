@@ -25,8 +25,10 @@ exp_struct = struct();
 for i = 1:length(filename)
     load([datapath filesep fname filename{i} '.mat'])
     %delete the 'Props' field from the struct
+    try
     normal_struct = rmfield(normal_struct,'Props');
-    
+    catch
+    end
     %select only timestamps in range
     if i == 1 %discard everything before startTime
         %get fnames and reduce it to just the date/timestamps

@@ -8,6 +8,16 @@ function [ struct_out ] = signalDelay( ts_list, struct_in, init_delay, max_delay
 %   data_struct.<event_name>.TRA.data_cal_trans and a field containing the
 %   delay value called data_struct.<event_name>.TRA.delay
 %   
+%   Inputs:
+%   - ts_list:                  list of the timestamps to use
+%   - struct_in:                input data structure
+%   - init_delay, max_delay:    initial and end delay in ns (multiples of wf_increment)
+%   - step_len:                 step length (multiples of wf_increment)
+%   - comp_start, comp_end:     ROI of the pulse, in ns
+%   
+%   Outputs:
+%   - struct_out:               struct in with the delay field appended
+%
 %   Last modified: 17.05.2016 by Eugenio Senes
 
 nstep = round((max_delay-init_delay)/step_len);

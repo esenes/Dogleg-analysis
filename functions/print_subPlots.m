@@ -11,13 +11,17 @@ title(fname);
 legend({'INC','TRA','REF'},'Location','northeast')
 sp6 = subplot(5,5,[19 20 24 25]); %pulse tuning plot
 % grasp the points for the fit
+try
 xdata = [data_struct.(fname).tuning.top.xm * data_struct.(fname).INC.Props.wf_increment ...
     data_struct.(fname).tuning.mid.xm * data_struct.(fname).INC.Props.wf_increment ...
     data_struct.(fname).tuning.bot.xm * data_struct.(fname).INC.Props.wf_increment]';
 ydata = [data_struct.(fname).tuning.top.y data_struct.(fname).tuning.mid.y data_struct.(fname).tuning.bot.y]';
 fit1 = fit(xdata,ydata,'poly1');
 fitx = (1.5e-6:1e-8:2e-6);
+catch
+end
 % plot
+try
 plot(timescale,data_struct.(fname).INC.data_cal,'b -', ...
     data_struct.(fname).tuning.top.x1 * data_struct.(fname).INC.Props.wf_increment, data_struct.(fname).tuning.top.y,'r .',...
     data_struct.(fname).tuning.top.x2 * data_struct.(fname).INC.Props.wf_increment, data_struct.(fname).tuning.top.y,'r .',...
@@ -32,15 +36,19 @@ plot(timescale,data_struct.(fname).INC.data_cal,'b -', ...
     'LineWidth',1.5,'MarkerSize',18);
 xlim(sp6,[0.45e-6 2.5e-6])
 ylim(sp6,[0 max(data_struct.(fname).INC.data_cal)+ 5e6])
-%title composition
-if data_struct.(fname).tuning.fail_m1 == 0 && data_struct.(fname).tuning.fail_m2 == 0
-    tit = ['Slope flattop = ' num2str(data_struct.(fname).tuning.slope) ' Pulse tilt = ' num2str(fit1.p1)];
-elseif data_struct.(fname).tuning.fail_m1 == 1 && data_struct.(fname).tuning.fail_m2 == 0
-    tit = ['Slope flattop = FAIL'  ' Pulse tilt = ' num2str(fit1.p1)];
-elseif data_struct.(fname).tuning.fail_m1 == 0 && data_struct.(fname).tuning.fail_m2 == 1
-    tit = ['Slope flattop = ' num2str(data_struct.(fname).tuning.slope) ' Pulse tilt = FAIL'];
+catch
 end
-title(tit)
+%title composition
+% if data_struct.(fname).tuning.fail_m1 == 0 && data_struct.(fname).tuning.fail_m2 == 0
+%     tit = ['Slope flattop = ' num2str(data_struct.(fname).tuning.slope) ' Pulse tilt = ' num2str(fit1.p1)];
+% elseif data_struct.(fname).tuning.fail_m1 == 1 && data_struct.(fname).tuning.fail_m2 == 0
+%     tit = ['Slope flattop = FAIL'  ' Pulse tilt = ' num2str(fit1.p1)];
+% elseif data_struct.(fname).tuning.fail_m1 == 0 && data_struct.(fname).tuning.fail_m2 == 1
+%     if isfield(data_struct.(fname).tuning.slope)
+%         tit = ['Slope flattop = ' num2str(data_struct.(fname).tuning.slope) ' Pulse tilt = FAIL'];
+%     end
+% end
+% title(tit)
 sp7 = subplot(5,5,[16 17 18 21 22 23]); %BPMs plot
 plot(timescale,data_struct.(fname).BPM1.data_cal, ...
     timescale,data_struct.(fname).BPM2.data_cal ...

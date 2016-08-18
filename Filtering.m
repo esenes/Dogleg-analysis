@@ -269,6 +269,7 @@ savefig([datapath_write_fig filesep expname '_charge_distribution'])
     clusters_wb = event_name(inMetric & clusters & hasBeam);
     clusters_wob = event_name(inMetric & clusters & ~hasBeam);
     %final breakdowns
+    BDs_flag = inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters;
     BDs = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
     %interlocks = "candidates" out of metric
     interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
@@ -484,15 +485,14 @@ hold off
 print(f10,[datapath_write_plot filesep expname '_pulse_width_distribution'],'-djpeg')
 savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
 
-%% Jitter
-
-%needs a decent call
-[ delay, delay_time ] = jitterCheck( sig_last, sig_prev, sf, sROI, eROI)
 
 %% Positioning
 if positionAnalysis
-
-    figure(666);
+    %figure setup
+    f666 = figure('position',[0 0 1920 1080]);
+    set(gcf,'numbertitle','off','name','BD positioning check') 
+    title('BD positioning check')
+    figure(f666);
     timescale = 0:4e-9:799*4e-9;
     winStart = 1.6e-6;
     winStart_corr = 2.0e-6;
@@ -513,97 +513,156 @@ if positionAnalysis
             REF_prev = data_struct.(precName).REF.data;
             % Calculate the delay
             
-            %general plot
-            subplot(4,1,[1 2])
+            %%%% general plots
+            % raw data
+            subplot(4,6,[1 2 7 8])
             hold off
-            plot(1:800, INC_c, 'b -', 1:800, INC_prev, 'b --',...
-                1:800, TRA_c, 'r -',1:800, TRA_prev, 'r --',...
-                1:800 ,REF_c, 'c -', 1:800, REF_prev, 'c --')
+            plot(timescale, INC_c, 'b -', timescale, INC_prev, 'b --',...
+                timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --',...
+                timescale ,REF_c, 'k -', timescale, REF_prev, 'k --')
             legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
             title('Raw signals')
+            xlabel('time (s)')
+            ylabel('Power (a.u.)')
+            % calibrated data
+            subplot(4,6,[5 6 11 12])
+            hold off
+            plot(timescale, data_struct.(BDs{n}).INC.data_cal, 'b -', timescale, data_struct.(precName).INC.data_cal, 'b --',...
+                timescale, data_struct.(BDs{n}).TRA.data_cal, 'r -',timescale, data_struct.(precName).TRA.data_cal, 'r --',...
+                timescale ,data_struct.(BDs{n}).REF.data_cal, 'k -', timescale, data_struct.(precName).REF.data_cal, 'k --')
+            legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
+            title('Calibrated signals')
+            xlabel('time (s)')
+            ylabel('Power (W)')
+            % bpms
+            subplot(4,6,[17 18])
+            plot(timescale,data_struct.(BDs{n}).BPM1.data_cal, ...
+                timescale,data_struct.(BDs{n}).BPM2.data_cal ...
+                );
+            legend({'BPM1','BPM2'})
+            title('Beam current')
+            xlabel('time (s)')
+            ylabel('Beam current (A)')
+            % metric
+            subplot(4,6,[13 14 19 20])
+            plot(inc_tra(BDs_flag), inc_ref(BDs_flag),'b .','MarkerSize',20);
+            xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
+            ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
+            axis([min(inc_tra(BDs_flag))-moff max(inc_tra(BDs_flag))+moff min(inc_ref(BDs_flag))-moff max(inc_ref(BDs_flag))+moff])
+            line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
+            line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            title('Metric')
+            legend('Interlocks','Threshold')
+            hold on
+            plot(data_struct.(BDs{n}).inc_tra, data_struct.(BDs{n}).inc_ref,'m .','MarkerSize',20);
+            hold off
             
-            %TRA
-            ind_TRA = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
+            %TRA EDGE
+            [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
             disp(ind_TRA)
             
-            subplot(4,1,4)
-            plot(1:800, TRA_c, 'r -',1:800, TRA_prev, 'r --')
-            line([ind_TRA ind_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            subplot(4,6,[3 4])
+            plot(timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --')
+            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
             legend({'TRA','prev TRA'})
-            xlim([400 800])
+            title('Edge method for TRA')
+            xlim([400*4e-9 600*4e-9])
+            xlabel('time (s)')
+            ylabel('Power (a.u.)')
 
-            %REF
-            ind_REF = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
+            %REF EDGE
+            [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
             disp(ind_REF)
              
-            subplot(4,1,3)
-            plot(1:800, REF_c, 'b -',1:800, REF_prev, 'b --')
-            line([ind_REF ind_REF], ylim, 'Color', 'b','LineWidth',1) %vertical line
+            subplot(4,6,[9 10])
+            plot(timescale, REF_c, 'k -',timescale, REF_prev, 'k --')
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
             legend({'REF','prev REF'})
-            xlim([400 800])
+            title('Edge method for REF')
+            xlim([400*4e-9 600*4e-9])
+            xlabel('time (s)')
+            ylabel('Power (a.u.)')
             
-            %add vertical bars to main plot
-            subplot(4,1,[1 2])
+            %add vertical bars to plots
+            subplot(4,6,[1 2 7 8])
             hold on;
-            line([ind_TRA ind_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
-            line([ind_REF ind_REF], ylim, 'Color', 'c','LineWidth',1) %vertical line
+            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+            subplot(4,6,[5 6 11 12])
+            hold on;
+            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+            
+            
             
             %CORRELATION
 %             [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c,timescale,REF_c,wind,winStart_corr);
 %             disp(['coeff=' num2str(coeff_corr) ' ; error= ' num2str(corr_err) ])
             
-            %%%%%%%%%%%%%%%%%%%Q2: what is wind ? Which are the outputs in
-            %%%%%%%%%%%%%%%%%%%detail ???
+            subplot(4,6,[15 16 21 22])
             
-            %CREATE OUTPUT STRUCT
-            %edge
-            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
-            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
-            %correlation
-%             data_struct.(BDs{n}).position.correlation.error = corr_err;
-%             if corr_err ~= true
-%                 data_struct.(BDs{n}).position.correlation.ind_corr = coeff_corr(1); 
-%             end
+            title('Correlation method')
+            
+
+            %%%%%%%%%%%%%%%%%%% all in s, err=error matrix, gof = min(err)
+            %%%%%%%%%%%%%%%%%%% is goodness of fit; use just coeff_corr(1)
+            %%%%%%%%%%%%%%%%%%% [ns]
+            %%%%%%%%%%%%%%%%%%% as result !
+            
+            %%%%%%%%%%%%%%%%%%% save timesa as well using timescale(index from fit)
+            
+            %%%%%%%%%%%%%%%%%%% deduce the index even in manual correction
+           
+
 
             %METRIC CHECK
+            fprintf(1,'\n \n \n \n')%just leave space
             disp(data_struct.(BDs{n}).name);
             disp([ 'INC_TRA = ' num2str(data_struct.(BDs{n}).inc_tra) ' / >' num2str(inc_tra_thr)])
             disp([ 'INC_REF = ' num2str(data_struct.(BDs{n}).inc_ref) ' / <' num2str(inc_ref_thr)])
 
             
-            %JITTER
+            %JITTER check
             [ ~, delay_time ] = jitterCheck( data_struct.(BDs{n}).INC.data_cal, data_struct.(precName).INC.data_cal, sf, sROI, eROI);
             disp(['delay = ' num2str(delay_time) ' ns'])
-            
-            
-            manualCorrection = true;
-            if manualCorrection
-                    str = input('Will you do any correction ?   ','s');
-                    if strcmp(str,'y')
-                        str = input('Correct Edge Method ?   ','s');
-                        if strcmp(str,'y')
-                            str = input('time_ind_TRA =   ','s');
-                            ind_TRA = str2double(str);
-                            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
-                            str = input('time_ind_REF =   ','s');
-                            ind_REF = str2double(str);
-                            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
-                            td(i) = 1e9*(ind_REF-ind_TRA);                
-        %                 else
-        %                     continue;
-                        end  
-                        str = input('Correct Correlation Method ?   ','s');
-                        if strcmp(str,'y')
-                            str = input('td_corr =   ','s');
-                            td_corr(i) = str2double(str);             
-                        else
-                            continue;
-                        end
-                    else
-                        continue;
-                    end
+            if delay_time ~= 0
+                warning('Jitter detected !')
             end
-
+            
+            % manual correction
+            str = input('Will you do any correction ?   ','s');
+            if strcmp(str,'y')
+                str = input('Correct Edge Method ?   ','s');
+                if strcmp(str,'y')
+                    str = input('time_ind_TRA =   ','s');
+                    time_TRA = str2double(str);
+                    ind_TRA = time_TRA/sf +1; %get index from time
+                    str = input('time_ind_REF =   ','s');
+                    time_REF = str2double(str);
+                    ind_REF = time_REF/sf +1; %get index from time
+                end  
+                str = input('Correct Correlation Method ?   ','s');
+                if strcmp(str,'y')
+                    str = input('td_corr =   ','s');
+                    td_corr(i) = str2double(str);             
+                else
+                    continue;
+                end
+            else
+                continue;
+            end
+            
+            %CREATE OUTPUT STRUCT
+            %edge
+            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
+            data_struct.(BDs{n}).position.edge.time_REF = time_REF;
+            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
+            data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
+            %correlation
+%             data_struct.(BDs{n}).position.correlation.error = corr_err;
+%             if corr_err ~= true
+%                 data_struct.(BDs{n}).position.correlation.ind_corr = coeff_corr(1); 
+%             end
             
 
             
@@ -612,7 +671,6 @@ if positionAnalysis
         else
             % No backup pulse recorded
         end
-
 
 
 
@@ -817,11 +875,25 @@ end %end user choice
 
 
 %% Saving data
+
+% adding fields for analysis parameters
+data_struct.Analysis.Metric.inc_ref_thr = inc_ref_thr;
+data_struct.Analysis.Metric.inc_tra_thr = inc_tra_thr;
+data_struct.Analysis.Beam.bpm1_thr = bpm1_thr;
+data_struct.Analysis.Beam.bpm2_thr = bpm2_thr;
+data_struct.Analysis.Clusters.deltaTime_spike = deltaTime_spike;
+data_struct.Analysis.Clusters.deltaTime_beam_lost = deltaTime_beam_lost;
+data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
+
+
+% saving
 tic
 data_struct.Props.filetype = 'Experiment_analized';
 disp('Saving ...')
-save([datapath_write filesep 'Exp_analized_' savename '.mat'],'data_struct','-v7.3');
-fileattrib([datapath_write filesep 'Exp_analized_' savename '.mat'],'-w','a');
+save([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],...
+    'data_struct','inMetric','isSpike','sec_spike','beam_lost','sec_beam_lost','hasBeam','clusters',...
+    '-v7.3');
+fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 disp('Done.')
 
 

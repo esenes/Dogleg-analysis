@@ -5,6 +5,7 @@ TODO: **filtering.m**
 - [ ] testbench for positioning
 - [ ] save both times and indexes of the edges and correlation method
 - [x] save analysis params in the struct
+- [ ] **implement case for BDs w/o previous pulses !**
 
 **plotting**
 - [ ] historinc plot of events

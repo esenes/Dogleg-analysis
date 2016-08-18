@@ -26,6 +26,17 @@ The flagging process can be resumed in
 * event with or without the beam
 * event which are secondaries breakdowns provoked by a spike or triggered by a BD happened when there was no beam
 
+
+#### The positioning methods
+
+## Jitter check
+
+![J1](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Jitter1.png)
+
+Is performed checking the alignment of the first part of the uncompressed pulse using the signal of the BD and rthe previous signal. Rather than minimizing the difference of the signals, just checking the position difference of the maxima seems to work well in the resolution of ± 1 sampling period
+
+![J2](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Jitter2.png)
+
 #### How to use this program
 
 still to finish ...

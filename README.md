@@ -91,8 +91,24 @@ _User input_
 * **datapath_write**: the path of location to save Data files (without \ at the end)
 * **expName**: the full name of the experiment file to load (e.g. 'Exp_Loaded43MW_1')
 * **savename**: the name of output files 
+* **positionAnalysis**: do the position analysis check one BD by one
 
 
+_Parameters_
+* **Metric**
+ * inc_ref_thr
+ * inc_tra_thr
+* **BPM CHARGE TRESHOLDS**
+ * bpm1_thr
+ * bpm2_thr
+* **DELTA TIME FOR CLUSTER DETECTION**
+ * deltaTime_spike
+ * deltaTime_beam_lost
+ * deltaTime_cluster
+* **JITTER**
+ * sf
+ * sROI
+ * eROI
 
 ### 4) BDAnalysis.m
 

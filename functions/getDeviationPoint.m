@@ -1,4 +1,4 @@
-function [time_ind] = getDeviationPoint(timescale,signal_B0,signal_L1,tsignal,deviationLevel,noiseLevel)
+function [time_ind, time] = getDeviationPoint(timescale,signal_B0,signal_L1,tsignal,deviationLevel,noiseLevel)
 
     y_in = abs(signal_B0 - signal_L1);
 
@@ -60,6 +60,8 @@ function [time_ind] = getDeviationPoint(timescale,signal_B0,signal_L1,tsignal,de
 %         else
 %             time_ind = time_ind_min + index_start - 1;
 %         end
+
+        time = timescale(time_ind);
     end
 
     

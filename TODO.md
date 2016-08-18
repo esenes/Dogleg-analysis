@@ -12,4 +12,4 @@ TODO: **readMATandsort_guide.md**
 - [ ] finsh the pulse alignment
 
 TODO: **NormalOperation.m**
-- [ ] Implement the report generation
+- [x] Implement the report generation

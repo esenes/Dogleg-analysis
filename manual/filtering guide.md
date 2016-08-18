@@ -13,6 +13,7 @@ Only the 'B0' files are considered now, for the fields content please refer to t
 The precedent step of analysis is providing a lighter data structure, which contains just the interlock events and adds some informations to every event such as the calibration data.
 
 The analysis procedes in two main steps:
+
 1. The events are flagged with booleans according to various parameters (e.g. into the metric, is a spike, has the beam, ...)
 2. Using the flags a list of the interesting timestamps is built
 3. The delay between the INC and the TRA pulses is calculated (this method minimizes the difference between the two signals in absolute value and store it into the data_struct)

@@ -27,6 +27,7 @@ The flagging process can be resumed in
 * event with or without the beam
 * event which are secondaries breakdowns provoked by a spike or triggered by a BD happened when there was no beam
 
+Then the positioning of the BD is performed
 
 ### The positioning methods
 

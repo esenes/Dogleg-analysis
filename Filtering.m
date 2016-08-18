@@ -636,55 +636,7 @@ else
     data_struct.Analysis.positioning = false;
 end
 
-
-%% Save the data for further analysis
-
-
-%% debug tuning
-% 
-% delta = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-% xb = 462;
-% 
-% figure
-% for i = 1:length(BDs)
-%     plot(data_struct.(BDs{i}).INC.data_cal)
-%     x1 = data_struct.(BDs{i}).tuning.x1; x2 = data_struct.(BDs{i}).tuning.x2;
-%     
-%     maxim = max(data_struct.(BDs{i}).INC.data_cal);
-%     y85 = 0.85*maxim;
-%     line(xlim, [y85 y85], 'Color', 'r','LineWidth',1) %horizontal line
-%     
-%     line([x1 x1], ylim, 'Color', 'r','LineWidth',1) %vertical line
-%     line([x2 x2], ylim, 'Color', 'r','LineWidth',1) %vertical line
-%     line([xb xb], ylim, 'Color', 'g','LineWidth',1) %vertical line
-%     title({['Tuning delta = ' num2str(delta(i))] ; ...
-%            ['x1 = ' num2str(x1) ' x2 =  ' num2str(x2)]; ...
-%            [' Delta (MW) = '];
-%             tuning_slope(i)})
-%     if data_struct.(event_name{i}).tuning.fail_m1 ~= true
-%         disp([ 'TOP = '  num2str(1e9*top_tmp(i)) ' (ns)  MID = '  num2str(1e9*mid_tmp(i)) ' (ns)    BOT = ' ...
-%             num2str(1e9*bot_tmp(i)) ' (ns)']);
-%         
-%         disp('P^3 delta t:')
-%         disp([ 'TOP = '  num2str((maxim.^3) *top_tmp(i)) ' (s.W^3)  MID = '  num2str((maxim.^3) *mid_tmp(i)) ' (s.W^3)    BOT = ' ...
-%             num2str((maxim.^3) *bot_tmp(i)) ' (s.W^3)']);
-%     end
-%     disp('  ')
-%     pause
-% end
-
 %% Interactive plot (read version)
-%user ineraction
-
-
-% split candidates in w/ and w/o beam
-% time delay
-% time interval in one file processing in readMATandsort.m
-
-% distribution of spikes and clusters and stuff in the last unloaded run
-
-
-
 
 gone = false;
 interactivePlot = false;
@@ -863,6 +815,16 @@ if interactivePlot
     end
 end %end user choice
 
+
+%% Saving data
+tic
+data_struct.Props.filetype = 'Experiment_analized';
+disp('Saving ...')
+save([datapath_write filesep 'Exp_analized_' savename '.mat'],'data_struct','-v7.3');
+fileattrib([datapath_write filesep 'Exp_analized_' savename '.mat'],'-w','a');
+disp('Done.')
+
+
 %% Checking
 % figure
 % BDs = event_name;
@@ -903,5 +865,38 @@ end %end user choice
 % %     hold off
 % %     legend({'INC','TRA','REF','KREF'})
 %     
+%     pause
+% end
+
+%% debug tuning
+% 
+% delta = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+% xb = 462;
+% 
+% figure
+% for i = 1:length(BDs)
+%     plot(data_struct.(BDs{i}).INC.data_cal)
+%     x1 = data_struct.(BDs{i}).tuning.x1; x2 = data_struct.(BDs{i}).tuning.x2;
+%     
+%     maxim = max(data_struct.(BDs{i}).INC.data_cal);
+%     y85 = 0.85*maxim;
+%     line(xlim, [y85 y85], 'Color', 'r','LineWidth',1) %horizontal line
+%     
+%     line([x1 x1], ylim, 'Color', 'r','LineWidth',1) %vertical line
+%     line([x2 x2], ylim, 'Color', 'r','LineWidth',1) %vertical line
+%     line([xb xb], ylim, 'Color', 'g','LineWidth',1) %vertical line
+%     title({['Tuning delta = ' num2str(delta(i))] ; ...
+%            ['x1 = ' num2str(x1) ' x2 =  ' num2str(x2)]; ...
+%            [' Delta (MW) = '];
+%             tuning_slope(i)})
+%     if data_struct.(event_name{i}).tuning.fail_m1 ~= true
+%         disp([ 'TOP = '  num2str(1e9*top_tmp(i)) ' (ns)  MID = '  num2str(1e9*mid_tmp(i)) ' (ns)    BOT = ' ...
+%             num2str(1e9*bot_tmp(i)) ' (ns)']);
+%         
+%         disp('P^3 delta t:')
+%         disp([ 'TOP = '  num2str((maxim.^3) *top_tmp(i)) ' (s.W^3)  MID = '  num2str((maxim.^3) *mid_tmp(i)) ' (s.W^3)    BOT = ' ...
+%             num2str((maxim.^3) *bot_tmp(i)) ' (s.W^3)']);
+%     end
+%     disp('  ')
 %     pause
 % end

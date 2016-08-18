@@ -95,7 +95,7 @@ _User input_
 
 
 _Parameters_
-* **Metric**
+* **Metric**: tresholds for the metric
  * inc_ref_thr
  * inc_tra_thr
 * **BPM CHARGE TRESHOLDS**
@@ -105,10 +105,10 @@ _Parameters_
  * deltaTime_spike
  * deltaTime_beam_lost
  * deltaTime_cluster
-* **JITTER**
- * sf
- * sROI
- * eROI
+* **JITTER** 
+ * sf:   sampling frequency
+ * sROI: start of the region of interest for the Jitter detection
+ * eROI: end of the ROI 
 
 ### 4) BDAnalysis.m
 

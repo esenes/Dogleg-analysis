@@ -5,6 +5,9 @@ function calibFactors = IQ_calibFactors(channel)
 %   Inputs:
 %   - channel: is the name of channel (INC, TRA, REF)
 %
+%   Outputs:
+%   - calibFactors
+%
 %   Last modified: 13.04.2016 by Theodoros Argyropoulos 
     alpha = 'alpha';
     psi = 'psi';

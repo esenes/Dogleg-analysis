@@ -579,6 +579,7 @@ if positionAnalysis
             
             %CORRELATION
             [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
+            delay = 1e-9*round(coeff_corr(1),0); %rounded to integer [ns]
             
             subplot(4,6,[15 16 21 22])
             plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
@@ -614,7 +615,7 @@ if positionAnalysis
                         time_inc = str2double(str) 
                         str = input('time_peak_REF =   ','s');
                         time_ref = str2double(str)
-                       
+                        delay = time_ref - time_inc;
                     else
                         continue;
                     end
@@ -631,7 +632,7 @@ if positionAnalysis
             data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
             %correlation
             data_struct.(BDs{n}).position.correlation.backupPulse = true;
-            data_struct.(BDs{n}).position.correlation.delay_time = 1e-9*round(coeff_corr(1),0); %rounded to integer [ns]
+            data_struct.(BDs{n}).position.correlation.delay_time = delay;
             data_struct.(BDs{n}).position.correlation.gain = coeff_corr(2);
 
             %%%%%% STILL TO ADD THE MANUAL FAIL OF THE METHOD

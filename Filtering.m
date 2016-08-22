@@ -33,14 +33,10 @@ datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-expname = 'Exp_Loaded43MW_7';
+expname = 'Exp_Loaded43MW_10';
 savename = expname;
 positionAnalysis = true;
-manualCorrection = true;
-%%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
+manualCorrection = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -508,6 +504,8 @@ if positionAnalysis
     wind = (1:100);
     %fill a matrix with data of the BDs
     for n=1:length(BDs)
+        %display timestamp
+        disp(BDs{n})
         %get the current data
         INC_c = data_struct.(BDs{n}).INC.data;
         TRA_c = data_struct.(BDs{n}).TRA.data;
@@ -632,23 +630,88 @@ if positionAnalysis
             data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
             data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
             %correlation
-            data_struct.(BDs{n}).position.correlation.delay_bin = coeff_corr(1);
-            data_struct.(BDs{n}).position.correlation.delay_time = timescale(coeff_corr(1));
+            data_struct.(BDs{n}).position.correlation.backupPulse = true;
+            data_struct.(BDs{n}).position.correlation.delay_time = 1e-9*round(coeff_corr(1),0); %rounded to integer [ns]
             data_struct.(BDs{n}).position.correlation.gain = coeff_corr(2);
 
             %%%%%% STILL TO ADD THE MANUAL FAIL OF THE METHOD
 
             
-            
         
-        else
-            % No backup pulse recorded
+        else % NO PREV PULSE
+            %grasp data 
+            INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
+            TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
+            REF_c_cal = data_struct.(BDs{n}).REF.data_cal;
+            BPM1_c = data_struct.(BDs{n}).BPM1.data_cal;
+            BPM2_c = data_struct.(BDs{n}).BPM2.data_cal;
+            inc_tra_c = data_struct.(BDs{n}).inc_tra;
+            inc_ref_c = data_struct.(BDs{n}).inc_ref;
+            
+            %plotting
+            positionPlot_noPrev( timescale, INC_c, TRA_c, REF_c,...
+                INC_c_cal, TRA_c_cal, REF_c_cal,...
+                BPM1_c, BPM2_c)
+            % plot metric red dot
+            subplot(4,6,[13 14 19 20])
+            if n~=1 
+                delete(pm)
+            end
+            pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
+            
+            %manual insert of the edges
+            %plot
+            plotTRA_positioning(timescale, TRA_c);
+            plotREF_positioning(timescale, REF_c);
+            %data management
+            disp('Edges needs to be inserted manually:')
+            str = input('time_ind_TRA =   ','s');
+            time_TRA = str2double(str);
+            ind_TRA = time_TRA/sf +1; %get index from time
+            str = input('time_ind_REF =   ','s');
+            time_REF = str2double(str);
+            ind_REF = time_REF/sf +1; %get index from time
+
+            %plot TRA bar
+            subplot(4,6,[3 4])        
+            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+
+            %plot REF bar
+            subplot(4,6,[9 10])
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+
+            %manual insert for correlation
+            subplot(4,6,[15 16 21 22])
+            plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
+                'LineWidth', 2 ...
+                )
+            xlim([1.848e-6 3.2e-6])
+            title('Correlation method')
+            legend({'REF','INC'})
+            disp('Insert the edges for peaks of INC and REF')
+            str = input('time_peak_INC =   ','s');
+            time_inc = str2double(str);
+            str = input('time_peak_REF =   ','s');
+            time_ref = str2double(str);
+            delay = round( time_ref-time_inc ,0 );
+            
+            
+            %CREATE OUTPUT STRUCT
+            %edge
+            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
+            data_struct.(BDs{n}).position.edge.time_REF = time_REF;
+            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
+            data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
+            %correlation
+            data_struct.(BDs{n}).position.correlation.backupPulse = false;
+            data_struct.(BDs{n}).position.correlation.delay_time = delay; %rounded to integer [ns]
+            
         end
 
 
 
 
-        pause;
+%         pause;
     end
 
     %flag data as positioning done

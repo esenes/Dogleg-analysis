@@ -36,6 +36,7 @@ datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
 expname = 'Exp_Loaded43MW_7';
 savename = expname;
 positionAnalysis = true;
+manualCorrection = false;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -490,73 +491,61 @@ savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
 if positionAnalysis
     %figure setup
     f666 = figure('position',[0 0 1920 1080]);
-    set(gcf,'numbertitle','off','name','BD positioning check') 
-    title('BD positioning check')
     figure(f666);
+    set(gcf,'numbertitle','off','name','BD positioning check') 
+    subplot(4,6,[13 14 19 20])
+    plot(inc_tra(BDs_flag), inc_ref(BDs_flag),'b .','MarkerSize',20);
+    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
+    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
+    axis([min(inc_tra(BDs_flag))-moff max(inc_tra(BDs_flag))+moff min(inc_ref(BDs_flag))-moff max(inc_ref(BDs_flag))+moff])
+    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
+    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    title('Metric')
+    legend('BDs','Threshold')
+    hold on
+    
+    %data part
     timescale = 0:4e-9:799*4e-9;
     winStart = 1.6e-6;
     winStart_corr = 2.0e-6;
-    wind = (001:70);
+    wind = (1:100);
     %fill a matrix with data of the BDs
     for n=1:length(BDs)
         %get the current data
-        INC_c = data_struct.(BDs{n}).INC.data;%%%%%%%%%%%%%%%%%Q1: do we use the TRA UNCALIBRATED ?
+        INC_c = data_struct.(BDs{n}).INC.data;
         TRA_c = data_struct.(BDs{n}).TRA.data;
         REF_c = data_struct.(BDs{n}).REF.data;
         %check if the backup pulses are recorded
         precName = [BDs{n}(1:end-2) 'L1'];
-        if isfield(data_struct,precName)
-            % The backup pulse is present
-            %
+        if isfield(data_struct,precName)% The backup pulse is present
+            
+            %grasp data 
             INC_prev = data_struct.(precName).INC.data;
             TRA_prev = data_struct.(precName).TRA.data;
             REF_prev = data_struct.(precName).REF.data;
-            % Calculate the delay
+            INC_prev_cal = data_struct.(precName).INC.data_cal;
+            TRA_prev_cal = data_struct.(precName).TRA.data_cal;
+            REF_prev_cal = data_struct.(precName).REF.data_cal;
+            INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
+            TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
+            REF_c_cal = data_struct.(BDs{n}).REF.data_cal;
+            BPM1_c = data_struct.(BDs{n}).BPM1.data_cal;
+            BPM2_c = data_struct.(BDs{n}).BPM2.data_cal;
+            inc_tra_c = data_struct.(BDs{n}).inc_tra;
+            inc_ref_c = data_struct.(BDs{n}).inc_ref;
             
-            %%%% general plots
-            % raw data
-            subplot(4,6,[1 2 7 8])
-            hold off
-            plot(timescale, INC_c, 'b -', timescale, INC_prev, 'b --',...
-                timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --',...
-                timescale ,REF_c, 'k -', timescale, REF_prev, 'k --')
-            legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
-            title('Raw signals')
-            xlabel('time (s)')
-            ylabel('Power (a.u.)')
-            % calibrated data
-            subplot(4,6,[5 6 11 12])
-            hold off
-            plot(timescale, data_struct.(BDs{n}).INC.data_cal, 'b -', timescale, data_struct.(precName).INC.data_cal, 'b --',...
-                timescale, data_struct.(BDs{n}).TRA.data_cal, 'r -',timescale, data_struct.(precName).TRA.data_cal, 'r --',...
-                timescale ,data_struct.(BDs{n}).REF.data_cal, 'k -', timescale, data_struct.(precName).REF.data_cal, 'k --')
-            legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
-            title('Calibrated signals')
-            xlabel('time (s)')
-            ylabel('Power (W)')
-            % bpms
-            subplot(4,6,[17 18])
-            plot(timescale,data_struct.(BDs{n}).BPM1.data_cal, ...
-                timescale,data_struct.(BDs{n}).BPM2.data_cal ...
-                );
-            legend({'BPM1','BPM2'})
-            title('Beam current')
-            xlabel('time (s)')
-            ylabel('Beam current (A)')
-            % metric
+            %plotting
+            positionPlot_prev( timescale, INC_c, INC_prev, TRA_c, TRA_prev, REF_c, REF_prev,...
+                INC_c_cal, INC_prev_cal, TRA_c_cal, TRA_prev_cal, REF_c_cal, REF_prev_cal,...
+                BPM1_c, BPM2_c)
+            % plot metric red dot
             subplot(4,6,[13 14 19 20])
-            plot(inc_tra(BDs_flag), inc_ref(BDs_flag),'b .','MarkerSize',20);
-            xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
-            ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-            axis([min(inc_tra(BDs_flag))-moff max(inc_tra(BDs_flag))+moff min(inc_ref(BDs_flag))-moff max(inc_ref(BDs_flag))+moff])
-            line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
-            line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
-            title('Metric')
-            legend('Interlocks','Threshold')
-            hold on
-            plot(data_struct.(BDs{n}).inc_tra, data_struct.(BDs{n}).inc_ref,'m .','MarkerSize',20);
-            hold off
-            
+            if n~=1 
+                delete(pm)
+            end
+            pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
+
+            %%%%%%%%%%%% Calculate the delay
             %TRA EDGE
             [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
             disp(ind_TRA)
@@ -566,7 +555,7 @@ if positionAnalysis
             line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
             legend({'TRA','prev TRA'})
             title('Edge method for TRA')
-            xlim([400*4e-9 600*4e-9])
+            xlim([400*4e-9 550*4e-9])
             xlabel('time (s)')
             ylabel('Power (a.u.)')
 
@@ -579,7 +568,7 @@ if positionAnalysis
             line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
             legend({'REF','prev REF'})
             title('Edge method for REF')
-            xlim([400*4e-9 600*4e-9])
+            xlim([400*4e-9 550*4e-9])
             xlabel('time (s)')
             ylabel('Power (a.u.)')
             
@@ -596,12 +585,16 @@ if positionAnalysis
             
             
             %CORRELATION
-%             [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c,timescale,REF_c,wind,winStart_corr);
-%             disp(['coeff=' num2str(coeff_corr) ' ; error= ' num2str(corr_err) ])
+            [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
+            disp(['coeff=' num2str(coeff_corr)   ])
             
             subplot(4,6,[15 16 21 22])
-            
+            plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
+                timescale-(coeff_corr(1)*1e-9), coeff_corr(2)*REF_c, 'g','LineWidth', 2 ...
+                )
+            xlim([1.848e-6 3.2e-6])
             title('Correlation method')
+            legend({'REF','INC', 'REF delayed'})
             
 
             %%%%%%%%%%%%%%%%%%% all in s, err=error matrix, gof = min(err)
@@ -624,32 +617,34 @@ if positionAnalysis
             
             %JITTER check
             [ ~, delay_time ] = jitterCheck( data_struct.(BDs{n}).INC.data_cal, data_struct.(precName).INC.data_cal, sf, sROI, eROI);
-            disp(['delay = ' num2str(delay_time) ' ns'])
+            disp(['jitter = ' num2str(delay_time) ' ns'])
             if delay_time ~= 0
                 warning('Jitter detected !')
             end
             
             % manual correction
-            str = input('Will you do any correction ?   ','s');
-            if strcmp(str,'y')
-                str = input('Correct Edge Method ?   ','s');
+            if manualCorrection
+                str = input('Will you do any correction ?   ','s');
                 if strcmp(str,'y')
-                    str = input('time_ind_TRA =   ','s');
-                    time_TRA = str2double(str);
-                    ind_TRA = time_TRA/sf +1; %get index from time
-                    str = input('time_ind_REF =   ','s');
-                    time_REF = str2double(str);
-                    ind_REF = time_REF/sf +1; %get index from time
-                end  
-                str = input('Correct Correlation Method ?   ','s');
-                if strcmp(str,'y')
-                    str = input('td_corr =   ','s');
-                    td_corr(i) = str2double(str);             
+                    str = input('Correct Edge Method ?   ','s');
+                    if strcmp(str,'y')
+                        str = input('time_ind_TRA =   ','s');
+                        time_TRA = str2double(str);
+                        ind_TRA = time_TRA/sf +1; %get index from time
+                        str = input('time_ind_REF =   ','s');
+                        time_REF = str2double(str);
+                        ind_REF = time_REF/sf +1; %get index from time
+                    end  
+                    str = input('Correct Correlation Method ?   ','s');
+                    if strcmp(str,'y')
+                        str = input('td_corr =   ','s');
+                        td_corr(i) = str2double(str);             
+                    else
+                        continue;
+                    end
                 else
                     continue;
                 end
-            else
-                continue;
             end
             
             %CREATE OUTPUT STRUCT
@@ -675,7 +670,7 @@ if positionAnalysis
 
 
 
-%         pause;
+        pause;
     end
 
     %flag data as positioning done

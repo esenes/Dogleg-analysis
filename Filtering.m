@@ -36,7 +36,7 @@ datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
 expname = 'Exp_Loaded43MW_7';
 savename = expname;
 positionAnalysis = true;
-manualCorrection = false;
+manualCorrection = true;
 %%%%%%%%%%%%%%%%%% Select the desired output %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -340,9 +340,6 @@ fprintf(logID,msg2);
 fprintf(logID,msg3);
 fclose(logID);
 
-%% Signal alignment check
-data_struct = signalDelay( BD_candidates, data_struct, init_delay, max_delay, step_len, comp_start, comp_end);
-
 %% Distributions plots
 % peak power distribution
 f3 = figure('position',[0 0 winW winH]);
@@ -548,7 +545,6 @@ if positionAnalysis
             %%%%%%%%%%%% Calculate the delay
             %TRA EDGE
             [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
-            disp(ind_TRA)
             
             subplot(4,6,[3 4])
             plot(timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --')
@@ -561,7 +557,6 @@ if positionAnalysis
 
             %REF EDGE
             [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
-            disp(ind_REF)
              
             subplot(4,6,[9 10])
             plot(timescale, REF_c, 'k -',timescale, REF_prev, 'k --')
@@ -586,7 +581,6 @@ if positionAnalysis
             
             %CORRELATION
             [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
-            disp(['coeff=' num2str(coeff_corr)   ])
             
             subplot(4,6,[15 16 21 22])
             plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
@@ -595,25 +589,6 @@ if positionAnalysis
             xlim([1.848e-6 3.2e-6])
             title('Correlation method')
             legend({'REF','INC', 'REF delayed'})
-            
-
-            %%%%%%%%%%%%%%%%%%% all in s, err=error matrix, gof = min(err)
-            %%%%%%%%%%%%%%%%%%% is goodness of fit; use just coeff_corr(1)
-            %%%%%%%%%%%%%%%%%%% [ns]
-            %%%%%%%%%%%%%%%%%%% as result !
-            
-            %%%%%%%%%%%%%%%%%%% save timesa as well using timescale(index from fit)
-            
-            %%%%%%%%%%%%%%%%%%% deduce the index even in manual correction
-           
-
-
-            %METRIC CHECK
-            fprintf(1,'\n \n \n \n')%just leave space
-            disp(data_struct.(BDs{n}).name);
-            disp([ 'INC_TRA = ' num2str(data_struct.(BDs{n}).inc_tra) ' / >' num2str(inc_tra_thr)])
-            disp([ 'INC_REF = ' num2str(data_struct.(BDs{n}).inc_ref) ' / <' num2str(inc_ref_thr)])
-
             
             %JITTER check
             [ ~, delay_time ] = jitterCheck( data_struct.(BDs{n}).INC.data_cal, data_struct.(precName).INC.data_cal, sf, sROI, eROI);
@@ -637,8 +612,11 @@ if positionAnalysis
                     end  
                     str = input('Correct Correlation Method ?   ','s');
                     if strcmp(str,'y')
-                        str = input('td_corr =   ','s');
-                        td_corr(i) = str2double(str);             
+                        str = input('time_peak_INC =   ','s');
+                        time_inc = str2double(str) 
+                        str = input('time_peak_REF =   ','s');
+                        time_ref = str2double(str)
+                       
                     else
                         continue;
                     end
@@ -654,11 +632,11 @@ if positionAnalysis
             data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
             data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
             %correlation
-%             data_struct.(BDs{n}).position.correlation.error = corr_err;
-%             if corr_err ~= true
-%                 data_struct.(BDs{n}).position.correlation.ind_corr = coeff_corr(1); 
-%             end
-            
+            data_struct.(BDs{n}).position.correlation.delay_bin = coeff_corr(1);
+            data_struct.(BDs{n}).position.correlation.delay_time = timescale(coeff_corr(1));
+            data_struct.(BDs{n}).position.correlation.gain = coeff_corr(2);
+
+            %%%%%% STILL TO ADD THE MANUAL FAIL OF THE METHOD
 
             
             

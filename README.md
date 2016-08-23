@@ -110,10 +110,6 @@ _Parameters_
  * sROI: start of the region of interest for the Jitter detection
  * eROI: end of the ROI 
 
-### 4) BDAnalysis.m
-
-> still a work in progress.... 
-
 ---
 
 #### Data structure:

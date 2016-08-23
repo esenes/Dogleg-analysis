@@ -2,13 +2,6 @@
 The following scripts are intended to analyze the data of the test of the TD26 structure, under test in the dogleg of the CTF3 facility.
 The data are stored in TDMS files, to perform the analysis run these scripts in sequence:
  
----
-
-> **Warning:** upgraded to MATLAB version 2016a on 06.06.2016
-
-> **Downgrade to MATLAB r2014b** on 09.06.2016 beacause r2016a was freezing every time and fighting with Java ...
-
----
 
 ![workflow](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/flowchart.png)
 

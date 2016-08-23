@@ -11,7 +11,7 @@ The data are stored in TDMS files, to perform the analysis run these scripts in 
 ---
 
 
-![workflow](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/Untitled%20Diagram.png)
+
 
 ### 1) read_TDMS_full.m
 

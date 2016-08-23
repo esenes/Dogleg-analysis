@@ -924,11 +924,12 @@ data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
 
 
 % saving
+BDs_ts = BDs; %copy BDs to BDs_ts to change the name to save
 tic
 data_struct.Props.filetype = 'Experiment_analized';
 disp('Saving ...')
 save([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],...
-    'data_struct','inMetric','isSpike','sec_spike','beam_lost','sec_beam_lost','hasBeam','clusters',...
+    'data_struct','BDs_ts','inMetric','isSpike','sec_spike','beam_lost','sec_beam_lost','hasBeam','clusters',...
     '-v7.3');
 fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 disp('Done.')

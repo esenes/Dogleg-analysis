@@ -296,8 +296,8 @@ elseif strcmpi(mode,'UnLoaded')
         clusters_wb = event_name(inMetric & clusters );
         clusters_wob = event_name(inMetric & clusters );
         %final breakdowns
-        BDs_flag = inMetric & ~isSpike & ~(sec_spike) & ~clusters;
-        BDs = event_name(inMetric & ~isSpike & ~(sec_spike) & ~clusters);
+        BDs_flag = inMetric & ~isSpike & ~(sec_spike) ;
+        BDs = event_name(inMetric & ~isSpike & ~(sec_spike) );
         %interlocks = "candidates" out of metric
         interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) );
         %spikes

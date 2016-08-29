@@ -30,35 +30,41 @@
 % Last modified 10.05.2016 by Eugenio Senes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% Read setup file %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+close all; clearvars; clc;
+[datapath_read, datapath_write, exppath_write] = readSetup();
+%%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-close all; clearvars; clc;
-if strcmp(computer,'MACI64') %just hit 'add to path' when running first time
-    addpath(genpath('/Users/esenes/scripts/Dogleg-analysis-master'))
-end
-datapath_read = '/Users/esenes/swap';
-datapath_write = '/Users/esenes/swap_out/data';
-exppath_write = '/Users/esenes/swap_out/exp';
+% datapath_read = '/Users/esenes/swap';
+% datapath_write = '/Users/esenes/swap_out/data';
+% exppath_write = '/Users/esenes/swap_out/exp';
 
-%run8
-startDate = '20160601';
-endDate = '20160603';
-startTime = '13:00:00';
-endTime = '03:30:00';
+startDate = '20160503';
+endDate = '20160504';
+startTime = '10:00:00';
+endTime = '15:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded_8';
+expName = 'UnLoaded_2';
 
 mode = 'Loaded';
-
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%SAMPLING PERIOD
+fs = 1/(4e-9);
 % SPIKE DETECTION (B0,F1,F2 method)
 %%Threshold setting
 if strcmpi(mode,'Loaded')
+    spike_thr = 4.5;
+elseif strcmpi(mode,'UnLoaded')
     spike_thr = 4.5;
 elseif strcmpi(mode,'Antiloaded')
     spike_thr = 1;
@@ -129,25 +135,12 @@ for j = 1:length(filename) %loop over dates
     lastBD_name = '';
     % Open a progress bar
     progBar = waitbar(0,['Elaborating file ' num2str(j) ' on ' num2str(length(filename)) ]);
-
     %ADD THE PROPS FIELD
-    data_struct.Props.filetype = 'Data';
-    
-    
-    
-    
-    
-            fs = 1/(4e-9);
-                d = fdesign.bandpass('N,F3dB1,F3dB2',10,15e6,50e6,fs);
-            Hd = design(d,'butter');
-    
-            
-            
-            
-            
-            
-            
-            
+    data_struct.Props.filetype = 'Data';   
+    %CALCULATE FILTER TAPS FOR THE SPIKE FILTER
+    d = fdesign.bandpass('N,F3dB1,F3dB2',10,15e6,50e6,fs);
+    Hd = design(d,'butter');
+           
     %% select file B0 with L1 and L2 for the data, the L0 for the normal operation check
     for i = 1:length(field_names_out) %loop over events
         %Filter definition for spike treatment
@@ -238,33 +231,21 @@ for j = 1:length(filename) %loop over dates
                     data_struct.(field_names_out{i}).BPM2.data_cal = BPM2_cal;
                     data_struct.(field_names_out{i}).BPM2.sum_cal = sum(BPM2_cal);
                 %SPIKES
+                    %filter the spikes
+                    [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd,spike_thr);
+                    if hasSpike
+                        data_struct.(field_names_out{i}).spike.flag = 1;
+                        data_struct.(field_names_out{i}).spike.filtered_signal = filteredSignal;
+                        spike_ctr = spike_ctr +1;
+                    else
+                        data_struct.(field_names_out{i}).spike.flag = 0;
+                    end
                     %method1: events with B0, L1 and L2
                     if ( strcmp(field_names_out{i+1}(end-1:end),'L1') && strcmp(field_names_out{i+2}(end-1:end),'L2') )%try to read the next 2 events
                         LL_ctr = LL_ctr +1; %increment the counter of usable BDs        
-                        %filter the spikes
-                        [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd,spike_thr);
-                        if hasSpike
-                            %method flag = Freq_filter
-                            data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
-                            data_struct.(field_names_out{i}).spike.flag = 1;
-                            data_struct.(field_names_out{i}).spike.filtered_signal = filteredSignal;
-                        else
-                            data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
-                            data_struct.(field_names_out{i}).spike.flag = 0;
-                        end
                     %method2: events with B0 only
                     else
                         FF_ctr = FF_ctr+1;                    
-                        [hasSpike, filteredSignal] = filterSpikes_W(INC_cal,Hd,spike_thr);
-                        if hasSpike
-                            %method flag = Freq_filter
-                            data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
-                            data_struct.(field_names_out{i}).spike.flag = 1;
-                            data_struct.(field_names_out{i}).spike.filtered_signal = filteredSignal;
-                        else
-                            data_struct.(field_names_out{i}).spike.method = 'Freq_filter';
-                            data_struct.(field_names_out{i}).spike.flag = 0;
-                        end
                     end
                 % PULSE TUNING CHECK AND AVERAGE/PEAK CALCULATION
                 [ tilt_str, peak_str, avg_str ] = checkTuning(INC_cal, comp_pulse_start, comp_pulse_end, ...
@@ -511,35 +492,3 @@ if buildBackupPulses
     toc
     clearvars
 end
-
-
-% %% checks ....
-% %load([exppath_write filesep 'Exp_Antiloaded6_5MW_4.mat']);
-% 
-% goodlist = {};
-% list = fieldnames(data_struct);
-% for i=1:length(list)
-%     if strcmpi(list{i}(end-1:end),'B0')
-%         goodlist = [goodlist list{i}];
-%     end
-% end
-% 
-% figure
-% for i=1:length(goodlist)
-% disp(goodlist{i})
-% dd = data_struct.(goodlist{i}).INC.data_cal;
-% subplot(1,2,1)
-% plot(dd)
-% [hasSpike, filteredSignal] = filterSpikes_W(dd,Hd,1);
-% subplot(1,2,2)
-% plot(filteredSignal)
-% line(xlim, [1 1], 'Color', 'r') %horizontal line
-% line([200 200], ylim, 'Color', 'r') %vertical line
-% line([470 470], ylim, 'Color', 'r') %vertical line
-% 
-% title({ list{i} ; ['spike = ' num2str(data_struct.(goodlist{i}).spike.flag)] })
-% disp(hasSpike)
-% 
-% disp(max(filteredSignal(200:470)))
-% pause
-% end     

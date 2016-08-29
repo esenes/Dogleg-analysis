@@ -6,14 +6,28 @@ The data are stored in TDMS files, to perform the analysis run these scripts in 
 ![workflow](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/flowchart.png)
 
 
-### 1) read_TDMS_full.m
+### Convert data:
+#### read_TDMS_full.m
 
 to read the TDMS files in the specified range and convert TDMS files into `Prod_<date>.mat` files. 
 The content of the files are all the events which have triggered an interlock and the backup pulses.
 
 This script with the relative subfunctions is available in another repository named [TDMStoMAT](https://github.com/esenes/TDMStoMAT)
 
-### 2) readMATandsort.m
+Please note that this process is completely unreated to the analysis, so this is a completely separated program and is not related with the rest of the analysis.
+
+### Data analysis:
+
+#### 1) setup.m
+
+if this is the first time you run this set of scripts, running the setup creates the file `setup.dogleg` which contains the paths to the folders which are going to contain the analysed data.
+
+The folders to specify are:
+* **Prod data folder**: the one containing the `Prod_<date>.mat` files generated using read_TDMS_full.m
+* **temp data folder**: where are stored the `Data_<date>.mat` files, which can be removed if readMATandSort.m succeded without errors
+* **analyzed data folder**: which is going to contain the `Exp_<date>.mat` and the `Norm_full_<date>.mat` files
+
+#### 2) readMATandsort.m
 
 reads the files `Prod_<date>.mat`, perform a first analysis and save an output file named `Data_<date>.mat` containing the interlocks events and a file named `Norm_<date>.mat` containing the backup pulses.
 If `buildExperiment=true` the Data files are merged in `Exp_<expname>.mat` between the date of interest.
@@ -47,14 +61,14 @@ At this point the analysis forks in two branches:
 * To analyze the operation of the machine during the normal pulses is used the script *NormalOperationCheck.m* (3.1)
 * To analyze the BD events is used the script *Filtering.m* (3.2)
 
-### 3.1) NormalOperationCheck.m 
+#### 3.1) NormalOperationCheck.m 
 
 Analyze the backup pulses of the files called `Norm_full_<expname>.mat` and print some plots to understand the stability of the machine. 
 
 The typical output can be found [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/NormalOperationCheck.md)
 
 
-### 3.2) Filtering.m
+#### 3.2) Filtering.m
 
 > still a work in progress.... 
 

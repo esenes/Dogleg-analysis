@@ -33,7 +33,7 @@ datapath_read = '/Users/esenes/swap_out/exp';
 datapath_write = '/Users/esenes/swap_out/exp';
 datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
 datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-expname = 'Exp_UnLoaded_2';
+expname = 'Exp_Loaded43MW_5';
 savename = expname;
 positionAnalysis = true;
 manualCorrection = false;
@@ -149,6 +149,7 @@ end
     mid_len = zeros(1,length(event_name));
     bot_len = zeros(1,length(event_name));
     fail_m1=0;
+    
 for i = 1:length(event_name) 
     pk_pwr(i) = data_struct.(event_name{i}).INC.max;
     avg_pwr(i) = data_struct.(event_name{i}).INC.avg.INC_avg;
@@ -221,64 +222,99 @@ savefig([datapath_write_fig filesep expname '_charge_distribution'])
 
 
 %% Start the filtering 
-% filling bool arrays
-    %metric criteria
-    [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
-    %beam charge
-    [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr,'bpm1');
-    %find indexes and elements for metric and non-metric events
-    metr_idx = find(inMetric);
-    nonmetr_idx = find(~inMetric);
-    %secondary filter by time after SPIKE
-    [~, sec_spike_in] = filterSecondary(ts_array(metr_idx),deltaTime_spike,isSpike(metr_idx));
-    [~, sec_spike_out] = filterSecondary(ts_array(nonmetr_idx),deltaTime_spike,isSpike(nonmetr_idx));
-    sec_spike = recomp_array(sec_spike_in,metr_idx,sec_spike_out,nonmetr_idx);
-    %secondary filter by time after BEAM LOST
-    [~, sec_beam_lost_in] = filterSecondary(ts_array(metr_idx),deltaTime_beam_lost,beam_lost(metr_idx));
-    sec_beam_lost = recomp_array(sec_beam_lost_in,metr_idx,zeros(1,length(nonmetr_idx)),nonmetr_idx);
-    %secondary after a normal BD
-    BD_idx_met = inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & ~hasBeam;
-    [~,clusters]=filterSecondary(ts_array,deltaTime_cluster,BD_idx_met);
-% filling event arrays    
-    %in the metric
-    intoMetr = event_name(inMetric);
-    outOfMetr = event_name(~inMetric);
-    %candidates = inMetric, withBeam, not beam lost and not after spike and
-    %not clusters
-    BD_candidates = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
-    BD_candidates_beam = event_name(inMetric & hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
-    BD_candidates_nobeam = event_name(inMetric & ~hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
-    %clusters
-    clusters_wb = event_name(inMetric & clusters & hasBeam);
-    clusters_wob = event_name(inMetric & clusters & ~hasBeam);
-    %final breakdowns
-    BDs_flag = inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters;
-    BDs = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-    %interlocks = "candidates" out of metric
-    interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
-    %spikes
-    spikes_inMetric =  event_name(inMetric & isSpike);
-    spikes_outMetric =  event_name(~inMetric & isSpike);
-    %missed beams
-    missed_beam_in = event_name(inMetric &beam_lost);
-    missed_beam_out = event_name(~inMetric &beam_lost);
-    %clusters
-    missed_beam_cluster = event_name(inMetric &sec_beam_lost);
-    spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
-    spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
+if strcmpi(mode,'Loaded')
+    % filling bool arrays
+        %metric criteria
+        [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
+        %beam charge
+        [hasBeam,~,~] = beamCheck(bpm1_ch, bpm1_thr, bpm2_ch, bpm2_thr,'bpm1');
+        %find indexes and elements for metric and non-metric events
+        metr_idx = find(inMetric);
+        nonmetr_idx = find(~inMetric);
+        %secondary filter by time after SPIKE
+        [~, sec_spike_in] = filterSecondary(ts_array(metr_idx),deltaTime_spike,isSpike(metr_idx));
+        [~, sec_spike_out] = filterSecondary(ts_array(nonmetr_idx),deltaTime_spike,isSpike(nonmetr_idx));
+        sec_spike = recomp_array(sec_spike_in,metr_idx,sec_spike_out,nonmetr_idx);
+        %secondary filter by time after BEAM LOST
+        [~, sec_beam_lost_in] = filterSecondary(ts_array(metr_idx),deltaTime_beam_lost,beam_lost(metr_idx));
+        sec_beam_lost = recomp_array(sec_beam_lost_in,metr_idx,zeros(1,length(nonmetr_idx)),nonmetr_idx);
+        %secondary after a normal BD
+        BD_idx_met = inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & ~hasBeam;
+        [~,clusters]=filterSecondary(ts_array,deltaTime_cluster,BD_idx_met);
+    % filling event arrays    
+        %in the metric
+        intoMetr = event_name(inMetric);
+        outOfMetr = event_name(~inMetric);
+        %candidates = inMetric, withBeam, not beam lost and not after spike and
+        %not clusters
+        BD_candidates = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
+        BD_candidates_beam = event_name(inMetric & hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
+        BD_candidates_nobeam = event_name(inMetric & ~hasBeam & ~isSpike & ~(sec_spike) & ~(sec_beam_lost));
+        %clusters
+        clusters_wb = event_name(inMetric & clusters & hasBeam);
+        clusters_wob = event_name(inMetric & clusters & ~hasBeam);
+        %final breakdowns
+        BDs_flag = inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters;
+        BDs = event_name(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
+        %interlocks = "candidates" out of metric
+        interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost));
+        %spikes
+        spikes_inMetric =  event_name(inMetric & isSpike);
+        spikes_outMetric =  event_name(~inMetric & isSpike);
+        %missed beams
+        missed_beam_in = event_name(inMetric &beam_lost);
+        missed_beam_out = event_name(~inMetric &beam_lost);
+        %clusters
+        missed_beam_cluster = event_name(inMetric &sec_beam_lost);
+        spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
+        spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);
+
+elseif strcmpi(mode,'UnLoaded')   
+    % filling bool arrays
+        %metric criteria
+        [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
+        %find indexes and elements for metric and non-metric events
+        metr_idx = find(inMetric);
+        nonmetr_idx = find(~inMetric);
+        %secondary filter by time after SPIKE
+        [~, sec_spike_in] = filterSecondary(ts_array(metr_idx),deltaTime_spike,isSpike(metr_idx));
+        [~, sec_spike_out] = filterSecondary(ts_array(nonmetr_idx),deltaTime_spike,isSpike(nonmetr_idx));
+        sec_spike = recomp_array(sec_spike_in,metr_idx,sec_spike_out,nonmetr_idx);
+        %secondary after a normal BD
+        BD_idx_met = inMetric & ~isSpike & ~(sec_spike)   ;
+        [~,clusters]=filterSecondary(ts_array,deltaTime_cluster,BD_idx_met);
+    % filling event arrays    
+        %in the metric
+        intoMetr = event_name(inMetric);
+        outOfMetr = event_name(~inMetric);
+        %candidates = inMetric, withBeam, not beam lost and not after spike and
+        %not clusters
+        BD_candidates = event_name(inMetric & ~isSpike & ~(sec_spike) );
+        BD_candidates_beam = event_name(inMetric  & ~isSpike & ~(sec_spike) );
+        BD_candidates_nobeam = event_name(inMetric  & ~isSpike & ~(sec_spike) );
+        %clusters
+        clusters_wb = event_name(inMetric & clusters );
+        clusters_wob = event_name(inMetric & clusters );
+        %final breakdowns
+        BDs_flag = inMetric & ~isSpike & ~(sec_spike) & ~clusters;
+        BDs = event_name(inMetric & ~isSpike & ~(sec_spike) & ~clusters);
+        %interlocks = "candidates" out of metric
+        interlocks_out = event_name(~inMetric & ~isSpike & ~(sec_spike) );
+        %spikes
+        spikes_inMetric =  event_name(inMetric & isSpike);
+        spikes_outMetric =  event_name(~inMetric & isSpike);
+        %clusters
+        spike_cluster = event_name(inMetric & sec_spike & ~isSpike);
+        spike_cluster_out = event_name(~inMetric & sec_spike & ~isSpike);    
+end
 
 %% Cluster length detection
 
 % Clusters from spikes
 clust_spike_length = clusterDistribution( isSpike(metr_idx), sec_spike_in );
-% Clusters from BD w/o beam
-clust_BD_no_beam_wobeam_after = clusterDistribution( BD_idx_met, inMetric & clusters & ~hasBeam);
-clust_BD_no_beam_wbeam_after = clusterDistribution( BD_idx_met, inMetric & clusters & hasBeam);
 
 %% Report message and crosscheck of lengths
 disp('Analysis done! ')
-%open the log file and append
-logID = fopen([datapath_write filesep savename '.log'], 'a' ); 
 %gather data and build the message
 %%INTO THE METRIC
 l1 = length(BD_candidates);
@@ -318,9 +354,9 @@ msg3 = ['Out of the metric:' '\n' ...
 % print to screen (1) and to log file
 fprintf(1,msg2);
 fprintf(1,msg3);
-fprintf(logID,msg2);
-fprintf(logID,msg3);
-fclose(logID);
+
+msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5 );
+fprintf(1,msg4);
 
 %% Distributions plots
 % peak power distribution

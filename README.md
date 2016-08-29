@@ -43,9 +43,6 @@ _The aim of the script is:_
 - detect if the Xbox's pulse compressor is properly tuned (WORK IN PROGRESS ...)
 
 _User input_
-* **datapath_read**:  the path containing the `Prod_<date>.mat` files (without \ at the end)
-* **datapath_write**: the path of location to save Data files (without \ at the end)
-* **exppath_write**: the path of location to save the Experiment files (without \ at the end)
 * **startDate** = start date in the format 'yyyymmdd' 
 * **endDate** =   end date in the format 'yyyymmdd'
 * **startTime** = start time in the format 'HH:MM:SS'
@@ -94,8 +91,6 @@ __5) Save the BD events for further analysis__
 The detailed reference for this program is [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/filtering%20guide.md)
 
 _User input_
-* **datapath_read**:  the path containing the `Exp_<expname>.mat` files (without \ at the end)
-* **datapath_write**: the path of location to save Data files (without \ at the end)
 * **expName**: the full name of the experiment file to load (e.g. 'Exp_Loaded43MW_1')
 * **savename**: the name of output files 
 * **positionAnalysis**: do the position analysis check one BD by one

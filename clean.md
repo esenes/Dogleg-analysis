@@ -1,0 +1,2 @@
+- [ ] remove spike.method field
+- [ ] fix spike filter taps call (just once and fs as parameter)

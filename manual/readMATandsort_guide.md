@@ -52,9 +52,7 @@ Additionally for the _B0_ files:
 
 ![metrics](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/metrics.jpg) 
  
-* Are applied algorithms for the **spike detection**
- * The [fast algorithm](https://github.com/esenes/Dogleg-analysis/blob/master/manual/fastSpike.md) compares the difference between the _B0_ pulse and the previous two pulses (is applied only when both the backup pulses are available). Please note that is designed to throw an error very easily in order to avoid positive falses. In every case of indecision, the other algorithm is triggered.
- * The digital filter is applied in all the other cases or when the prevous algorithm fails. More infos on the filter design are available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/freqSpike.md)
+* For the spike detection is applied a digital filter . More infos on the filter design are available [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/freqSpike.md)
 
 * Is applied an algorithm to detect the **proper tuning of the klystron's** compressed pulse, more infos [here](https://github.com/esenes/Dogleg-analysis/blob/master/manual/tuningCheck.md)
 

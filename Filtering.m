@@ -21,24 +21,25 @@
 % 
 % REV. 1. by Eugenio Senes and Theodoros Argyropoulos
 %
-% Last modified 13.06.2016 by Eugenio Senes
+% Last modified 29.08.2016 by Eugenio Senes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% Read setup file %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
-if strcmp(computer,'MACI64') %just hit add to path when prompted
-    addpath(genpath('/Users/esenes/scripts/Dogleg-analysis-master'))
-end
+[~, ~, datapath_read, datapath_write_plot, datapath_write_fig ] = readSetup();
+%%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-datapath_read = '/Users/esenes/swap_out/exp';
-datapath_write = '/Users/esenes/swap_out/exp';
-datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
-datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
+%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+datapath_write = datapath_read;
+
 expname = 'Exp_Loaded43MW_5';
 savename = expname;
+
 positionAnalysis = true;
 manualCorrection = false;
 mode = 'Loaded';
-%%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%

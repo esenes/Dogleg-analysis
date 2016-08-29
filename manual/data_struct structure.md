@@ -65,14 +65,7 @@ into every interlock event are added these fields:
   * sum_cal: the sum of the signal of the BPM for the current event
 * **spike**
   * flag: boolean, 1 is a spike
-  * method: the name of the algorithm used for the spike detection
-    In case of spike, for the spike algorithm are added the fields:
-    * method = 'Prev_pulses'
-    * thr1: treshold used while comparing current event and previous pulse
-    * thr2: treshold used while comparing current event and the pulse before the previous
-    while for the digital filter are:
-    * method = 'Freq_filter'
-    * filtered_signal
+  * filtered_signal
 * **tuning** 
   * fail_m1: error flag for method 1
   * top: result of method 1, top threshold

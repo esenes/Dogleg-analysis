@@ -27,13 +27,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% Read setup file %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
+%include folder to path
+[dirpath,~,~]=fileparts(mfilename('fullpath'));
+addpath(genpath(dirpath))
+%read setup
 [~, ~, datapath_read, datapath_write_plot, datapath_write_fig ] = readSetup();
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_Loaded43MW_5';
+expname = 'Exp_UnLoaded_4';
 savename = expname;
 
 positionAnalysis = true;

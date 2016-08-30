@@ -10,17 +10,19 @@
 % Last modified 02.06.2016 by Eugenio Senes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars ; clc;
-if strcmpi(computer,'MACI64') %just hit add to path when prompted
-    addpath(genpath('/Users/esenes/scripts/Dogleg-analysis-master'))
-end
+%include folder to path
+[dirpath,~,~]=fileparts(mfilename('fullpath'));
+addpath(genpath(dirpath))
+%read setup
+[~, ~, datapath_read, datapath_write_plot, datapath_write_fig ] = readSetup();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-datapath_read = '/Users/esenes/swap_out/exp';
-datapath_write = '/Users/esenes/swap_out/exp';
-datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
-datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
-datapath_write_report = '/Users/esenes/swap_out/exp/reports';
-fileName = 'Norm_full_UnLoaded_8';
+% datapath_read = '/Users/esenes/swap_out/exp';
+datapath_write = datapath_read;
+% datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
+% datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
+% datapath_write_report = '/Users/esenes/swap_out/exp/reports';
+fileName = 'Norm_full_UnLoaded_4';
 savename = fileName;
 %%%%%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -468,36 +470,36 @@ axis([-0.2 0.5 0.2 0.8])
 
 
 %% Create tex file
-%adjust date format
-sdate = data_struct.Props.startDate;
-sdatenum = datenum(sdate,'yyyymmdd');
-sdatestr = datestr(sdatenum,'yyyy mmm dd');
-
-edate = data_struct.Props.endDate;
-edatenum = datenum(edate,'yyyymmdd');
-edatestr = datestr(edatenum,'yyyy mmm dd');
-%get number of pulses
-l1 = length(Beam);
-l2 = length(noBeam);
-%create the file
-texID = createTex(datapath_write_report,savename,'Normal run report', ...
-    sdatestr, data_struct.Props.startTime, edatestr, data_struct.Props.endTime,...
-    datestr(datetime('now')),...
-    fileName, bpm1_thr, bpm2_thr,...
-    l1,l2...
-    );
-
-beg_lscape(datapath_write_report,savename);
-addPlotTex(datapath_write_report,savename,path1,'jpg');
-addPlotTex(datapath_write_report,savename,path2,'jpg');
-addPlotTex(datapath_write_report,savename,path3,'jpg');
-addPlotTex(datapath_write_report,savename,path4,'jpg');
-addPlotTex(datapath_write_report,savename,path5,'jpg');
-addPlotTex(datapath_write_report,savename,path6,'jpg');
-addPlotTex(datapath_write_report,savename,path7,'jpg');
-addPlotTex(datapath_write_report,savename,path8,'jpg');
-addPlotTex(datapath_write_report,savename,path9,'jpg');
-addPlotTex(datapath_write_report,savename,path10,'jpg');
-end_lscape(datapath_write_report,savename);
-
-closeTex(datapath_write_report,savename);
+% %adjust date format
+% sdate = data_struct.Props.startDate;
+% sdatenum = datenum(sdate,'yyyymmdd');
+% sdatestr = datestr(sdatenum,'yyyy mmm dd');
+% 
+% edate = data_struct.Props.endDate;
+% edatenum = datenum(edate,'yyyymmdd');
+% edatestr = datestr(edatenum,'yyyy mmm dd');
+% %get number of pulses
+% l1 = length(Beam);
+% l2 = length(noBeam);
+% %create the file
+% texID = createTex(datapath_write_report,savename,'Normal run report', ...
+%     sdatestr, data_struct.Props.startTime, edatestr, data_struct.Props.endTime,...
+%     datestr(datetime('now')),...
+%     fileName, bpm1_thr, bpm2_thr,...
+%     l1,l2...
+%     );
+% 
+% beg_lscape(datapath_write_report,savename);
+% addPlotTex(datapath_write_report,savename,path1,'jpg');
+% addPlotTex(datapath_write_report,savename,path2,'jpg');
+% addPlotTex(datapath_write_report,savename,path3,'jpg');
+% addPlotTex(datapath_write_report,savename,path4,'jpg');
+% addPlotTex(datapath_write_report,savename,path5,'jpg');
+% addPlotTex(datapath_write_report,savename,path6,'jpg');
+% addPlotTex(datapath_write_report,savename,path7,'jpg');
+% addPlotTex(datapath_write_report,savename,path8,'jpg');
+% addPlotTex(datapath_write_report,savename,path9,'jpg');
+% addPlotTex(datapath_write_report,savename,path10,'jpg');
+% end_lscape(datapath_write_report,savename);
+% 
+% closeTex(datapath_write_report,savename);

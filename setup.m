@@ -2,6 +2,8 @@
 % setup.m:  
 % Welcome to the dogeg analysis setup program. This script is going to
 % create the setup file for the dogleg-analysis script.
+%
+% Just run it and follow instructions !
 % 
 % REV. 1. by Eugenio Senes and Theodoros Argyropoulos
 %

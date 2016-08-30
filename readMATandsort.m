@@ -1,5 +1,6 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Sort events:  
-% This script is intended to grasp and performa a first analysis of the 
+% This script is intended to grasp and perform a first analysis of the 
 % data of the TD26CC structure, which is under test now in the dogleg.
 % 
 % In details it should perform for every file:
@@ -21,9 +22,16 @@
 %     calculating the middle point
 %   - METHOD2: is fitting the flattop with a straight line (the flattop edges
 %     detection is a bit tricky, but it works)
+% After the analysis of every file is saved the 'Data_<date>.mat' file,
+% which is the equivalent of the 'Prod_<date>.mat' file, but containing the
+% results of the analysis. The file 'Norm_<date>.mat' is saved as well, and
+% contains the backup pulses which didn' triggered any interlock.
 %
-%   NOTE ON LOADING: the loading of the 'Prod_<date>.mat' files is loading
-%   2 variables, which are 'tdms_struct' and 'field_names'
+% When all files have been processed, the Data files are merged in the
+% 'Exp_<name>.mat' and 'Norm_full_<name>.mat'
+%
+%   NOTE ON FILE LOADING: the loading of the 'Prod_<date>.mat' files is
+%   loading 2 variables, which are 'tdms_struct' and 'field_names'
 %
 % REV. 1. by Eugenio Senes and Theodoros Argyropoulos
 %
@@ -33,6 +41,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% Read setup file %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clearvars; clc;
+%include folder to path
+[dirpath,~,~]=fileparts(mfilename('fullpath'));
+addpath(genpath(dirpath))
+%read setup
 [datapath_read, datapath_write, exppath_write, ~, ~] = readSetup();
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,14 +55,15 @@ close all; clearvars; clc;
 % datapath_write = '/Users/esenes/swap_out/data';
 % exppath_write = '/Users/esenes/swap_out/exp';
 
-startDate = '20160503';
-endDate = '20160504';
-startTime = '10:00:00';
-endTime = '15:00:00';
+%run4
+startDate = '20160517';
+endDate = '20160520';
+startTime = '12:30:00';
+endTime = '01:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded_2';
+expName = 'UnLoaded_4';
 
 mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -235,7 +248,6 @@ for j = 1:length(filename) %loop over dates
                     if hasSpike
                         data_struct.(field_names_out{i}).spike.flag = 1;
                         data_struct.(field_names_out{i}).spike.filtered_signal = filteredSignal;
-                        spike_ctr = spike_ctr +1;
                     else
                         data_struct.(field_names_out{i}).spike.flag = 0;
                     end

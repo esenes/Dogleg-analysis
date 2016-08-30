@@ -20,7 +20,7 @@ Please note that this process is completely unreated to the analysis, so this is
 
 #### 1) setup.m
 
-if this is the first time you run this set of scripts, running the setup creates the file `setup.dogleg` which contains the paths to the folders which are going to contain the analysed data.
+if this is the first time you run this set of scripts, running the setup creates the file `setup.dogleg` which contains the paths to the folders which are going to contain the analysed data. The setup file is placed in the same folder of the scripts automatically
 
 The folders to specify are:
 * **Prod data folder**: the one containing the `Prod_<date>.mat` files generated using read_TDMS_full.m

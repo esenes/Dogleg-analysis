@@ -35,7 +35,7 @@ The suggested folder structure is the following:
 ├── data source folder       # contains the 'Prod_<date>.mat' files
 ├── ...                    
 ├── temp                     # place for the 'Data_<date>.mat' and 'Norm_<date>.mat' files
-├── analyzed data            # place for the 'Exp_<name>.mat', 'Exp_analyzed_<name>.mat' and 'Norm_full_<date>.mat' 
+└── analyzed data            # place for the 'Exp_<name>.mat', 'Exp_analyzed_<name>.mat' and 'Norm_full_<date>.mat' 
     ├── plots                # place for the .jpeg plots
     └── figs                 # place for the .fig plots
 

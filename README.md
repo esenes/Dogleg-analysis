@@ -26,6 +26,21 @@ The folders to specify are:
 * **Prod data folder**: the one containing the `Prod_<date>.mat` files generated using read_TDMS_full.m
 * **temp data folder**: where are stored the `Data_<date>.mat` files, which can be removed if readMATandSort.m succeded without errors
 * **analyzed data folder**: which is going to contain the `Exp_<date>.mat` and the `Norm_full_<date>.mat` files
+* **plot folder**: is the folder where to save the plots in .jpg format
+* **fig folder**: is the folder where to save the plots in the .fig format
+
+The suggested folder structure is the following:
+```
+.
+├── data source folder       # contains the 'Prod_<date>.mat' files
+├── ...                    
+├── temp                     # place for the 'Data_<date>.mat' and 'Norm_<date>.mat' files
+├── analyzed data            # place for the 'Exp_<name>.mat', 'Exp_analyzed_<name>.mat' and 'Norm_full_<date>.mat' 
+    ├── plots                # place for the .jpeg plots
+    └── figs                 # place for the .fig plots
+
+```
+
 
 #### 2) readMATandsort.m
 

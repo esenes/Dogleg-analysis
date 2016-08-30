@@ -13,13 +13,14 @@ if fileID == -1
     error('Generate a setup file first ! (Please run setup.m before this script)')
 end
 
-fullTxt = textscan(fileID,'%s %s %s %s %s %s %s %s %s %s');
+% fullTxt = textscan(fileID,'%s %q','Delimiter', '\n')
+fullTxt = textscan(fileID,'%s','Delimiter','\n');
 
-pathR = fullTxt{2}{1};
-pathT = fullTxt{2}{2};
-pathE = fullTxt{2}{3};
-pathP = fullTxt{2}{4};
-pathF = fullTxt{2}{5};
+pathR = fullTxt{1}{1}(16:end);
+pathT = fullTxt{1}{2}(17:end);
+pathE = fullTxt{1}{3}(15:end);
+pathP = fullTxt{1}{4}(12:end);
+pathF = fullTxt{1}{5}(11:end);
 
 fclose(fileID);
 

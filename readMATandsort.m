@@ -55,15 +55,15 @@ addpath(genpath(dirpath))
 % datapath_write = '/Users/esenes/swap_out/data';
 % exppath_write = '/Users/esenes/swap_out/exp';
 
-%run4
-startDate = '20160517';
-endDate = '20160520';
-startTime = '12:30:00';
-endTime = '01:00:00';
+%run8
+startDate = '20160601';
+endDate = '20160603';
+startTime = '19:30:00';
+endTime = '17:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded_4';
+expName = 'UnLoaded_8';
 
 mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%

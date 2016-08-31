@@ -1,27 +1,23 @@
 function [ pathR, pathT, pathE, pathP, pathF ] = readSetup()
-%	readSetup.m reads the setup.dogleg file and returns the paths for
-%	reading, temp and exp_files
+%	readSetup.m reads the setup.mat file and returns the paths for
+%	reading, temp and exp_files and for saving plots
+%
+%   REV. 2: windows compatible
 %   
-%   Last modified: 19.08.2016 by Eugenio Senes
+%   Last modified: 31.08.2016 by Eugenio Senes
 
 [dirpath,~,~]=fileparts(mfilename('fullpath'));
 mainDir = dirpath(1:end-10);
-setupPath = [mainDir filesep 'setup.dogleg'];
+setupPath = [mainDir filesep 'setup.mat'];
 
-fileID = fopen(setupPath, 'r');
-if fileID == -1
-    error('Generate a setup file first ! (Please run setup.m before this script)')
-end
+load(setupPath);
 
-% fullTxt = textscan(fileID,'%s %q','Delimiter', '\n')
-fullTxt = textscan(fileID,'%s','Delimiter','\n');
+pathR = datapath_read_RMAS;
+pathT = datapath_write_RMAS;
+pathE = exppath_write_RMAS;
+pathP = plot_path;
+pathF = fig_path;
 
-pathR = fullTxt{1}{1}(16:end);
-pathT = fullTxt{1}{2}(17:end);
-pathE = fullTxt{1}{3}(15:end);
-pathP = fullTxt{1}{4}(12:end);
-pathF = fullTxt{1}{5}(11:end);
 
-fclose(fileID);
 
 end

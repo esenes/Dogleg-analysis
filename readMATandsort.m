@@ -51,19 +51,15 @@ addpath(genpath(dirpath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% datapath_read = '/Users/esenes/swap';
-% datapath_write = '/Users/esenes/swap_out/data';
-% exppath_write = '/Users/esenes/swap_out/exp';
-
-%run8
+%run10
 startDate = '20160601';
 endDate = '20160603';
 startTime = '19:30:00';
-endTime = '17:00:00';
+endTime = '16:56:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded_8';
+expName = 'UnLoaded_10';
 
 mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%

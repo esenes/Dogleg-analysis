@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_8';
+expname = 'Exp_UnLoaded_10';
 savename = expname;
 
 positionAnalysis = true;
@@ -287,7 +287,7 @@ elseif strcmpi(mode,'UnLoaded')
         sec_spike = recomp_array(sec_spike_in,metr_idx,sec_spike_out,nonmetr_idx);
         %secondary after a normal BD
         BD_idx_met = inMetric & ~isSpike & ~(sec_spike)   ;
-        [~,clusters]=filterSecondary(ts_array,deltaTime_cluster,BD_idx_met);
+        [~,clusters] = filterSecondary(ts_array,deltaTime_cluster,BD_idx_met);
     % filling event arrays    
         %in the metric
         intoMetr = event_name(inMetric);
@@ -358,8 +358,9 @@ if strcmpi(mode,'Loaded')
     fprintf(1,msg2);
     fprintf(1,msg3);
 
-    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5 );
+    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'loaded');
     fprintf(1,msg4);
+    
 elseif strcmpi(mode,'UnLoaded')   
     %gather data and build the message
     %%INTO THE METRIC
@@ -373,33 +374,15 @@ elseif strcmpi(mode,'UnLoaded')
     ' - ' num2str(l1) ' are good candidates' '\n' ...
     ' - ' num2str(l2) ' are spikes' '\n' ...
     ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    ' - ' num2str(l4) ' are missed beam pulses' '\n' ...
-    ' - ' num2str(l5) ' are secondary triggered by beam lost' '\n' ...
     '-------' '\n' ...
     '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
-    'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
-    ' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened with beam' '\n'...
-    ' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
-    'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
     '\n \n' ...
-    ];
-    %%OUT OF THE METRIC
-    l1 = length(interlocks_out);
-    l2 = length(spikes_outMetric);
-    l3 = length(spike_cluster_out);
-    msg3 = ['Out of the metric:' '\n' ...
-    ' - ' num2str(l1) ' are BDs ' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3) ' events out of the metric' '\n \n' ...
     ];
     % print to screen (1) and to log file
     fprintf(1,msg2);
-    fprintf(1,msg3);
 
-    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5 );
-    fprintf(1,msg4);   
+    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'unloaded' );
+   fprintf(1,msg4);   
     
     
     

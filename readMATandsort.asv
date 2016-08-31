@@ -45,28 +45,28 @@ close all; clearvars; clc;
 [dirpath,~,~]=fileparts(mfilename('fullpath'));
 addpath(genpath(dirpath))
 %read setup
-% [datapath_read, datapath_write, exppath_write, ~, ~] = readSetup();
+[datapath_read, datapath_write, exppath_write, ~, ~] = readSetup();
 datapath_read = 'G:\Experiments\CTF3\DATA\mkx\TD26_Dogleg\matfiles';
-exppath_write = '\\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis';
+exppath_write = \\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis\temp
 datapath_write = '\\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis\temp';
-
+\\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis\temp
 
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%run1
-startDate = '20160427';
-endDate = '20160429';
-startTime = '17:00:00';
-endTime = '12:00:00';
+%run10
+startDate = '20160601';
+endDate = '20160603';
+startTime = '19:30:00';
+endTime = '16:56:00';
 
 buildExperiment = true; %merge all the data files at the end
-buildBackupPulses = false; %merge all the backupd data files at the end
-expName = 'UnLoaded_1';
+buildBackupPulses = true; %merge all the backupd data files at the end
+expName = 'UnLoaded_10';
 
-mode = 'UnLoaded';
+mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -428,7 +428,7 @@ for j = 1:length(filename) %loop over dates
                     normal_struct.(field_names_out{i}).TRA.max = max(TRA_cal);
         end
         %update the progress bar
-        prog = round(i/length(field_names_out));
+        prog = round(i/length(field_names_out),1);
         waitbar(prog,progBar)
 
     end

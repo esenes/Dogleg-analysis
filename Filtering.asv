@@ -602,8 +602,8 @@ if positionAnalysis
             [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
             
             subplot(4,6,[3 4])
-            plot(timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --')
-            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            plot(timescale-INC_TRA_timeOffset, TRA_c, 'r -',timescale-INC_TRA_timeOffset, TRA_prev, 'r --')
+            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
             legend({'TRA','prev TRA'})
             title('Edge method for TRA')
             xlim([400*4e-9 550*4e-9])
@@ -670,6 +670,7 @@ if positionAnalysis
                     if strcmp(str,'y')
                         str = input('time_ind_TRA =   ','s');
                         time_TRA = str2double(str);
+                        time_TRA = time_TRA+INC_TRA_timeOffset;
                         ind_TRA = find(timescale<=time_TRA,1,'last');
                         str = input('time_ind_REF =   ','s');
                         time_REF = str2double(str);
@@ -690,7 +691,37 @@ if positionAnalysis
                 end
             end
             
-
+            
+            
+            
+if manualCorrection
+            str = input('Will you do any correction ?   ','s');
+            if strcmp(str,'y')
+                str = input('Correct Edge Method ?   ','s');
+                if strcmp(str,'y')
+                    str = input('time_ind_TRA =   ','s');
+                    time_TRA_corr = str2double(str);
+                    time_TRA(i) = time_TRA_corr+INC_TRA_timeOffset;
+                    str = input('time_ind_REF =   ','s');
+                    time_REF_corr = str2double(str);
+                    time_REF(i) = time_REF_corr;
+                    td(i) = 1e9*(time_REF_corr-time_TRA_corr);   
+                    display(['t_d = ',num2str(td(i)),' ns']);
+%                 else
+%                     continue;
+                end  
+                str = input('Correct Correlation Method ?   ','s');
+                if strcmp(str,'y')
+                    str = input('td_corr =   ','s');
+                    td_corr(i) = str2double(str);             
+                else
+                    continue;
+                end
+            else
+                continue;
+            end
+        end            
+            
             %CREATE OUTPUT STRUCT
             %edge
             data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 

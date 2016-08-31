@@ -1,0 +1,5 @@
+datapath_read= G:\Experiments\CTF3\DATA\mkx\TD26_Dogleg\matfiles 
+datapath_write= \\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis\temp
+exppath_read= \\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis
+plot_path= \\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis\plots
+fig_path= \\afs\cern.ch\work\t\teoarg\XBOX\Data\Xbox1\EugenioAnalysis\figs

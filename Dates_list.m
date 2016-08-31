@@ -197,7 +197,7 @@ endTime = '09:00:00';
 startDate = '20160427';
 endDate = '20160429';
 startTime = '17:00:00';
-endTime = '14:40:00';
+endTime = '12:00:00';
 
 %run2
 startDate = '20160503';

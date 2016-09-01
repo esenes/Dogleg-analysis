@@ -27,7 +27,6 @@ function [coeff,gof,err,y1_offset,y2_offset] = correlationMethod( x1,y1,x2,y2,wi
     y1_offset = min(y1(wind));
     y1 = y1(wind)-y1_offset;
     x2 = 1e9*x2(wind);
-    x2 = 1e9*x2(wind);
     y2_offset = min(y2(wind));
     y2 = y2(wind)-y2_offset;
     

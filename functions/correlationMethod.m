@@ -1,4 +1,4 @@
-function [coeff,gof,err] = correlationMethod( x1,y1,x2,y2,wind,tsignal)
+function [coeff,gof,err,y1_offset,y2_offset] = correlationMethod( x1,y1,x2,y2,wind,tsignal)
 %   correlationMethod.m finds the correlation of the peaks in the tails
 %   of INC and REF. 
 %
@@ -24,9 +24,12 @@ function [coeff,gof,err] = correlationMethod( x1,y1,x2,y2,wind,tsignal)
     x2 = x2(index_start:end);
 
     x1 = 1e9*x1(wind);
-    y1 = y1(wind)-min(y1(wind));
+    y1_offset = min(y1(wind));
+    y1 = y1(wind)-y1_offset;
     x2 = 1e9*x2(wind);
-    y2 = y2(wind)-min(y2(wind));
+    x2 = 1e9*x2(wind);
+    y2_offset = min(y2(wind));
+    y2 = y2(wind)-y2_offset;
     
 %     x1 = 1e9*x1(wind);
 %     y1 = abs(y1(wind));

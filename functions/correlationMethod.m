@@ -67,6 +67,3 @@ function [coeff,gof,err] = correlationMethod( x1,y1,x2,y2,wind,tsignal)
 
 
 
-
-
-

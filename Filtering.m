@@ -607,11 +607,16 @@ if positionAnalysis
             %REF EDGE
             [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
              
+             %%%%% calculate time_delay for the edge method
+            INC_TRA_timeOffset = 72e-9;
+            td = 1e9*(time_REF-time_TRA+INC_TRA_timeOffset);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
             subplot(4,6,[9 10])
             plot(timescale, REF_c, 'k -',timescale, REF_prev, 'k --')
             line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
             legend({'REF','prev REF'})
-            title('Edge method for REF')
+            title(['Edge method for REF - td = ',num2str(td),' ns'])
             xlim([400*4e-9 550*4e-9])
             xlabel('time (s)')
             ylabel('Power (a.u.)')
@@ -619,25 +624,25 @@ if positionAnalysis
             %add vertical bars to plots
             subplot(4,6,[1 2 7 8])
             hold on;
-            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
             line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
             subplot(4,6,[5 6 11 12])
             hold on;
-            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
             line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
             
             
             
             %CORRELATION
-            [coeff_corr,gof,corr_err] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
-            delay = 1e-9*round(coeff_corr(1),0); %rounded to integer [ns]
+            [coeff_corr,gof,corr_err,y1_offset,y2_offset] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
+            delay = round(coeff_corr(1)); %rounded to integer [ns]
             
             subplot(4,6,[15 16 21 22])
-            plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
-                timescale-(coeff_corr(1)*1e-9), coeff_corr(2)*REF_c, 'g','LineWidth', 2 ...
+            plot( timescale, REF_c-y2_offset, 'r', timescale, INC_c-y1_offset, 'k',...
+                timescale-(coeff_corr(1)*1e-9), coeff_corr(2)*(REF_c-y2_offset), 'g','LineWidth', 2 ...
                 )
             xlim([1.848e-6 3.2e-6])
-            title('Correlation method')
+            title(['Correlation method - tc ',num2str(delay),' ns'])
             legend({'REF','INC', 'REF delayed'})
             
             %JITTER check
@@ -655,7 +660,7 @@ if positionAnalysis
                     if strcmp(str,'y')
                         str = input('time_ind_TRA =   ','s');
                         time_TRA = str2double(str);
-                        ind_TRA = time_TRA/sf +1; %get index from time
+                        ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
                         str = input('time_ind_REF =   ','s');
                         time_REF = str2double(str);
                         ind_REF = time_REF/sf +1; %get index from time

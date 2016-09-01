@@ -1,6 +1,7 @@
 function  positionPlot_prev( timescale, INC_c, INC_prev, TRA_c, TRA_prev, REF_c, REF_prev,...
     INC_c_cal, INC_prev_cal, TRA_c_cal, TRA_prev_cal, REF_c_cal, REF_prev_cal,...
-    BPM1, BPM2)
+    BPM1, BPM2, ...
+    INC_TRA_timeOffset)
 % plots for the interface of positioning. 
 % Case with previous pulse recorded
 
@@ -9,7 +10,7 @@ function  positionPlot_prev( timescale, INC_c, INC_prev, TRA_c, TRA_prev, REF_c,
 subplot(4,6,[1 2 7 8])
 hold off
 plot(timescale, INC_c, 'b -', timescale, INC_prev, 'b --',...
-    timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --',...
+    timescale-INC_TRA_timeOffset, TRA_c, 'r -',timescale-INC_TRA_timeOffset, TRA_prev, 'r --',...
     timescale ,REF_c, 'k -', timescale, REF_prev, 'k --')
 legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
 title('Raw signals')
@@ -20,7 +21,7 @@ xlim([0.45e-6 3.2e-6])
 subplot(4,6,[5 6 11 12])
 hold off
 plot(timescale, INC_c_cal, 'b -', timescale, INC_prev_cal, 'b --',...
-    timescale, TRA_c_cal, 'r -',timescale, TRA_prev_cal, 'r --',...
+    timescale-INC_TRA_timeOffset, TRA_c_cal, 'r -',timescale-INC_TRA_timeOffset, TRA_prev_cal, 'r --',...
     timescale, REF_c_cal, 'k -', timescale, REF_prev_cal, 'k --')
 legend({'INC','prev INC','TRA','prev TRA','REF','prev REF'})
 title('Calibrated signals')
@@ -44,4 +45,3 @@ xlim([2.0e-6 3.2e-6])
 
 
 end
-

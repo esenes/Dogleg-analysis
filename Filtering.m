@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_6';
+expname = 'Exp_UnLoaded_1';
 savename = expname;
 
 positionAnalysis = true;
@@ -72,6 +72,13 @@ sROI = 100;
 eROI = 200;
 %POSITIONING
 INC_TRA_delay = 72e-9; 
+winStart = 1.6e-6;
+winStart_corr = 2.0e-6;
+wind = (1:100);
+%RAMP-UP DETECTION
+xstart = 430;
+xend = 460;
+rampThr = 0.7; % 70%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pulse begin/end for probability
 pbeg = 400;
@@ -558,10 +565,7 @@ if positionAnalysis
     
     %data part
     timescale = 0:4e-9:799*4e-9;
-    winStart = 1.6e-6;
-    winStart_corr = 2.0e-6;
-    wind = (1:100);
-    %fill a matrix with data of the BDs
+    
     for n=1:length(BDs)
         %display timestamp
         disp(BDs{n})
@@ -600,6 +604,12 @@ if positionAnalysis
             pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
 
             %%%%%%%%%%%% Calculate the delay
+            
+            %ramp-up test
+            isRamping = rampUpTest( INC_c_cal, INC_prev_cal, xstart, xend, rampThr );
+
+            %calculate integrals
+
             %TRA EDGE
             [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
             
@@ -1048,80 +1058,3 @@ elseif strcmpi(mode,'unloaded')
     fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 end
 disp('Done.')
-
-
-%% Checking
-% figure
-% BDs = event_name;
-% 
-% 
-% for i=1:length(BDs)
-% %     BDs = {'g_20160604025302_201_B0'};
-%     disp(max(data_struct.(BDs{i}).INC.data_cal))
-%     disp(data_struct.(BDs{i}).name)
-%     subplot(3,1,[1 2])
-%     plot(timescale,data_struct.(BDs{i}).INC.data_cal);
-%     hold on
-%     plot(timescale-68e-9,data_struct.(BDs{i}).TRA.data_cal);
-%     plot(timescale,data_struct.(BDs{i}).REF.data_cal);
-%     hold off
-%     legend({'INC','TRA','REF'})
-%     title(data_struct.(BDs{i}).name)
-%     xlabel('Time (s)')
-%     ylabel('Power (W)')
-%      
-%     
-%     subplot(3,1,3)
-%     plot(timescale,data_struct.(BDs{i}).BPM1.data_cal)
-%     hold on
-%     plot(timescale,data_struct.(BDs{i}).BPM2.data_cal)
-%     hold off
-%     legend({'BPM1','BPM2'})
-%     xlabel('Time (s)')
-%     ylabel('Beam current (A)')
-%     
-% %     figure(5)
-% %     plot(timescale,data_struct.(BDs{i}).INC.data);
-% %     hold on
-% %     plot(timescale-68e-9,data_struct.(BDs{i}).TRA.data);
-% %     plot(timescale,data_struct.(BDs{i}).REF.data);
-% %         plot(timescale,data_struct.(BDs{i}).KREF.data);
-% % 
-% %     hold off
-% %     legend({'INC','TRA','REF','KREF'})
-%     
-%     pause
-% end
-
-%% debug tuning
-% 
-% delta = tuning_delta(inMetric & ~isSpike & ~(sec_spike) & ~beam_lost & ~(sec_beam_lost) & hasBeam & ~clusters);
-% xb = 462;
-% 
-% figure
-% for i = 1:length(BDs)
-%     plot(data_struct.(BDs{i}).INC.data_cal)
-%     x1 = data_struct.(BDs{i}).tuning.x1; x2 = data_struct.(BDs{i}).tuning.x2;
-%     
-%     maxim = max(data_struct.(BDs{i}).INC.data_cal);
-%     y85 = 0.85*maxim;
-%     line(xlim, [y85 y85], 'Color', 'r','LineWidth',1) %horizontal line
-%     
-%     line([x1 x1], ylim, 'Color', 'r','LineWidth',1) %vertical line
-%     line([x2 x2], ylim, 'Color', 'r','LineWidth',1) %vertical line
-%     line([xb xb], ylim, 'Color', 'g','LineWidth',1) %vertical line
-%     title({['Tuning delta = ' num2str(delta(i))] ; ...
-%            ['x1 = ' num2str(x1) ' x2 =  ' num2str(x2)]; ...
-%            [' Delta (MW) = '];
-%             tuning_slope(i)})
-%     if data_struct.(event_name{i}).tuning.fail_m1 ~= true
-%         disp([ 'TOP = '  num2str(1e9*top_tmp(i)) ' (ns)  MID = '  num2str(1e9*mid_tmp(i)) ' (ns)    BOT = ' ...
-%             num2str(1e9*bot_tmp(i)) ' (ns)']);
-%         
-%         disp('P^3 delta t:')
-%         disp([ 'TOP = '  num2str((maxim.^3) *top_tmp(i)) ' (s.W^3)  MID = '  num2str((maxim.^3) *mid_tmp(i)) ' (s.W^3)    BOT = ' ...
-%             num2str((maxim.^3) *bot_tmp(i)) ' (s.W^3)']);
-%     end
-%     disp('  ')
-%     pause
-% end

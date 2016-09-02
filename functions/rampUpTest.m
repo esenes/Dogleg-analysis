@@ -1,4 +1,4 @@
-function [ tf ] = rampUpTest( INC_r, INC_r_prev, xstart, xend, thr )
+function [ tf, ratio ] = rampUpTest( INC_r, INC_r_prev, xstart, xend, thr )
 %   rampUpTest.m detects if the klystron is ramping up or not
 %
 %   Inputs:

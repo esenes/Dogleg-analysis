@@ -11,7 +11,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [dirpath,~,~]=fileparts(mfilename('fullpath'));
 
-fileID = fopen([dirpath filesep 'setup.dogleg'],'w+');
 %ask for paths
 disp('Select Prod data folder:')
 datapath_read_RMAS = uigetdir(dirpath, 'Selet Prod data source')

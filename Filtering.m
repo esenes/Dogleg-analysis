@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_1';
+expname = 'Exp_UnLoaded_7';
 savename = expname;
 
 positionAnalysis = true;
@@ -78,7 +78,7 @@ wind = (1:100);
 %RAMP-UP DETECTION
 xstart = 430;
 xend = 460;
-rampThr = 0.7; % 70%
+rampThr = 0.9; % 90%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pulse begin/end for probability
 pbeg = 400;
@@ -606,12 +606,17 @@ if positionAnalysis
             %%%%%%%%%%%% Calculate the delay
             
             %ramp-up test
-            isRamping = rampUpTest( INC_c_cal, INC_prev_cal, xstart, xend, rampThr );
-
+            [isRamping, ~] = rampUpTest( INC_c_cal, INC_prev_cal, xstart, xend, rampThr );
+            
             %calculate integrals
 
             %TRA EDGE
-            [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
+            if ~isRamping
+                [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
+            else
+                [~, ind_TRA] = max(TRA_c);
+                time_TRA = timescale(ind_TRA);
+            end
             
             subplot(4,6,[3 4])
             plot(timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --', timescale, TRA_prev-TRA_c, 'b .')
@@ -696,6 +701,10 @@ if positionAnalysis
                         info_struct = getCursorInfo(dcm_obj);
                         time_ref = info_struct.Position(1)
                         delay = time_ref - time_inc;
+                        
+                        data_struct.(BDs{n}).position.correlation.fail = false;
+                    elseif strcmp(str,'f')
+                        data_struct.(BDs{n}).position.correlation.fail = true;
                     else
                         continue;
                     end
@@ -759,6 +768,7 @@ if positionAnalysis
             time_TRA = info_struct.Position(1)
             ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
             str = input('time_ind_REF =   ','s');
+            dcm_obj = datacursormode;
             info_struct = getCursorInfo(dcm_obj);
             time_REF = info_struct.Position(1)
             ind_REF = time_REF/sf +1; %get index from time

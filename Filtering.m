@@ -671,38 +671,7 @@ if positionAnalysis
             end
             
             % manual correction
-%             if manualCorrection
-%                 str = input('Will you do any correction ?   ','s');
-%                 if strcmp(str,'y')
-%                     str = input('Correct Edge Method ?   ','s');
-%                     if strcmp(str,'y')
-%                         str = input('time_ind_TRA =   (*10?-6 s)','s');
-%                         time_TRA = str2double(str);
-%                         time_TRA = time_TRA*1e-6;
-%                         ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
-%                         str = input('time_ind_REF =   (*10?-6 s)','s');
-%                         time_REF = str2double(str);
-%                         time_REF = time_REF*1e-6;
-%                         ind_REF = time_REF/sf +1; %get index from time
-%                     end  
-%                     str = input('Correct Correlation Method ?   ','s');
-%                     if strcmp(str,'y')
-%                         str = input('time_peak_INC =   (*10?-6 s)','s');
-%                         time_inc = str2double(str) ;
-%                         time_inc = time_inc*1e-6;
-%                         str = input('time_peak_REF =   (*10?-6 s)','s');
-%                         time_ref = str2double(str);
-%                         time_ref = time_ref*1e-6;
-%                         delay = time_ref - time_inc;
-%                     else
-%                         continue;
-%                     end
-%                 else
-%                     continue;
-%                 end
-%             end
-            
-                        if manualCorrection
+            if manualCorrection
                 str = input('Will you do any correction ?   ','s');
                 if strcmp(str,'y')
                     str = input('Correct Edge Method ?   ','s');
@@ -785,10 +754,13 @@ if positionAnalysis
             %data management
             disp('Edges needs to be inserted manually:')
             str = input('time_ind_TRA =   ','s');
-            time_TRA = str2double(str);
-            ind_TRA = time_TRA/sf +1; %get index from time
+            dcm_obj = datacursormode;
+            info_struct = getCursorInfo(dcm_obj);
+            time_TRA = info_struct.Position(1)
+            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
             str = input('time_ind_REF =   ','s');
-            time_REF = str2double(str);
+            info_struct = getCursorInfo(dcm_obj);
+            time_REF = info_struct.Position(1)
             ind_REF = time_REF/sf +1; %get index from time
 
             %plot TRA bar
@@ -808,10 +780,13 @@ if positionAnalysis
             title('Correlation method')
             legend({'REF','INC'})
             disp('Insert the edges for peaks of INC and REF')
-            str = input('time_peak_INC =   ','s');
-            time_inc = str2double(str);
+            dcm_obj = datacursormode;
+            info_struct = getCursorInfo(dcm_obj);
+            time_inc = info_struct.Position(1)
             str = input('time_peak_REF =   ','s');
-            time_ref = str2double(str);
+            info_struct = getCursorInfo(dcm_obj);
+            time_ref = info_struct.Position(1)
+            delay = time_ref - time_inc;
             delay = round( time_ref-time_inc ,0 );
             
             

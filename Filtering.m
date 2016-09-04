@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_7';
+expname = 'Exp_UnLoaded_1';
 savename = expname;
 
 positionAnalysis = true;
@@ -629,8 +629,8 @@ if positionAnalysis
 
             %REF EDGE
             [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
-             
-             %%%%% calculate time_delay for the edge method
+            
+            %%%%% calculate time_delay for the edge method
             INC_TRA_timeOffset = 72e-9;
             td = 1e9*(time_REF-time_TRA+INC_TRA_timeOffset);
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

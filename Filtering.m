@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_7';
+expname = 'Exp_UnLoaded_1';
 savename = expname;
 
 positionAnalysis = true;
@@ -566,7 +566,8 @@ if positionAnalysis
     %data part
     timescale = 0:4e-9:799*4e-9;
     
-    for n=1:length(BDs)
+    for n=1%:length(BDs)
+        BDs = {'g_20160601220411_653_B0' }
         %display timestamp
         disp(BDs{n})
         %get the current data
@@ -628,9 +629,14 @@ if positionAnalysis
             ylabel('Power (a.u.)')
 
             %REF EDGE
-            [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
+            if ~isRamping
+                [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
+            else
+                % requires the signal processing toolbox
+                ipt = findchangepts(REF_c, 'MaxNumChanges',2)
+            end
              
-             %%%%% calculate time_delay for the edge method
+            %%%%% calculate time_delay for the edge method
             INC_TRA_timeOffset = 72e-9;
             td = 1e9*(time_REF-time_TRA+INC_TRA_timeOffset);
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -674,6 +680,13 @@ if positionAnalysis
             if delay_time ~= 0
                 warning('Jitter detected !')
             end
+            
+            if isRamping
+                manualCorrection = true;
+            else
+                manualCorrection = false;
+            end
+            
             
             % manual correction
             if manualCorrection

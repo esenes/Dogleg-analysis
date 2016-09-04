@@ -13,3 +13,7 @@ TODO: **readMATandsort_guide.md**
 
 TODO: **NormalOperation.m**
 - [x] Implement the report generation
+- 
+
+check this out
+http://fr.mathworks.com/help/signal/examples/detecting-outbreaks-and-significant-changes-in-signals.html

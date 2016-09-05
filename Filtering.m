@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_1';
+expname = 'Exp_UnLoaded_5';
 savename = expname;
 
 positionAnalysis = true;
@@ -50,7 +50,7 @@ mode = 'UnLoaded';
 
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%
 % METRIC
-inc_ref_thr = 0.48;
+inc_ref_thr = 0.41;
 % inc_ref_thr = 0.6; %%antiloaded
 inc_tra_thr = -0.02;
 % BPM CHARGE THRESHOLDS
@@ -568,7 +568,7 @@ if positionAnalysis
     
     for n=1:length(BDs)
         %display timestamp
-        disp(BDs{n})
+        disp([ BDs{n} ' is the number ' num2str(n) ' on ' num2str(length(BDs)) ])
         %get the current data
         INC_c = data_struct.(BDs{n}).INC.data;
         TRA_c = data_struct.(BDs{n}).TRA.data;
@@ -752,7 +752,9 @@ if positionAnalysis
             % plot metric red dot
             subplot(4,6,[13 14 19 20])
             if n~=1 
-                delete(pm)
+                try
+                    delete(pm)
+                end
             end
             pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
             
@@ -765,13 +767,28 @@ if positionAnalysis
             str = input('time_ind_TRA =   ','s');
             dcm_obj = datacursormode;
             info_struct = getCursorInfo(dcm_obj);
-            time_TRA = info_struct.Position(1)
-            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+            if isfield(info_struct, 'Position')
+                time_TRA = info_struct.Position(1);
+                ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                gone = true;
+            else
+                disp('Please type: ')
+                str = input('time_ind_TRA =   ','s');
+                time_TRA = str2double(str);
+                ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+            end
             str = input('time_ind_REF =   ','s');
             dcm_obj = datacursormode;
             info_struct = getCursorInfo(dcm_obj);
-            time_REF = info_struct.Position(1)
-            ind_REF = time_REF/sf +1; %get index from time
+            if isfield(info_struct, 'Position')
+                time_REF = info_struct.Position(1);
+                ind_REF = time_REF/sf +1; %get index from time
+            else
+                disp('Please type: ')
+                str = input('time_ind_REF =   ','s');
+                time_REF = str2double(str);
+                time_REF = time_REF/sf +1; %get index from time
+            end
 
             %plot TRA bar
             subplot(4,6,[3 4])        
@@ -790,12 +807,26 @@ if positionAnalysis
             title('Correlation method')
             legend({'REF','INC'})
             disp('Insert the edges for peaks of INC and REF')
+            str = input('time_peak_INC =   ','s');
             dcm_obj = datacursormode;
             info_struct = getCursorInfo(dcm_obj);
-            time_inc = info_struct.Position(1)
+            if isfield(info_struct, 'Position')
+                time_inc = info_struct.Position(1)
+            else
+                disp('Please type: ')
+                str = input('time_peak_INC =   ','s');
+                time_inc = str2double(str);
+            end
             str = input('time_peak_REF =   ','s');
+            dcm_obj = datacursormode;
             info_struct = getCursorInfo(dcm_obj);
-            time_ref = info_struct.Position(1)
+            if isfield(info_struct, 'Position')
+                time_ref = info_struct.Position(1)
+            else
+                disp('Please type: ')
+                str = input('time_peak_INC =   ','s');
+                time_inc = str2double(str);
+            end
             delay = time_ref - time_inc;
             delay = round( time_ref-time_inc ,0 );
             

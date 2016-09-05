@@ -37,7 +37,7 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 datapath_write = datapath_read;
 
-expname = 'Exp_UnLoaded_1';
+expname = 'Exp_UnLoaded_5';
 savename = expname;
 
 positionAnalysis = true;
@@ -50,7 +50,7 @@ mode = 'UnLoaded';
 
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%
 % METRIC
-inc_ref_thr = 0.48;
+inc_ref_thr = 0.41;
 % inc_ref_thr = 0.6; %%antiloaded
 inc_tra_thr = -0.02;
 % BPM CHARGE THRESHOLDS
@@ -568,7 +568,7 @@ if positionAnalysis
     
     for n=1:length(BDs)
         %display timestamp
-        disp(BDs{n})
+        disp([ BDs{n} ' is the ' num2str(n) ' on ' num2str(length(BDs))])
         %get the current data
         INC_c = data_struct.(BDs{n}).INC.data;
         TRA_c = data_struct.(BDs{n}).TRA.data;
@@ -576,7 +576,7 @@ if positionAnalysis
         %check if the backup pulses are recorded
         precName = [BDs{n}(1:end-2) 'L1'];
         if isfield(data_struct,precName)% The backup pulse is present
-            
+            continue
             %grasp data 
             INC_prev = data_struct.(precName).INC.data;
             TRA_prev = data_struct.(precName).TRA.data;
@@ -878,18 +878,22 @@ if interactivePlot
         sp_c_in_y(k) = data_struct.(spike_cluster{k}).inc_ref;
     end   
     %missed beam
-    miss_in_x = zeros(1,length(missed_beam_in));
-    miss_in_y = zeros(1,length(missed_beam_in));
-    for k = 1:length(missed_beam_in)
-        miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
-        miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
+    if strcmpi(mode, 'Loaded')
+        miss_in_x = zeros(1,length(missed_beam_in));
+        miss_in_y = zeros(1,length(missed_beam_in));
+        for k = 1:length(missed_beam_in)
+            miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
+            miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
+        end
     end
     %missed beam cluster
-    miss_c_in_x = zeros(1,length(missed_beam_cluster));
-    miss_c_in_y = zeros(1,length(missed_beam_cluster));
-    for k = 1:length(missed_beam_cluster)
-        miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
-        miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
+    if strcmpi(mode, 'Loaded')
+        miss_c_in_x = zeros(1,length(missed_beam_cluster));
+        miss_c_in_y = zeros(1,length(missed_beam_cluster));
+        for k = 1:length(missed_beam_cluster)
+            miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
+            miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
+        end
     end
     %OUT OF METRIC:
     %interlocks
@@ -927,8 +931,13 @@ if interactivePlot
     figure(f1);
     datacursormode on;
     subplot(5,5,[1 2 3 6 7 8 11 12 13])
-    plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-        miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    if strcmpi(mode, 'Loaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    elseif strcmpi(mode, 'UnLoaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            'MarkerSize',15);        
+    end
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
     xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
     ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
@@ -941,8 +950,13 @@ if interactivePlot
     %color plot for saving
     f2 = figure('Position',[50 50 1450 700]);
     figure(f2);
-    plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-        miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',16);
+    if strcmpi(mode, 'Loaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    elseif strcmpi(mode, 'UnLoaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            'MarkerSize',15);        
+    end
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
     xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
     ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')

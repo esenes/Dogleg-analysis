@@ -40,7 +40,7 @@ datapath_write = datapath_read;
 expname = 'Exp_UnLoaded_5';
 savename = expname;
 
-positionAnalysis = true;
+positionAnalysis = false;
 manualCorrection = true;
 doPlots = false;
 
@@ -909,18 +909,22 @@ if interactivePlot
         sp_c_in_y(k) = data_struct.(spike_cluster{k}).inc_ref;
     end   
     %missed beam
-    miss_in_x = zeros(1,length(missed_beam_in));
-    miss_in_y = zeros(1,length(missed_beam_in));
-    for k = 1:length(missed_beam_in)
-        miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
-        miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
+    if strcmpi(mode, 'Loaded')
+        miss_in_x = zeros(1,length(missed_beam_in));
+        miss_in_y = zeros(1,length(missed_beam_in));
+        for k = 1:length(missed_beam_in)
+            miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
+            miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
+        end
     end
     %missed beam cluster
-    miss_c_in_x = zeros(1,length(missed_beam_cluster));
-    miss_c_in_y = zeros(1,length(missed_beam_cluster));
-    for k = 1:length(missed_beam_cluster)
-        miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
-        miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
+    if strcmpi(mode, 'Loaded')
+        miss_c_in_x = zeros(1,length(missed_beam_cluster));
+        miss_c_in_y = zeros(1,length(missed_beam_cluster));
+        for k = 1:length(missed_beam_cluster)
+            miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
+            miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
+        end
     end
     %OUT OF METRIC:
     %interlocks
@@ -958,8 +962,13 @@ if interactivePlot
     figure(f1);
     datacursormode on;
     subplot(5,5,[1 2 3 6 7 8 11 12 13])
-    plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-        miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    if strcmpi(mode, 'Loaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    elseif strcmpi(mode, 'UnLoaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            'MarkerSize',15);        
+    end
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
     xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
     ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
@@ -969,11 +978,16 @@ if interactivePlot
     title('Interlock distribution');
     
     
-    %color plot for saving
+    %color plot for savingy
     f2 = figure('Position',[50 50 1450 700]);
     figure(f2);
-    plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-        miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',16);
+    if strcmpi(mode, 'Loaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    elseif strcmpi(mode, 'UnLoaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            'MarkerSize',15);        
+    end
     legend('BDs','Spikes','After spike','Missed beam','After missed beam')
     xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
     ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')

@@ -2,7 +2,7 @@
 
 |  Run name  | start       | end         | Pulse number | BDs      | BDR (*10ˆ-5 bpp) | spikes | spikes_clusters | Notes |
 |:----------:|-------------|-------------|:------------:|:--------:|:----------------:|:------:|:---------------:|:------:|
-| Unloaded 5 | 27/04 17:00 | 29/04 14:02 |  3895850     |  258     |                  |  22    |        26       |  Lowered inc_ref_thr to 0.41 from 0.48 just for this run. 7 BDs removed manually (metric fail)|
+| Unloaded 5 | 27/04 17:00 | 29/04 14:02 |             |  258     |                  |  22    |        26       |  Lowered inc_ref_thr to 0.41 from 0.48 just for this run. 7 BDs removed manually (metric fail)|
 | Unloaded 6 | 03/05 10:00 | 04/05 17:00 |              |  181     |                  |   3    |        9        |  4 BDs removed manually (metric fail)|
 | Unloaded 7 | 09/05 16:00 | 12/05 14:00 |   6176900    |  246     | 3.98 ± 0.25      |  17    |     11          | 1 not a BD, 2 metric fail, g_20160510081330_471_B0 is strange  |
 | Unloaded 8 | 17/05 12:30 | 20/05 01:00 | error        | 58       |                  | 12     |   10            | 1 fake BD g_20160518083421_185         |

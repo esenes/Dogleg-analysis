@@ -14,3 +14,15 @@
 g_20160510072336_913_B0 not a BD
 
 g_20160510081330_471_B0 is a double BD in WG + in structure ?
+
+
+# Report for unloaded runs after segmentation
+
+|  Run name  | start       | end         | Pulse number | BDs      | BDR      | spikes | spikes_clusters | Notes |
+|:----------:|-------------|-------------|:------------:|:--------:|:--------:|:------:|:---------------:|:------:|
+| Unloaded 5 | 27/04 17:00 | 29/04 14:02 |  3895850     |  258     |    |  22    |        26       |  Lowered inc_ref_thr to 0.41 from 0.48 just for this run. 7 BDs removed manually (metric fail)|
+| Unloaded 6 | 03/05 10:00 | 04/05 17:00 | |  181    | |   3    |        9     |  4 BDs removed manually (metric fail)|
+| Unloaded 7 | as above |
+| Unloaded 8 | as above|
+| Unloaded 9 | as above|
+| Unloaded 10| 01/06 19:00 | 03/06 16:56 | | 43       | |  7    | 8              |    |

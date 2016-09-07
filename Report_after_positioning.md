@@ -20,8 +20,9 @@ g_20160510081330_471_B0 is a double BD in WG + in structure ?
 
 |  Run name    | start       | end         | Pulse number | BDs      | BDR      | spikes | spikes_clusters | Notes |
 |:------------:|-------------|-------------|:------------:|:--------:|:--------:|:------:|:---------------:|:-----:|
-| Unloaded 5_1 | 27/04 17:00 | 29/04 05:31 |  3223650     |          |          |        |                 |       |
-| Unloaded 5_2 | 27/04 17:00 | 29/04 14:02 |  213550      |          |          |        |                 |       |
+| Unloaded 5_1 | 27/04 17:00 | 29/04 05:31 |  3223650     | 244      |7.6 ± 0.6 |        |                 |       |
+| Unloaded 5_2 | 27/04 17:00 | 29/04 14:02 |  213550      |     4    |1.9 ± 0.9 |        |                 |       |
+| Unloaded 5_overall |       |             |3223650+213550|   248    |7.2 ± 0.5 |        |                 |       |
 | Unloaded 6   | 03/05 21:45 | 04/05 16:48 | 1681050      |  140     |8.3 ± 0.7 |   3    |                 |  4 BDs removed manually (metric fail)|
 | Unloaded 7   | as above |
 | Unloaded 8   | as above|

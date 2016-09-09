@@ -32,12 +32,11 @@ close all; clearvars; clc;
 addpath(genpath(dirpath))
 %read setup
 [~, ~, datapath_read, datapath_write_plot, datapath_write_fig ] = readSetup();
+datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-datapath_write = datapath_read;
-
-expname = 'Exp_UnLoaded_5';
+expname = 'Exp_UnLoaded_10';
 savename = expname;
 
 positionAnalysis = false;
@@ -50,7 +49,7 @@ mode = 'UnLoaded';
 
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%
 % METRIC
-inc_ref_thr = 0.41;
+inc_ref_thr = 0.48;
 % inc_ref_thr = 0.6; %%antiloaded
 inc_tra_thr = -0.02;
 % BPM CHARGE THRESHOLDS
@@ -566,6 +565,8 @@ if positionAnalysis
     %data part
     timescale = 0:4e-9:799*4e-9;
     
+   
+    
     for n=1:length(BDs)
         %display timestamp
         disp([ BDs{n} ' is the number ' num2str(n) ' on ' num2str(length(BDs)) ])
@@ -683,23 +684,50 @@ if positionAnalysis
                     if strcmp(str,'y')
                         str = input('time_ind_TRA =   ','s');
                         dcm_obj = datacursormode;
-                        info_struct = getCursorInfo(dcm_obj);
-                        time_TRA = info_struct.Position(1)
-                        ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                         if isfield(info_struct, 'Position')
+                            time_TRA = info_struct.Position(1);
+                            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                            gone = true;
+                        else
+                            disp('Please type: ')
+                            str = input('time_ind_TRA =   ','s');
+                            time_TRA = str2double(str);
+                            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                        end
                         str = input('time_ind_REF =   ','s');
                         info_struct = getCursorInfo(dcm_obj);
-                        time_REF = info_struct.Position(1)
-                        ind_REF = time_REF/sf +1; %get index from time
+                        if isfield(info_struct, 'Position')
+                            time_REF = info_struct.Position(1);
+                            ind_REF = time_REF/sf +1; %get index from time
+                        else
+                            disp('Please type: ')
+                            str = input('time_ind_REF =   ','s');
+                            time_REF = str2double(str);
+                            time_REF = time_REF/sf +1; %get index from time
+                        end
                     end  
                     str = input('Correct Correlation Method ?   ','s');
                     if strcmp(str,'y')
                         str = input('time_peak_INC =   ','s');
                         dcm_obj = datacursormode;
                         info_struct = getCursorInfo(dcm_obj);
-                        time_inc = info_struct.Position(1)
+                            if isfield(info_struct, 'Position')
+                                time_inc = info_struct.Position(1)
+                            else
+                                disp('Please type: ')
+                                str = input('time_peak_INC =   ','s');
+                                time_inc = str2double(str);
+                            end
                         str = input('time_peak_REF =   ','s');
+                        dcm_obj = datacursormode;
                         info_struct = getCursorInfo(dcm_obj);
-                        time_ref = info_struct.Position(1)
+                            if isfield(info_struct, 'Position')
+                                time_ref = info_struct.Position(1)
+                            else
+                                disp('Please type: ')
+                                str = input('time_peak_INC =   ','s');
+                                time_inc = str2double(str);
+                            end
                         delay = time_ref - time_inc;
                         
                         data_struct.(BDs{n}).position.correlation.fail = false;
@@ -1024,32 +1052,40 @@ if interactivePlot
             case 'BDs'
                 if info_struct.DataIndex <= length(BDC_in_x)
                     fname = BD_candidates{info_struct.DataIndex};
+                    disp(fname)
                     print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
                 else
                     fname = interlocks_out{info_struct.DataIndex-length(BDC_in_x)};
+                    disp(fname)
                     print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
                 end
             case 'Spikes'
                 if info_struct.DataIndex <= length(sp_in_x)
                     fname = spikes_inMetric{info_struct.DataIndex};
+                    disp(fname)
                     print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
                 else
                     fname = spikes_outMetric{info_struct.DataIndex-length(sp_in_x)};
+                    disp(fname)
                     print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
                 end
             case 'After spike'
                 if info_struct.DataIndex <= length(sp_c_in_x)
                     fname = spike_cluster{info_struct.DataIndex};
+                    disp(fname)
                     print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
                 else
                     fname = spike_cluster_out{info_struct.DataIndex-length(sp_c_in_x)};
+                    disp(fname)
                     print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
                 end    
             case 'Missed beam'
                 fname = missed_beam_in{info_struct.DataIndex};
+                disp(fname)
                 print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
             case 'After missed beam'
                 fname = missed_beam_cluster{info_struct.DataIndex};
+                disp(fname)
                 print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
             otherwise
                 warning('Type not recognized')

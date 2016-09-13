@@ -192,6 +192,7 @@ for i = 1:length(event_name)
         fail_m1 = fail_m1+1;
     end
 end
+
 %% Parameters check plots 
 %Get screen parameters in order to resize the plots
 % screensizes = get(groot,'screensize'); %only MATLAB r2014b+
@@ -322,81 +323,9 @@ elseif strcmpi(mode,'UnLoaded')
 end
 
 %% Cluster length detection
-% Clusters from spikes
+% Clusters from spikes, just for plotting
 clust_spike_length = clusterDistribution( isSpike(metr_idx), sec_spike_in );
 
-%% Report message and crosscheck of lengths
-disp('Analysis done! ')
-if strcmpi(mode,'Loaded')   
-    %gather data and build the message
-    %%INTO THE METRIC
-    l1 = length(BD_candidates);
-    l2 = length(spikes_inMetric);
-    l3 = length(spike_cluster);
-    l4 = length(missed_beam_in);
-    l5 = length(missed_beam_cluster);
-    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
-        'Into the metric:' '\n' ...
-    ' - ' num2str(l1) ' are good candidates' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    ' - ' num2str(l4) ' are missed beam pulses' '\n' ...
-    ' - ' num2str(l5) ' are secondary triggered by beam lost' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
-    'Of the ' num2str(l1) ' good candidates:' '\n' ...
-    ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
-    ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
-    'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
-    ' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened with beam' '\n'...
-    ' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
-    'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
-    '\n \n' ...
-    ];
-    %%OUT OF THE METRIC
-    l1 = length(interlocks_out);
-    l2 = length(spikes_outMetric);
-    l3 = length(spike_cluster_out);
-    msg3 = ['Out of the metric:' '\n' ...
-    ' - ' num2str(l1) ' are BDs ' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3) ' events out of the metric' '\n \n' ...
-    ];
-    % print to screen (1) and to log file
-    fprintf(1,msg2);
-    fprintf(1,msg3);
-
-    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'loaded');
-    fprintf(1,msg4);
-    
-elseif strcmpi(mode,'UnLoaded')   
-    %gather data and build the message
-    %%INTO THE METRIC
-    l1 = length(BD_candidates);
-    l2 = length(spikes_inMetric);
-    l3 = length(spike_cluster);
-    l4 = 0;
-    l5 = 0;
-    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
-        'Into the metric:' '\n' ...
-    ' - ' num2str(l1) ' are good candidates' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
-    '\n \n' ...
-    ];
-    % print to screen (1) and to log file
-    fprintf(1,msg2);
-
-    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'unloaded' );
-   fprintf(1,msg4);   
-    
-    
-    
-end
 %% Distributions plots
 
 if doPlots
@@ -544,6 +473,207 @@ if doPlots
     savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
 
 end %of plots
+
+%% Interactive plot (read version)
+
+gone = false;
+interactivePlot = false;
+while ~gone
+    str_input = input('Go to viewer ? (Y/N)','s');
+    switch lower(str_input)
+        case 'y'
+            interactivePlot = true;
+            gone = true;
+        case 'n'
+            interactivePlot = false;
+            gone = true;
+        otherwise
+            disp('Enter a valid character')
+            gone = false;
+    end
+end
+
+
+if interactivePlot
+    %Build the dataset to plot (IN METRIC):
+    %candidates
+    BDC_in_x = zeros(1,length(BD_candidates));
+    BDC_in_y = zeros(1,length(BD_candidates));
+    for k = 1:length(BD_candidates)
+        BDC_in_x(k) = data_struct.(BD_candidates{k}).inc_tra;
+        BDC_in_y(k) = data_struct.(BD_candidates{k}).inc_ref;
+    end
+    %spikes
+    sp_in_x = zeros(1,length(spikes_inMetric));
+    sp_in_y = zeros(1,length(spikes_inMetric));
+    for k = 1:length(spikes_inMetric)
+        sp_in_x(k) = data_struct.(spikes_inMetric{k}).inc_tra;
+        sp_in_y(k) = data_struct.(spikes_inMetric{k}).inc_ref;
+    end
+    %spike cluster
+    sp_c_in_x = zeros(1,length(spike_cluster));
+    sp_c_in_y = zeros(1,length(spike_cluster));
+    for k = 1:length(spike_cluster)
+        sp_c_in_x(k) = data_struct.(spike_cluster{k}).inc_tra;
+        sp_c_in_y(k) = data_struct.(spike_cluster{k}).inc_ref;
+    end   
+    %missed beam
+    if strcmpi(mode, 'Loaded')
+        miss_in_x = zeros(1,length(missed_beam_in));
+        miss_in_y = zeros(1,length(missed_beam_in));
+        for k = 1:length(missed_beam_in)
+            miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
+            miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
+        end
+    end
+    %missed beam cluster
+    if strcmpi(mode, 'Loaded')
+        miss_c_in_x = zeros(1,length(missed_beam_cluster));
+        miss_c_in_y = zeros(1,length(missed_beam_cluster));
+        for k = 1:length(missed_beam_cluster)
+            miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
+            miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
+        end
+    end
+    %OUT OF METRIC:
+    %interlocks
+    BDC_out_x = zeros(1,length(interlocks_out));
+    BDC_out_y = zeros(1,length(interlocks_out));
+    for k = 1:length(interlocks_out)
+        BDC_out_x(k) = data_struct.(interlocks_out{k}).inc_tra;
+        BDC_out_y(k) = data_struct.(interlocks_out{k}).inc_ref;
+    end
+    %spikes
+    sp_out_x = zeros(1,length(spikes_outMetric));
+    sp_out_y = zeros(1,length(spikes_outMetric));
+    for k = 1:length(spikes_outMetric)
+        sp_out_x(k) = data_struct.(spikes_outMetric{k}).inc_tra;
+        sp_out_y(k) = data_struct.(spikes_outMetric{k}).inc_ref;
+    end
+    %spike cluster
+    sp_c_out_x = zeros(1,length(spike_cluster_out));
+    sp_c_out_y = zeros(1,length(spike_cluster_out));
+    for k = 1:length(spike_cluster_out)
+        sp_c_out_x(k) = data_struct.(spike_cluster_out{k}).inc_tra;
+        sp_c_out_y(k) = data_struct.(spike_cluster_out{k}).inc_ref;
+    end   
+    % merge same type, in metric before
+    BDC_x = [BDC_in_x BDC_out_x];
+    BDC_y = [BDC_in_y BDC_out_y];
+    sp_x = [sp_in_x sp_out_x];
+    sp_y = [sp_in_y sp_out_y]; 
+    sp_c_x = [sp_c_in_x sp_c_out_x];
+    sp_c_y = [sp_c_in_y sp_c_out_y];
+
+    %finally plot
+    prompt = 'Select an event with the cursor and press ENTER (any other to exit)';
+    f1 = figure('Position',[50 50 1450 700]);
+    figure(f1);
+    datacursormode on;
+    subplot(5,5,[1 2 3 6 7 8 11 12 13])
+    if strcmpi(mode, 'Loaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    elseif strcmpi(mode, 'UnLoaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            'MarkerSize',15);        
+    end
+    legend('BDs','Spikes','After spike','Missed beam','After missed beam')
+    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
+    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
+    axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff]);
+    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
+    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    title('Interlock distribution');
+    
+    
+    %color plot for savingy
+    f2 = figure('Position',[50 50 1450 700]);
+    figure(f2);
+    if strcmpi(mode, 'Loaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
+    elseif strcmpi(mode, 'UnLoaded')
+        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
+            'MarkerSize',15);        
+    end
+    legend('BDs','Spikes','After spike','Missed beam','After missed beam')
+    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
+    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
+    axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff]);
+    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
+    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    title('Interlock distribution');
+    print(f2,[datapath_write_plot filesep expname '_metric_check_color'],'-djpeg')
+    savefig([datapath_write_fig filesep expname '_metric_check_color'])
+    close(f2);
+
+
+    %x axis thicks for signals plotting
+    timescale = 1:800;
+    timescale = timescale*data_struct.(event_name{1}).INC.Props.wf_increment;
+
+    %init the small graphs
+    subplot(5,5,[4 5 9 10 14 15]) %RF signals plot
+    title('RF signals');
+    sp6 = subplot(5,5,[19 20 24 25]); %pulse tuning plot
+    title('Pulse tuning')
+    sp7 = subplot(5,5,[16 17 18 21 22 23]); %BPMs plot
+    ylim(sp7, [-1.8 0.05]);
+    title('BPM signals');
+    % user interaction
+    exitCond = false;
+    while isempty ( input(prompt,'s') )%keep on spinning while pressing enter
+        %get cursor position
+        dcm_obj = datacursormode(f1);
+        info_struct = getCursorInfo(dcm_obj);
+
+        switch info_struct.Target.DisplayName
+            % !!!! Must match the legend
+            case 'BDs'
+                if info_struct.DataIndex <= length(BDC_in_x)
+                    fname = BD_candidates{info_struct.DataIndex};
+                    disp(fname)
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                else
+                    fname = interlocks_out{info_struct.DataIndex-length(BDC_in_x)};
+                    disp(fname)
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                end
+            case 'Spikes'
+                if info_struct.DataIndex <= length(sp_in_x)
+                    fname = spikes_inMetric{info_struct.DataIndex};
+                    disp(fname)
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                else
+                    fname = spikes_outMetric{info_struct.DataIndex-length(sp_in_x)};
+                    disp(fname)
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                end
+            case 'After spike'
+                if info_struct.DataIndex <= length(sp_c_in_x)
+                    fname = spike_cluster{info_struct.DataIndex};
+                    disp(fname)
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                else
+                    fname = spike_cluster_out{info_struct.DataIndex-length(sp_c_in_x)};
+                    disp(fname)
+                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+                end    
+            case 'Missed beam'
+                fname = missed_beam_in{info_struct.DataIndex};
+                disp(fname)
+                print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+            case 'After missed beam'
+                fname = missed_beam_cluster{info_struct.DataIndex};
+                disp(fname)
+                print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
+            otherwise
+                warning('Type not recognized')
+        end
+
+    end
+end %end user choice
 
 %% Positioning
 if positionAnalysis
@@ -893,207 +1023,78 @@ else
     data_struct.Analysis.positioning = false;
 end
 
-%% Interactive plot (read version)
+%% Report message and crosscheck of lengths
+disp('Analysis done! ')
+if strcmpi(mode,'Loaded')   
+    %gather data and build the message
+    %%INTO THE METRIC
+    l1 = length(BD_candidates);
+    l2 = length(spikes_inMetric);
+    l3 = length(spike_cluster);
+    l4 = length(missed_beam_in);
+    l5 = length(missed_beam_cluster);
+    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
+        'Into the metric:' '\n' ...
+    ' - ' num2str(l1) ' are good candidates' '\n' ...
+    ' - ' num2str(l2) ' are spikes' '\n' ...
+    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+    ' - ' num2str(l4) ' are missed beam pulses' '\n' ...
+    ' - ' num2str(l5) ' are secondary triggered by beam lost' '\n' ...
+    '-------' '\n' ...
+    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
+    'Of the ' num2str(l1) ' good candidates:' '\n' ...
+    ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
+    ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
+    'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
+    ' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened with beam' '\n'...
+    ' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
+    'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
+    '\n \n' ...
+    ];
+    %%OUT OF THE METRIC
+    l1 = length(interlocks_out);
+    l2 = length(spikes_outMetric);
+    l3 = length(spike_cluster_out);
+    msg3 = ['Out of the metric:' '\n' ...
+    ' - ' num2str(l1) ' are BDs ' '\n' ...
+    ' - ' num2str(l2) ' are spikes' '\n' ...
+    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+    '-------' '\n' ...
+    '  ' num2str(l1+l2+l3) ' events out of the metric' '\n \n' ...
+    ];
+    % print to screen (1) and to log file
+    fprintf(1,msg2);
+    fprintf(1,msg3);
 
-gone = false;
-interactivePlot = false;
-while ~gone
-    str_input = input('Go to viewer ? (Y/N)','s');
-    switch lower(str_input)
-        case 'y'
-            interactivePlot = true;
-            gone = true;
-        case 'n'
-            interactivePlot = false;
-            gone = true;
-        otherwise
-            disp('Enter a valid character')
-            gone = false;
-    end
+    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'loaded');
+    fprintf(1,msg4);
+    
+elseif strcmpi(mode,'UnLoaded')   
+    %gather data and build the message
+    %%INTO THE METRIC
+    l1 = length(BD_candidates);
+    l2 = length(spikes_inMetric);
+    l3 = length(spike_cluster);
+    l4 = 0;
+    l5 = 0;
+    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
+        'Into the metric:' '\n' ...
+    ' - ' num2str(l1) ' are good candidates' '\n' ...
+    ' - ' num2str(l2) ' are spikes' '\n' ...
+    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+    '-------' '\n' ...
+    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
+    '\n \n' ...
+    ];
+    % print to screen (1) and to log file
+    fprintf(1,msg2);
+
+    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'unloaded' );
+   fprintf(1,msg4);   
+    
+    
+    
 end
-
-
-if interactivePlot
-    %Build the dataset to plot (IN METRIC):
-    %candidates
-    BDC_in_x = zeros(1,length(BD_candidates));
-    BDC_in_y = zeros(1,length(BD_candidates));
-    for k = 1:length(BD_candidates)
-        BDC_in_x(k) = data_struct.(BD_candidates{k}).inc_tra;
-        BDC_in_y(k) = data_struct.(BD_candidates{k}).inc_ref;
-    end
-    %spikes
-    sp_in_x = zeros(1,length(spikes_inMetric));
-    sp_in_y = zeros(1,length(spikes_inMetric));
-    for k = 1:length(spikes_inMetric)
-        sp_in_x(k) = data_struct.(spikes_inMetric{k}).inc_tra;
-        sp_in_y(k) = data_struct.(spikes_inMetric{k}).inc_ref;
-    end
-    %spike cluster
-    sp_c_in_x = zeros(1,length(spike_cluster));
-    sp_c_in_y = zeros(1,length(spike_cluster));
-    for k = 1:length(spike_cluster)
-        sp_c_in_x(k) = data_struct.(spike_cluster{k}).inc_tra;
-        sp_c_in_y(k) = data_struct.(spike_cluster{k}).inc_ref;
-    end   
-    %missed beam
-    if strcmpi(mode, 'Loaded')
-        miss_in_x = zeros(1,length(missed_beam_in));
-        miss_in_y = zeros(1,length(missed_beam_in));
-        for k = 1:length(missed_beam_in)
-            miss_in_x(k) = data_struct.(missed_beam_in{k}).inc_tra;
-            miss_in_y(k) = data_struct.(missed_beam_in{k}).inc_ref;
-        end
-    end
-    %missed beam cluster
-    if strcmpi(mode, 'Loaded')
-        miss_c_in_x = zeros(1,length(missed_beam_cluster));
-        miss_c_in_y = zeros(1,length(missed_beam_cluster));
-        for k = 1:length(missed_beam_cluster)
-            miss_c_in_x(k) = data_struct.(missed_beam_cluster{k}).inc_tra;
-            miss_c_in_y(k) = data_struct.(missed_beam_cluster{k}).inc_ref;
-        end
-    end
-    %OUT OF METRIC:
-    %interlocks
-    BDC_out_x = zeros(1,length(interlocks_out));
-    BDC_out_y = zeros(1,length(interlocks_out));
-    for k = 1:length(interlocks_out)
-        BDC_out_x(k) = data_struct.(interlocks_out{k}).inc_tra;
-        BDC_out_y(k) = data_struct.(interlocks_out{k}).inc_ref;
-    end
-    %spikes
-    sp_out_x = zeros(1,length(spikes_outMetric));
-    sp_out_y = zeros(1,length(spikes_outMetric));
-    for k = 1:length(spikes_outMetric)
-        sp_out_x(k) = data_struct.(spikes_outMetric{k}).inc_tra;
-        sp_out_y(k) = data_struct.(spikes_outMetric{k}).inc_ref;
-    end
-    %spike cluster
-    sp_c_out_x = zeros(1,length(spike_cluster_out));
-    sp_c_out_y = zeros(1,length(spike_cluster_out));
-    for k = 1:length(spike_cluster_out)
-        sp_c_out_x(k) = data_struct.(spike_cluster_out{k}).inc_tra;
-        sp_c_out_y(k) = data_struct.(spike_cluster_out{k}).inc_ref;
-    end   
-    % merge same type, in metric before
-    BDC_x = [BDC_in_x BDC_out_x];
-    BDC_y = [BDC_in_y BDC_out_y];
-    sp_x = [sp_in_x sp_out_x];
-    sp_y = [sp_in_y sp_out_y]; 
-    sp_c_x = [sp_c_in_x sp_c_out_x];
-    sp_c_y = [sp_c_in_y sp_c_out_y];
-
-    %finally plot
-    prompt = 'Select an event with the cursor and press ENTER (any other to exit)';
-    f1 = figure('Position',[50 50 1450 700]);
-    figure(f1);
-    datacursormode on;
-    subplot(5,5,[1 2 3 6 7 8 11 12 13])
-    if strcmpi(mode, 'Loaded')
-        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
-    elseif strcmpi(mode, 'UnLoaded')
-        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-            'MarkerSize',15);        
-    end
-    legend('BDs','Spikes','After spike','Missed beam','After missed beam')
-    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
-    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-    axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff]);
-    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
-    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
-    title('Interlock distribution');
-    
-    
-    %color plot for savingy
-    f2 = figure('Position',[50 50 1450 700]);
-    figure(f2);
-    if strcmpi(mode, 'Loaded')
-        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-            miss_in_x,miss_in_y,'c.',miss_c_in_x,miss_c_in_y,'m .','MarkerSize',15);
-    elseif strcmpi(mode, 'UnLoaded')
-        plot(BDC_x, BDC_y,'r .',sp_x,sp_y,'g .', sp_c_x,sp_c_y,'b .',...
-            'MarkerSize',15);        
-    end
-    legend('BDs','Spikes','After spike','Missed beam','After missed beam')
-    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
-    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-    axis([min(inc_tra)-moff max(inc_tra)+moff min(inc_ref)-moff max(inc_ref)+moff]);
-    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
-    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
-    title('Interlock distribution');
-    print(f2,[datapath_write_plot filesep expname '_metric_check_color'],'-djpeg')
-    savefig([datapath_write_fig filesep expname '_metric_check_color'])
-    close(f2);
-
-
-    %x axis thicks for signals plotting
-    timescale = 1:800;
-    timescale = timescale*data_struct.(event_name{1}).INC.Props.wf_increment;
-
-    %init the small graphs
-    subplot(5,5,[4 5 9 10 14 15]) %RF signals plot
-    title('RF signals');
-    sp6 = subplot(5,5,[19 20 24 25]); %pulse tuning plot
-    title('Pulse tuning')
-    sp7 = subplot(5,5,[16 17 18 21 22 23]); %BPMs plot
-    ylim(sp7, [-1.8 0.05]);
-    title('BPM signals');
-    % user interaction
-    exitCond = false;
-    while isempty ( input(prompt,'s') )%keep on spinning while pressing enter
-        %get cursor position
-        dcm_obj = datacursormode(f1);
-        info_struct = getCursorInfo(dcm_obj);
-
-        switch info_struct.Target.DisplayName
-            % !!!! Must match the legend
-            case 'BDs'
-                if info_struct.DataIndex <= length(BDC_in_x)
-                    fname = BD_candidates{info_struct.DataIndex};
-                    disp(fname)
-                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-                else
-                    fname = interlocks_out{info_struct.DataIndex-length(BDC_in_x)};
-                    disp(fname)
-                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-                end
-            case 'Spikes'
-                if info_struct.DataIndex <= length(sp_in_x)
-                    fname = spikes_inMetric{info_struct.DataIndex};
-                    disp(fname)
-                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-                else
-                    fname = spikes_outMetric{info_struct.DataIndex-length(sp_in_x)};
-                    disp(fname)
-                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-                end
-            case 'After spike'
-                if info_struct.DataIndex <= length(sp_c_in_x)
-                    fname = spike_cluster{info_struct.DataIndex};
-                    disp(fname)
-                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-                else
-                    fname = spike_cluster_out{info_struct.DataIndex-length(sp_c_in_x)};
-                    disp(fname)
-                    print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-                end    
-            case 'Missed beam'
-                fname = missed_beam_in{info_struct.DataIndex};
-                disp(fname)
-                print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-            case 'After missed beam'
-                fname = missed_beam_cluster{info_struct.DataIndex};
-                disp(fname)
-                print_subPlots(fname, timescale, data_struct,bpm1_thr,bpm2_thr)
-            otherwise
-                warning('Type not recognized')
-        end
-
-    end
-end %end user choice
-
 
 %% Saving data
 

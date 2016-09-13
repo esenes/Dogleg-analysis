@@ -36,7 +36,7 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_UnLoaded_10';
+expname = 'Exp_Loaded38MW_5';
 savename = expname;
 
 positionAnalysis = false;

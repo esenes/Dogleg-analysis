@@ -52,14 +52,14 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %run10
-startDate = '20160509';
-endDate = '20160512';
+startDate = '20160825';
+endDate = '20160827';
 startTime = '16:00:00';
-endTime = '14:00:00';
+endTime = '05:30:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded_7';
+expName = 'Loaded38MW_11_1';
 
 mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,8 +100,9 @@ end
 %build file list
 [filenames_full] = files2Analyse(startDate, endDate, datapath_read, 1);
 filename = get_dates(filenames_full);
-disp('Start processing files:')
+
 %%
+disp('Start processing files:')
 
 for j = 1:length(filename) %loop over dates
     tic

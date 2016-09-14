@@ -38,7 +38,7 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 expname = 'Exp_UnLoaded_9';
 % savename = expname;
-savename = 'Exp_UnLoaded_9_1';
+savename = 'Exp_UnLoaded_9_3';
 
 positionAnalysis = true;
 manualCorrection = true;
@@ -868,11 +868,7 @@ if positionAnalysis
                         failFlag = false;
                     elseif strcmp(str,'f')
                         failFlag = true;
-                    else
-                        continue;
                     end
-                else
-                    continue;
                 end
             end
             
@@ -1003,7 +999,7 @@ if positionAnalysis
     end
 
     %flag data as positioning done
-    data_struct.Analysis.postioning = true;
+    data_struct.Analysis.positioning = true;
 
     % figure
     % plot(timescale, REF_c, 'r -',timescale, REF_prev, 'r --')
@@ -1101,9 +1097,6 @@ data_struct.Analysis.Beam.bpm2_thr = bpm2_thr;
 data_struct.Analysis.Clusters.deltaTime_spike = deltaTime_spike;
 data_struct.Analysis.Clusters.deltaTime_beam_lost = deltaTime_beam_lost;
 data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
-
-
-ccc
 
 % saving
 BDs_ts = BDs; %copy BDs to BDs_ts to change the name to save

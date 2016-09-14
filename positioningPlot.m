@@ -12,31 +12,43 @@
 %load part
 
 %check if the positioning has been done
-if data_struct.Analysis.postioning == 0
-    error('Positioning has not been done during filtering')
+if data_struct.Analysis.positioning == 0
+    error('Positioning has not been done during filtering. Please come back and do it')
 end
 
-%generate the list of times
-BDs_ts = BDs;
-
-time_edge_ref = [];
-time_edge_tra = [];
-
+edge_tra_time = zeros(1,length(BDs_ts));
+edge_ref_time = zeros(1,length(BDs_ts));
 flag_corr_fail = zeros(1,length(BDs_ts));
 
 count=0;
-for k=1:144
+for k=1:length(BDs_ts)
     if isfield(data_struct.(BDs_ts{k}),'position')
         disp(BDs_ts{k})
         count = count+ 1;
         
-        if isfield(data_struct.(BDs_ts{k}).position.correlation,'fail')
-            flag_corr_fail(k) = data_struct.(BDs_ts{k}).correlation.fail;
-            disp('fail flag')
-        else
-            flag_corr_fail(k) = 0;
-        end
+        flag_corr_fail(k) = data_struct.(BDs_ts{k}).position.correlation.fail;
+        edge_tra_time(k) = data_struct.(BDs_ts{k}).position.edge.time_TRA;
+        edge_ref_time(k) = data_struct.(BDs_ts{k}).position.edge.time_REF;
+        
+%         if isfield(data_struct.(BDs_ts{k}).position.correlation,'fail')
+%             flag_corr_fail(k) = data_struct.(BDs_ts{k}).position.correlation.fail;
+%             disp('fail flag')
+%         else
+%             flag_corr_fail(k) = -1;
+%         end
     end
-    
 end
 disp(count)
+
+
+for k = 1:length(BDs_ts)
+    disp( flag_corr_fail(k) )
+end
+
+for k = 1:length(BDs_ts)
+    disp( edge_tra_time(k) )
+end
+
+for k = 1:length(BDs_ts)
+    disp( edge_ref_time(k) )
+end

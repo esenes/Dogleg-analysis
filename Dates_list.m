@@ -199,6 +199,25 @@ startDate = '20160427';
 endDate = '20160429';
 startTime = '17:00:00';
 endTime = '14:02:00';
+%segment1
+pulsenum = 3223650;
+BDs = 244;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+%segment2
+pulsenum = 213650;
+BDs = 4;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+%overall
+pulsenum = 213650+3223650;
+BDs = 248;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+
 
 %run6
 startDate = '20160503';
@@ -206,11 +225,23 @@ endDate = '20160504';
 startTime = '10:00:00';
 endTime = '15:00:00';
 
+pulsenum = 1681050;
+BDs = 140;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+
 %run7
 startDate = '20160509';
 endDate = '20160512';
 startTime = '16:00:00';
 endTime = '14:00:00';
+
+pulsenum = 6176900;
+BDs = 246;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
 
 %run8
 startDate = '20160517';
@@ -236,8 +267,34 @@ endDate = '20160601';
 startTime = '13:00:00';
 endTime = '03:30:00';
 
+pulsenum = 1279100;
+BDs = 20;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+
 %run10
 startDate = '20160601';
 endDate = '20160603';
 startTime = '19:30:00';
 endTime = '16:56:00';
+
+%segment1
+pulsenum = 3237350;
+BDs = 39;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+%segment2
+pulsenum = 79400;
+BDs = 4;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+%overall
+pulsenum = 3237350+79400;
+BDs = 43;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
+

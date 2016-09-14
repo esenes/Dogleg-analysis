@@ -36,10 +36,11 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_Loaded38MW_5';
-savename = expname;
+expname = 'Exp_UnLoaded_9';
+% savename = expname;
+savename = 'Exp_UnLoaded_9_1';
 
-positionAnalysis = false;
+positionAnalysis = true;
 manualCorrection = true;
 doPlots = false;
 
@@ -192,6 +193,7 @@ for i = 1:length(event_name)
         fail_m1 = fail_m1+1;
     end
 end
+
 %% Parameters check plots 
 %Get screen parameters in order to resize the plots
 % screensizes = get(groot,'screensize'); %only MATLAB r2014b+
@@ -322,81 +324,9 @@ elseif strcmpi(mode,'UnLoaded')
 end
 
 %% Cluster length detection
-% Clusters from spikes
+% Clusters from spikes, just for plotting
 clust_spike_length = clusterDistribution( isSpike(metr_idx), sec_spike_in );
 
-%% Report message and crosscheck of lengths
-disp('Analysis done! ')
-if strcmpi(mode,'Loaded')   
-    %gather data and build the message
-    %%INTO THE METRIC
-    l1 = length(BD_candidates);
-    l2 = length(spikes_inMetric);
-    l3 = length(spike_cluster);
-    l4 = length(missed_beam_in);
-    l5 = length(missed_beam_cluster);
-    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
-        'Into the metric:' '\n' ...
-    ' - ' num2str(l1) ' are good candidates' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    ' - ' num2str(l4) ' are missed beam pulses' '\n' ...
-    ' - ' num2str(l5) ' are secondary triggered by beam lost' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
-    'Of the ' num2str(l1) ' good candidates:' '\n' ...
-    ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
-    ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
-    'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
-    ' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened with beam' '\n'...
-    ' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
-    'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
-    '\n \n' ...
-    ];
-    %%OUT OF THE METRIC
-    l1 = length(interlocks_out);
-    l2 = length(spikes_outMetric);
-    l3 = length(spike_cluster_out);
-    msg3 = ['Out of the metric:' '\n' ...
-    ' - ' num2str(l1) ' are BDs ' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3) ' events out of the metric' '\n \n' ...
-    ];
-    % print to screen (1) and to log file
-    fprintf(1,msg2);
-    fprintf(1,msg3);
-
-    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'loaded');
-    fprintf(1,msg4);
-    
-elseif strcmpi(mode,'UnLoaded')   
-    %gather data and build the message
-    %%INTO THE METRIC
-    l1 = length(BD_candidates);
-    l2 = length(spikes_inMetric);
-    l3 = length(spike_cluster);
-    l4 = 0;
-    l5 = 0;
-    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
-        'Into the metric:' '\n' ...
-    ' - ' num2str(l1) ' are good candidates' '\n' ...
-    ' - ' num2str(l2) ' are spikes' '\n' ...
-    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
-    '-------' '\n' ...
-    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
-    '\n \n' ...
-    ];
-    % print to screen (1) and to log file
-    fprintf(1,msg2);
-
-    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'unloaded' );
-   fprintf(1,msg4);   
-    
-    
-    
-end
 %% Distributions plots
 
 if doPlots
@@ -544,354 +474,6 @@ if doPlots
     savefig([datapath_write_fig filesep expname '_pulse_width_distribution'])
 
 end %of plots
-
-%% Positioning
-if positionAnalysis
-    %figure setup
-    f666 = figure('position',[0 0 1920 1080]);
-    figure(f666);
-    set(gcf,'numbertitle','off','name','BD positioning check') 
-    subplot(4,6,[13 14 19 20])
-    plot(inc_tra(BDs_flag), inc_ref(BDs_flag),'b .','MarkerSize',20);
-    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
-    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
-    axis([min(inc_tra(BDs_flag))-moff max(inc_tra(BDs_flag))+moff min(inc_ref(BDs_flag))-moff max(inc_ref(BDs_flag))+moff])
-    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
-    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
-    title('Metric')
-    legend('BDs','Threshold')
-    hold on
-    
-    %data part
-    timescale = 0:4e-9:799*4e-9;
-    
-   
-    
-    for n=1:length(BDs)
-        %display timestamp
-        disp([ BDs{n} ' is the number ' num2str(n) ' on ' num2str(length(BDs)) ])
-        %get the current data
-        INC_c = data_struct.(BDs{n}).INC.data;
-        TRA_c = data_struct.(BDs{n}).TRA.data;
-        REF_c = data_struct.(BDs{n}).REF.data;
-        %check if the backup pulses are recorded
-        precName = [BDs{n}(1:end-2) 'L1'];
-        if isfield(data_struct,precName)% The backup pulse is present
-            
-            %grasp data 
-            INC_prev = data_struct.(precName).INC.data;
-            TRA_prev = data_struct.(precName).TRA.data;
-            REF_prev = data_struct.(precName).REF.data;
-            INC_prev_cal = data_struct.(precName).INC.data_cal;
-            TRA_prev_cal = data_struct.(precName).TRA.data_cal;
-            REF_prev_cal = data_struct.(precName).REF.data_cal;
-            INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
-            TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
-            REF_c_cal = data_struct.(BDs{n}).REF.data_cal;
-            BPM1_c = data_struct.(BDs{n}).BPM1.data_cal;
-            BPM2_c = data_struct.(BDs{n}).BPM2.data_cal;
-            inc_tra_c = data_struct.(BDs{n}).inc_tra;
-            inc_ref_c = data_struct.(BDs{n}).inc_ref;
-            
-            %plotting
-            positionPlot_prev( timescale, INC_c, INC_prev, TRA_c, TRA_prev, REF_c, REF_prev,...
-                INC_c_cal, INC_prev_cal, TRA_c_cal, TRA_prev_cal, REF_c_cal, REF_prev_cal,...
-                BPM1_c, BPM2_c, INC_TRA_delay)
-            % plot metric red dot
-            subplot(4,6,[13 14 19 20])
-            if n~=1 
-                delete(pm)
-            end
-            pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
-
-            %%%%%%%%%%%% Calculate the delay
-            
-            %ramp-up test
-            [isRamping, ~] = rampUpTest( INC_c_cal, INC_prev_cal, xstart, xend, rampThr );
-            
-            %calculate integrals
-
-            %TRA EDGE
-            if ~isRamping
-                [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
-            else
-                [~, ind_TRA] = max(TRA_c);
-                time_TRA = timescale(ind_TRA);
-            end
-            
-            subplot(4,6,[3 4])
-            plot(timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --', timescale, TRA_prev-TRA_c, 'b .')
-            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
-            legend({'TRA','prev TRA','difference'})
-            title('Edge method for TRA')
-            xlim([400*4e-9 550*4e-9])
-            xlabel('time (s)')
-            ylabel('Power (a.u.)')
-
-            %REF EDGE
-            [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
-            
-            %%%%% calculate time_delay for the edge method
-            INC_TRA_timeOffset = 72e-9;
-            td = 1e9*(time_REF-time_TRA+INC_TRA_timeOffset);
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            subplot(4,6,[9 10])
-            plot(timescale, REF_c, 'k -',timescale, REF_prev, 'k --',timescale,REF_c-REF_prev,'b .' )
-            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
-            legend({'REF','prev REF','difference'})
-            title(['Edge method for REF - td = ',num2str(td),' ns'])
-            xlim([400*4e-9 550*4e-9])
-            xlabel('time (s)')
-            ylabel('Power (a.u.)')
-            
-            %add vertical bars to plots
-            subplot(4,6,[1 2 7 8])
-            hold on;
-            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
-            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
-            subplot(4,6,[5 6 11 12])
-            hold on;
-            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
-            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
-            
-            
-            
-            %CORRELATION
-            [coeff_corr,gof,corr_err,y1_offset,y2_offset] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
-            delay = round(coeff_corr(1)); %rounded to integer [ns]
-            
-            subplot(4,6,[15 16 21 22])
-            plot( timescale, REF_c-y2_offset, 'r', timescale, INC_c-y1_offset, 'k',...
-                timescale-(coeff_corr(1)*1e-9), coeff_corr(2)*(REF_c-y2_offset), 'g','LineWidth', 2 ...
-                )
-            xlim([1.848e-6 3.2e-6])
-            title(['Correlation method - tc ',num2str(delay),' ns'])
-            legend({'REF','INC', 'REF delayed'})
-            
-            %JITTER check
-            [ ~, delay_time ] = jitterCheck( data_struct.(BDs{n}).INC.data_cal, data_struct.(precName).INC.data_cal, sf, sROI, eROI);
-            disp(['jitter = ' num2str(delay_time) ' ns'])
-            if delay_time ~= 0
-                warning('Jitter detected !')
-            end
-            
-            % manual correction
-            if manualCorrection
-                str = input('Will you do any correction ?   ','s');
-                if strcmp(str,'y')
-                    str = input('Correct Edge Method ?   ','s');
-                    if strcmp(str,'y')
-                        str = input('time_ind_TRA =   ','s');
-                        dcm_obj = datacursormode;
-                         if isfield(info_struct, 'Position')
-                            time_TRA = info_struct.Position(1);
-                            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
-                            gone = true;
-                        else
-                            disp('Please type: ')
-                            str = input('time_ind_TRA =   ','s');
-                            time_TRA = str2double(str);
-                            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
-                        end
-                        str = input('time_ind_REF =   ','s');
-                        info_struct = getCursorInfo(dcm_obj);
-                        if isfield(info_struct, 'Position')
-                            time_REF = info_struct.Position(1);
-                            ind_REF = time_REF/sf +1; %get index from time
-                        else
-                            disp('Please type: ')
-                            str = input('time_ind_REF =   ','s');
-                            time_REF = str2double(str);
-                            time_REF = time_REF/sf +1; %get index from time
-                        end
-                    end  
-                    str = input('Correct Correlation Method ?   ','s');
-                    if strcmp(str,'y')
-                        str = input('time_peak_INC =   ','s');
-                        dcm_obj = datacursormode;
-                        info_struct = getCursorInfo(dcm_obj);
-                            if isfield(info_struct, 'Position')
-                                time_inc = info_struct.Position(1)
-                            else
-                                disp('Please type: ')
-                                str = input('time_peak_INC =   ','s');
-                                time_inc = str2double(str);
-                            end
-                        str = input('time_peak_REF =   ','s');
-                        dcm_obj = datacursormode;
-                        info_struct = getCursorInfo(dcm_obj);
-                            if isfield(info_struct, 'Position')
-                                time_ref = info_struct.Position(1)
-                            else
-                                disp('Please type: ')
-                                str = input('time_peak_INC =   ','s');
-                                time_inc = str2double(str);
-                            end
-                        delay = time_ref - time_inc;
-                        
-                        data_struct.(BDs{n}).position.correlation.fail = false;
-                    elseif strcmp(str,'f')
-                        data_struct.(BDs{n}).position.correlation.fail = true;
-                    else
-                        continue;
-                    end
-                else
-                    continue;
-                end
-            end
-            
-            
-%             while isempty ( input(prompt,'s') )%keep on spinning while pressing enter
-%         %get cursor position
-%         dcm_obj = datacursormode(f1);
-%         info_struct = getCursorInfo(dcm_obj);
-
-            
-            %CREATE OUTPUT STRUCT
-            %edge
-            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
-            data_struct.(BDs{n}).position.edge.time_REF = time_REF;
-            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
-            data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
-            %correlation
-            data_struct.(BDs{n}).position.correlation.backupPulse = true;
-            data_struct.(BDs{n}).position.correlation.delay_time = delay;
-            data_struct.(BDs{n}).position.correlation.gain = coeff_corr(2);
-
-            %%%%%% STILL TO ADD THE MANUAL FAIL OF THE METHOD
-
-            
-        
-        else % NO PREV PULSE
-            %grasp data 
-            INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
-            TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
-            REF_c_cal = data_struct.(BDs{n}).REF.data_cal;
-            BPM1_c = data_struct.(BDs{n}).BPM1.data_cal;
-            BPM2_c = data_struct.(BDs{n}).BPM2.data_cal;
-            inc_tra_c = data_struct.(BDs{n}).inc_tra;
-            inc_ref_c = data_struct.(BDs{n}).inc_ref;
-            
-            %plotting
-            positionPlot_noPrev( timescale, INC_c, TRA_c, REF_c,...
-                INC_c_cal, TRA_c_cal, REF_c_cal,...
-                BPM1_c, BPM2_c)
-            % plot metric red dot
-            subplot(4,6,[13 14 19 20])
-            if n~=1 
-                try
-                    delete(pm)
-                end
-            end
-            pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
-            
-            %manual insert of the edges
-            %plot
-            plotTRA_positioning(timescale, TRA_c);
-            plotREF_positioning(timescale, REF_c);
-            %data management
-            disp('Edges needs to be inserted manually:')
-            str = input('time_ind_TRA =   ','s');
-            dcm_obj = datacursormode;
-            info_struct = getCursorInfo(dcm_obj);
-            if isfield(info_struct, 'Position')
-                time_TRA = info_struct.Position(1);
-                ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
-                gone = true;
-            else
-                disp('Please type: ')
-                str = input('time_ind_TRA =   ','s');
-                time_TRA = str2double(str);
-                ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
-            end
-            str = input('time_ind_REF =   ','s');
-            dcm_obj = datacursormode;
-            info_struct = getCursorInfo(dcm_obj);
-            if isfield(info_struct, 'Position')
-                time_REF = info_struct.Position(1);
-                ind_REF = time_REF/sf +1; %get index from time
-            else
-                disp('Please type: ')
-                str = input('time_ind_REF =   ','s');
-                time_REF = str2double(str);
-                time_REF = time_REF/sf +1; %get index from time
-            end
-
-            %plot TRA bar
-            subplot(4,6,[3 4])        
-            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
-
-            %plot REF bar
-            subplot(4,6,[9 10])
-            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
-
-            %manual insert for correlation
-            subplot(4,6,[15 16 21 22])
-            plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
-                'LineWidth', 2 ...
-                )
-            xlim([1.848e-6 3.2e-6])
-            title('Correlation method')
-            legend({'REF','INC'})
-            disp('Insert the edges for peaks of INC and REF')
-            str = input('time_peak_INC =   ','s');
-            dcm_obj = datacursormode;
-            info_struct = getCursorInfo(dcm_obj);
-            if isfield(info_struct, 'Position')
-                time_inc = info_struct.Position(1)
-            else
-                disp('Please type: ')
-                str = input('time_peak_INC =   ','s');
-                time_inc = str2double(str);
-            end
-            str = input('time_peak_REF =   ','s');
-            dcm_obj = datacursormode;
-            info_struct = getCursorInfo(dcm_obj);
-            if isfield(info_struct, 'Position')
-                time_ref = info_struct.Position(1)
-            else
-                disp('Please type: ')
-                str = input('time_peak_INC =   ','s');
-                time_inc = str2double(str);
-            end
-            delay = time_ref - time_inc;
-            delay = round( time_ref-time_inc ,0 );
-            
-            
-            %CREATE OUTPUT STRUCT
-            %edge
-            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
-            data_struct.(BDs{n}).position.edge.time_REF = time_REF;
-            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
-            data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
-            %correlation
-            data_struct.(BDs{n}).position.correlation.backupPulse = false;
-            data_struct.(BDs{n}).position.correlation.delay_time = delay; %rounded to integer [ns]
-            
-        end
-
-
-
-
-%         pause;
-    end
-
-    %flag data as positioning done
-    data_struct.Analysis.postioning = true;
-
-    % figure
-    % plot(timescale, REF_c, 'r -',timescale, REF_prev, 'r --')
-    % xlim([winStart 800*4e-9])
-    % 
-    % figure
-    % plot(timescale,(REF_c - REF_prev))
-    % xlim([winStart 800*4e-9])
-
-else
-    %flag data as positioning not done
-    data_struct.Analysis.positioning = false;
-end
 
 %% Interactive plot (read version)
 
@@ -1094,6 +676,420 @@ if interactivePlot
     end
 end %end user choice
 
+%% Positioning
+if positionAnalysis
+    %figure setup
+    f666 = figure('position',[0 0 1920 1080]);
+    figure(f666);
+    set(gcf,'numbertitle','off','name','BD positioning check') 
+    subplot(4,6,[13 14 19 20])
+    plot(inc_tra(BDs_flag), inc_ref(BDs_flag),'b .','MarkerSize',20);
+    xlabel('$$ \frac{\int INC - \int TRA}{\int INC + \int TRA} $$','interpreter','latex')
+    ylabel('$$ \frac{\int INC - \int REF}{\int INC + \int REF} $$','interpreter','latex')
+    axis([min(inc_tra(BDs_flag))-moff max(inc_tra(BDs_flag))+moff min(inc_ref(BDs_flag))-moff max(inc_ref(BDs_flag))+moff])
+    line(xlim, [inc_ref_thr inc_ref_thr], 'Color', 'r','LineWidth',1) %horizontal line
+    line([inc_tra_thr inc_tra_thr], ylim, 'Color', 'r','LineWidth',1) %vertical line
+    title('Metric')
+    legend('BDs','Threshold')
+    hold on
+    
+    %data part
+    timescale = 0:4e-9:799*4e-9;
+    
+   
+    
+    for n=1:length(BDs)
+        %display timestamp
+        disp([ BDs{n} ' is the number ' num2str(n) ' on ' num2str(length(BDs)) ])
+        %get the current data
+        INC_c = data_struct.(BDs{n}).INC.data;
+        TRA_c = data_struct.(BDs{n}).TRA.data;
+        REF_c = data_struct.(BDs{n}).REF.data;
+        %check if the backup pulses are recorded
+        precName = [BDs{n}(1:end-2) 'L1'];
+        if isfield(data_struct,precName)% The backup pulse is present
+            
+            %grasp data 
+            INC_prev = data_struct.(precName).INC.data;
+            TRA_prev = data_struct.(precName).TRA.data;
+            REF_prev = data_struct.(precName).REF.data;
+            INC_prev_cal = data_struct.(precName).INC.data_cal;
+            TRA_prev_cal = data_struct.(precName).TRA.data_cal;
+            REF_prev_cal = data_struct.(precName).REF.data_cal;
+            INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
+            TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
+            REF_c_cal = data_struct.(BDs{n}).REF.data_cal;
+            BPM1_c = data_struct.(BDs{n}).BPM1.data_cal;
+            BPM2_c = data_struct.(BDs{n}).BPM2.data_cal;
+            inc_tra_c = data_struct.(BDs{n}).inc_tra;
+            inc_ref_c = data_struct.(BDs{n}).inc_ref;
+            
+            %plotting
+            positionPlot_prev( timescale, INC_c, INC_prev, TRA_c, TRA_prev, REF_c, REF_prev,...
+                INC_c_cal, INC_prev_cal, TRA_c_cal, TRA_prev_cal, REF_c_cal, REF_prev_cal,...
+                BPM1_c, BPM2_c, INC_TRA_delay)
+            % plot metric red dot
+            subplot(4,6,[13 14 19 20])
+            if n~=1 
+                delete(pm)
+            end
+            pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
+
+            %%%%%%%%%%%% Calculate the delay
+            
+            %ramp-up test
+            [isRamping, ~] = rampUpTest( INC_c_cal, INC_prev_cal, xstart, xend, rampThr );
+            
+            %calculate integrals
+
+            %TRA EDGE
+            if ~isRamping
+                [ind_TRA, time_TRA] = getDeviationPoint(timescale,TRA_c,TRA_prev,winStart,0.07,0.005);
+            else
+                [~, ind_TRA] = max(TRA_c);
+                time_TRA = timescale(ind_TRA);
+            end
+            
+            subplot(4,6,[3 4])
+            plot(timescale, TRA_c, 'r -',timescale, TRA_prev, 'r --', timescale, TRA_prev-TRA_c, 'b .')
+            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            legend({'TRA','prev TRA','difference'})
+            title('Edge method for TRA')
+            xlim([400*4e-9 550*4e-9])
+            xlabel('time (s)')
+            ylabel('Power (a.u.)')
+
+            %REF EDGE
+            [ind_REF, time_REF] = getDeviationPoint(timescale,REF_c,REF_prev,winStart,0.1,0.02);
+            
+            %%%%% calculate time_delay for the edge method
+            INC_TRA_timeOffset = 72e-9;
+            td = 1e9*(time_REF-time_TRA+INC_TRA_timeOffset);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+            subplot(4,6,[9 10])
+            plot(timescale, REF_c, 'k -',timescale, REF_prev, 'k --',timescale,REF_c-REF_prev,'b .' )
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+            legend({'REF','prev REF','difference'})
+            title(['Edge method for REF - td = ',num2str(td),' ns'])
+            xlim([400*4e-9 550*4e-9])
+            xlabel('time (s)')
+            ylabel('Power (a.u.)')
+            
+            %add vertical bars to plots
+            subplot(4,6,[1 2 7 8])
+            hold on;
+            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+            subplot(4,6,[5 6 11 12])
+            hold on;
+            line([time_TRA-INC_TRA_timeOffset time_TRA-INC_TRA_timeOffset], ylim, 'Color', 'r','LineWidth',1) %vertical line
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+            
+            
+            
+            %CORRELATION
+            [coeff_corr,gof,corr_err,y1_offset,y2_offset] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
+            delay = round(coeff_corr(1)); %rounded to integer [ns]
+            failFlag = false;
+            
+            subplot(4,6,[15 16 21 22])
+            plot( timescale, REF_c-y2_offset, 'r', timescale, INC_c-y1_offset, 'k',...
+                timescale-(coeff_corr(1)*1e-9), coeff_corr(2)*(REF_c-y2_offset), 'g','LineWidth', 2 ...
+                )
+            xlim([1.848e-6 3.2e-6])
+            title(['Correlation method - tc ',num2str(delay),' ns'])
+            legend({'REF','INC', 'REF delayed'})
+            
+            %JITTER check
+            [ ~, delay_time ] = jitterCheck( data_struct.(BDs{n}).INC.data_cal, data_struct.(precName).INC.data_cal, sf, sROI, eROI);
+            disp(['jitter = ' num2str(delay_time) ' ns'])
+            if delay_time ~= 0
+                warning('Jitter detected !')
+            end
+            
+            
+
+            % manual correction
+            if manualCorrection
+                str = input('Will you do any correction ?   ','s');
+                if strcmp(str,'y')
+                    str = input('Correct Edge Method ?   ','s');
+                    if strcmp(str,'y')
+                        str = input('time_ind_TRA =   ','s');
+                        dcm_obj = datacursormode;
+                        info_struct = getCursorInfo(dcm_obj);
+                         if isfield(info_struct, 'Position')
+                            time_TRA = info_struct.Position(1);
+                            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                            gone = true;
+                        else
+                            disp('Please type: ')
+                            str = input('time_ind_TRA =   ','s');
+                            time_TRA = str2double(str);
+                            ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                        end
+                        str = input('time_ind_REF =   ','s');
+                        info_struct = getCursorInfo(dcm_obj);
+                        if isfield(info_struct, 'Position')
+                            time_REF = info_struct.Position(1);
+                            ind_REF = time_REF/sf +1; %get index from time
+                        else
+                            disp('Please type: ')
+                            str = input('time_ind_REF =   ','s');
+                            time_REF = str2double(str);
+                            time_REF = time_REF/sf +1; %get index from time
+                        end
+                    end  
+                    str = input('Correct Correlation Method ?   ','s');
+                    if strcmp(str,'y')
+                        str = input('time_peak_INC =   ','s');
+                        dcm_obj = datacursormode;
+                        info_struct = getCursorInfo(dcm_obj);
+                            if isfield(info_struct, 'Position')
+                                time_inc = info_struct.Position(1)
+                            else
+                                disp('Please type: ')
+                                str = input('time_peak_INC =   ','s');
+                                time_inc = str2double(str);
+                            end
+                        str = input('time_peak_REF =   ','s');
+                        dcm_obj = datacursormode;
+                        info_struct = getCursorInfo(dcm_obj);
+                            if isfield(info_struct, 'Position')
+                                time_ref = info_struct.Position(1)
+                            else
+                                disp('Please type: ')
+                                str = input('time_peak_INC =   ','s');
+                                time_inc = str2double(str);
+                            end
+                        delay = time_ref - time_inc;
+                        
+                        failFlag = false;
+                    elseif strcmp(str,'f')
+                        failFlag = true;
+                    else
+                        continue;
+                    end
+                else
+                    continue;
+                end
+            end
+            
+            %CREATE OUTPUT STRUCT
+            %edge
+            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
+            data_struct.(BDs{n}).position.edge.time_REF = time_REF;
+            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
+            data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
+            %correlation
+            data_struct.(BDs{n}).position.correlation.backupPulse = true;
+            data_struct.(BDs{n}).position.correlation.delay_time = delay;
+            data_struct.(BDs{n}).position.correlation.gain = coeff_corr(2);
+            data_struct.(BDs{n}).position.correlation.fail = failFlag;
+
+        else % NO PREV PULSE
+            %grasp data 
+            INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
+            TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
+            REF_c_cal = data_struct.(BDs{n}).REF.data_cal;
+            BPM1_c = data_struct.(BDs{n}).BPM1.data_cal;
+            BPM2_c = data_struct.(BDs{n}).BPM2.data_cal;
+            inc_tra_c = data_struct.(BDs{n}).inc_tra;
+            inc_ref_c = data_struct.(BDs{n}).inc_ref;
+            
+            %plotting
+            positionPlot_noPrev( timescale, INC_c, TRA_c, REF_c,...
+                INC_c_cal, TRA_c_cal, REF_c_cal,...
+                BPM1_c, BPM2_c)
+            % plot metric red dot
+            subplot(4,6,[13 14 19 20])
+            if n~=1 
+                try
+                    delete(pm)
+                end
+            end
+            pm = plot(inc_tra_c, inc_ref_c,'m .','MarkerSize',20);
+            
+            %manual insert of the edges
+            %plot
+            plotTRA_positioning(timescale, TRA_c);
+            plotREF_positioning(timescale, REF_c);
+            %data management
+            disp('Edges needs to be inserted manually:')
+            str = input('time_ind_TRA =   ','s');
+            dcm_obj = datacursormode;
+            info_struct = getCursorInfo(dcm_obj);
+            if isfield(info_struct, 'Position')
+                time_TRA = info_struct.Position(1);
+                ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+                gone = true;
+            else
+                disp('Please type: ')
+                str = input('time_ind_TRA =   ','s');
+                time_TRA = str2double(str);
+                ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
+            end
+            str = input('time_ind_REF =   ','s');
+            dcm_obj = datacursormode;
+            info_struct = getCursorInfo(dcm_obj);
+            if isfield(info_struct, 'Position')
+                time_REF = info_struct.Position(1);
+                ind_REF = time_REF/sf +1; %get index from time
+            else
+                disp('Please type: ')
+                str = input('time_ind_REF =   ','s');
+                time_REF = str2double(str);
+                time_REF = time_REF/sf +1; %get index from time
+            end
+
+            %plot TRA bar
+            subplot(4,6,[3 4])        
+            line([time_TRA time_TRA], ylim, 'Color', 'r','LineWidth',1) %vertical line
+
+            %plot REF bar
+            subplot(4,6,[9 10])
+            line([time_REF time_REF], ylim, 'Color', 'k','LineWidth',1) %vertical line
+
+            %manual insert for correlation
+            subplot(4,6,[15 16 21 22])
+            plot( timescale, REF_c, 'r', timescale, INC_c, 'k',...
+                'LineWidth', 2 ...
+                )
+            xlim([1.848e-6 3.2e-6])
+            title('Correlation method')
+            legend({'REF','INC'})
+            disp('Insert the edges for peaks of INC and REF')
+            str = input('time_peak_INC =   ','s');
+            dcm_obj = datacursormode;
+            info_struct = getCursorInfo(dcm_obj);
+            if isfield(info_struct, 'Position')
+                time_inc = info_struct.Position(1)
+            else
+                disp('Please type: ')
+                str = input('time_peak_INC =   ','s');
+                time_inc = str2double(str);
+            end
+            str = input('time_peak_REF =   ','s');
+            dcm_obj = datacursormode;
+            info_struct = getCursorInfo(dcm_obj);
+            if isfield(info_struct, 'Position')
+                time_ref = info_struct.Position(1)
+            else
+                disp('Please type: ')
+                str = input('time_peak_INC =   ','s');
+                time_inc = str2double(str);
+            end
+            delay = time_ref - time_inc;
+            delay = round( time_ref-time_inc ,0 );
+            failFlag = false;
+            
+            %CREATE OUTPUT STRUCT
+            %edge
+            data_struct.(BDs{n}).position.edge.ind_REF = ind_REF; 
+            data_struct.(BDs{n}).position.edge.time_REF = time_REF;
+            data_struct.(BDs{n}).position.edge.ind_TRA = ind_TRA;
+            data_struct.(BDs{n}).position.edge.time_TRA = time_TRA;
+            %correlation
+            data_struct.(BDs{n}).position.correlation.backupPulse = false;
+            data_struct.(BDs{n}).position.correlation.delay_time = delay; %rounded to integer [ns]
+            data_struct.(BDs{n}).position.correlation.fail = failFlag;
+        end
+
+
+
+
+%         pause;
+    end
+
+    %flag data as positioning done
+    data_struct.Analysis.postioning = true;
+
+    % figure
+    % plot(timescale, REF_c, 'r -',timescale, REF_prev, 'r --')
+    % xlim([winStart 800*4e-9])
+    % 
+    % figure
+    % plot(timescale,(REF_c - REF_prev))
+    % xlim([winStart 800*4e-9])
+
+else
+    %flag data as positioning not done
+    data_struct.Analysis.positioning = false;
+end
+
+%% Report message and crosscheck of lengths
+disp('Analysis done! ')
+if strcmpi(mode,'Loaded')   
+    %gather data and build the message
+    %%INTO THE METRIC
+    l1 = length(BD_candidates);
+    l2 = length(spikes_inMetric);
+    l3 = length(spike_cluster);
+    l4 = length(missed_beam_in);
+    l5 = length(missed_beam_cluster);
+    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
+        'Into the metric:' '\n' ...
+    ' - ' num2str(l1) ' are good candidates' '\n' ...
+    ' - ' num2str(l2) ' are spikes' '\n' ...
+    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+    ' - ' num2str(l4) ' are missed beam pulses' '\n' ...
+    ' - ' num2str(l5) ' are secondary triggered by beam lost' '\n' ...
+    '-------' '\n' ...
+    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
+    'Of the ' num2str(l1) ' good candidates:' '\n' ...
+    ' - ' num2str(length(BD_candidates_beam)) ' have the beam' '\n' ...
+    ' - ' num2str(length(BD_candidates_nobeam)) ' do not have the beam' '\n \n' ...
+    'Of the ' num2str(length(BD_candidates_beam)) ' BDs with the beam: \n' ...
+    ' - '  num2str(length(clusters_wb)) ' are BDs with the beam present, but part of a cluster provoked by a BD happpened with beam' '\n'...
+    ' - '  num2str(length(clusters_wob)) ' are BDs without the beam present, but part of a cluster provoked by a BD happpened without beam' '\n'...
+    'So the final number of breakdowns is ' num2str(length(BDs)) '\n' ...
+    '\n \n' ...
+    ];
+    %%OUT OF THE METRIC
+    l1 = length(interlocks_out);
+    l2 = length(spikes_outMetric);
+    l3 = length(spike_cluster_out);
+    msg3 = ['Out of the metric:' '\n' ...
+    ' - ' num2str(l1) ' are BDs ' '\n' ...
+    ' - ' num2str(l2) ' are spikes' '\n' ...
+    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+    '-------' '\n' ...
+    '  ' num2str(l1+l2+l3) ' events out of the metric' '\n \n' ...
+    ];
+    % print to screen (1) and to log file
+    fprintf(1,msg2);
+    fprintf(1,msg3);
+
+    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'loaded');
+    fprintf(1,msg4);
+    
+elseif strcmpi(mode,'UnLoaded')   
+    %gather data and build the message
+    %%INTO THE METRIC
+    l1 = length(BD_candidates);
+    l2 = length(spikes_inMetric);
+    l3 = length(spike_cluster);
+    l4 = 0;
+    l5 = 0;
+    msg2 = ['BD candidates found: ' num2str(length(inMetric)) ' of which ' num2str(length(intoMetr)) ' are into the metric' '\n' ...
+        'Into the metric:' '\n' ...
+    ' - ' num2str(l1) ' are good candidates' '\n' ...
+    ' - ' num2str(l2) ' are spikes' '\n' ...
+    ' - ' num2str(l3) ' are secondary triggered by spikes' '\n' ...
+    '-------' '\n' ...
+    '  ' num2str(l1+l2+l3+l4+l5) ' events in metric' '\n \n' ...
+    '\n \n' ...
+    ];
+    % print to screen (1) and to log file
+    fprintf(1,msg2);
+
+    msg4 = logTable( [datapath_write filesep savename '.log'], length(inMetric), length(intoMetr), length(BDs), l2, length(clusters_wb), l4, l3, l5, 'unloaded' );
+   fprintf(1,msg4);   
+    
+    
+    
+end
 
 %% Saving data
 
@@ -1106,6 +1102,8 @@ data_struct.Analysis.Clusters.deltaTime_spike = deltaTime_spike;
 data_struct.Analysis.Clusters.deltaTime_beam_lost = deltaTime_beam_lost;
 data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
 
+
+ccc
 
 % saving
 BDs_ts = BDs; %copy BDs to BDs_ts to change the name to save

@@ -36,10 +36,11 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_Loaded38MW_5';
-savename = expname;
+expname = 'Exp_UnLoaded_9';
+% savename = expname;
+savename = 'Exp_UnLoaded_9_3';
 
-positionAnalysis = false;
+positionAnalysis = true;
 manualCorrection = true;
 doPlots = false;
 
@@ -790,6 +791,7 @@ if positionAnalysis
             %CORRELATION
             [coeff_corr,gof,corr_err,y1_offset,y2_offset] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
             delay = round(coeff_corr(1)); %rounded to integer [ns]
+            failFlag = false;
             
             subplot(4,6,[15 16 21 22])
             plot( timescale, REF_c-y2_offset, 'r', timescale, INC_c-y1_offset, 'k',...
@@ -806,6 +808,8 @@ if positionAnalysis
                 warning('Jitter detected !')
             end
             
+            
+
             % manual correction
             if manualCorrection
                 str = input('Will you do any correction ?   ','s');
@@ -814,6 +818,7 @@ if positionAnalysis
                     if strcmp(str,'y')
                         str = input('time_ind_TRA =   ','s');
                         dcm_obj = datacursormode;
+                        info_struct = getCursorInfo(dcm_obj);
                          if isfield(info_struct, 'Position')
                             time_TRA = info_struct.Position(1);
                             ind_TRA = find(timescale<=time_TRA,1,'last');%get index from time
@@ -860,23 +865,12 @@ if positionAnalysis
                             end
                         delay = time_ref - time_inc;
                         
-                        data_struct.(BDs{n}).position.correlation.fail = false;
+                        failFlag = false;
                     elseif strcmp(str,'f')
-                        data_struct.(BDs{n}).position.correlation.fail = true;
-                    else
-                        continue;
+                        failFlag = true;
                     end
-                else
-                    continue;
                 end
             end
-            
-            
-%             while isempty ( input(prompt,'s') )%keep on spinning while pressing enter
-%         %get cursor position
-%         dcm_obj = datacursormode(f1);
-%         info_struct = getCursorInfo(dcm_obj);
-
             
             %CREATE OUTPUT STRUCT
             %edge
@@ -888,11 +882,8 @@ if positionAnalysis
             data_struct.(BDs{n}).position.correlation.backupPulse = true;
             data_struct.(BDs{n}).position.correlation.delay_time = delay;
             data_struct.(BDs{n}).position.correlation.gain = coeff_corr(2);
+            data_struct.(BDs{n}).position.correlation.fail = failFlag;
 
-            %%%%%% STILL TO ADD THE MANUAL FAIL OF THE METHOD
-
-            
-        
         else % NO PREV PULSE
             %grasp data 
             INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
@@ -987,7 +978,7 @@ if positionAnalysis
             end
             delay = time_ref - time_inc;
             delay = round( time_ref-time_inc ,0 );
-            
+            failFlag = false;
             
             %CREATE OUTPUT STRUCT
             %edge
@@ -998,7 +989,7 @@ if positionAnalysis
             %correlation
             data_struct.(BDs{n}).position.correlation.backupPulse = false;
             data_struct.(BDs{n}).position.correlation.delay_time = delay; %rounded to integer [ns]
-            
+            data_struct.(BDs{n}).position.correlation.fail = failFlag;
         end
 
 
@@ -1008,7 +999,7 @@ if positionAnalysis
     end
 
     %flag data as positioning done
-    data_struct.Analysis.postioning = true;
+    data_struct.Analysis.positioning = true;
 
     % figure
     % plot(timescale, REF_c, 'r -',timescale, REF_prev, 'r --')
@@ -1106,7 +1097,6 @@ data_struct.Analysis.Beam.bpm2_thr = bpm2_thr;
 data_struct.Analysis.Clusters.deltaTime_spike = deltaTime_spike;
 data_struct.Analysis.Clusters.deltaTime_beam_lost = deltaTime_beam_lost;
 data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
-
 
 % saving
 BDs_ts = BDs; %copy BDs to BDs_ts to change the name to save

@@ -6,10 +6,6 @@ The data are stored in TDMS files, to perform the analysis run these scripts in 
 ![workflow](https://github.com/esenes/Dogleg-analysis/blob/master/manual/images/flowchart.png)
 
 
-## Table of contest
-
-* [Convert data:] Converting the data
-
 ### Convert data:
 #### read_TDMS_full.m
 

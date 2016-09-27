@@ -10,6 +10,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %load part
+data_auto = data_struct;
+clearvars -except data_auto
 
 %check if the positioning has been done
 if data_struct.Analysis.positioning == 0
@@ -21,14 +23,18 @@ edge_ref_time = zeros(1,length(BDs_ts));
 flag_corr_fail = zeros(1,length(BDs_ts));
 
 count=0;
+mancorr = {};
 for k=1:length(BDs_ts)
     if isfield(data_struct.(BDs_ts{k}),'position')
         disp(BDs_ts{k})
+        mancorr = [mancorr BDs_ts{k}];
         count = count+ 1;
         
-        flag_corr_fail(k) = data_struct.(BDs_ts{k}).position.correlation.fail;
-        edge_tra_time(k) = data_struct.(BDs_ts{k}).position.edge.time_TRA;
-        edge_ref_time(k) = data_struct.(BDs_ts{k}).position.edge.time_REF;
+        %data_bak.(BDs_ts{k}) = data_struct.(BDs_ts{k});
+        
+%         flag_corr_fail(k) = data_struct.(BDs_ts{k}).position.correlation.fail;
+%         edge_tra_time(k) = data_struct.(BDs_ts{k}).position.edge.time_TRA;
+%         edge_ref_time(k) = data_struct.(BDs_ts{k}).position.edge.time_REF;
         
 %         if isfield(data_struct.(BDs_ts{k}).position.correlation,'fail')
 %             flag_corr_fail(k) = data_struct.(BDs_ts{k}).position.correlation.fail;
@@ -40,15 +46,66 @@ for k=1:length(BDs_ts)
 end
 disp(count)
 
-
-for k = 1:length(BDs_ts)
-    disp( flag_corr_fail(k) )
+for k=1:length(mancorr)
+    
+    disp(data_struct.(mancorr{k}).position.correlation.delay_time)
+    if isfield(data_struct.(mancorr{k}).position.correlation,'fail') 
+        disp(data_struct.(mancorr{k}).position.correlation.fail)
+    else
+        % add missing fail fields
+        disp('no fail field')
+        data_struct.(mancorr{k}).position.correlation.fail = false;
+    end
+        %data_full.(BD_s_tocorr{k}) = data_struct.(BD_s_tocorr{k});
+    
 end
 
-for k = 1:length(BDs_ts)
-    disp( edge_tra_time(k) )
+
+data_bak = data_struct;
+clearvars data_struct
+data_struct = data_auto;
+%data substitution
+for k=1:length(mancorr)
+    
+    data_struct.(mancorr{k}).position = data_bak.(mancorr{k}).position;
+
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% generate lists for plots
+close all;
+
+
+delayEdge = [];
+delayCorr = [];
+failCorrCount = 0;
 for k = 1:length(BDs_ts)
-    disp( edge_ref_time(k) )
+    %edge
+    tR = data_struct.(BDs_ts{k}).position.edge.time_REF;
+    tT = data_struct.(BDs_ts{k}).position.edge.time_TRA;
+    delayEdge = [delayEdge tR-tT];
+    %correlation
+    if data_struct.(BDs_ts{k}).position.correlation.fail == false
+        delC = data_struct.(BDs_ts{k}).position.correlation.delay_time;
+        delayCorr = [delayCorr delC];
+    else
+        failCorrCount = failCorrCount+1;
+    end
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% do the actual plotting
+figure(1)
+hEdge = histogram(delayEdge);
+hEdge.BinWidth = 4e-9;
+title('Delay edge method')
+xlabel('tREF-tTRA (s)')
+ylabel('Counts (u.a.)')
+
+figure(2)
+hCorr = histogram(delayCorr);
+hCorr.BinWidth = 4e-9;
+title({'Delay correlation method';['Manual fails: ' num2str(failCorrCount) ' on ' num2str(length(BDs_ts))]})
+xlabel('tREF-tINC (s)')
+ylabel('Counts (u.a.)')

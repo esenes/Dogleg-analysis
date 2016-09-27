@@ -36,15 +36,14 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_UnLoaded_9';
-% savename = expname;
-savename = 'Exp_UnLoaded_9_3';
+expname = 'Exp_Loaded38MW_11_1';
+savename = expname;
 
 positionAnalysis = true;
 manualCorrection = true;
-doPlots = false;
+doPlots = true;
 
-mode = 'UnLoaded';
+mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -236,7 +235,6 @@ ylabel('Integrated charge')
 legend('Interlocks','threshold')
 print(f1,[datapath_write_plot filesep expname '_charge_distribution'],'-djpeg')
 savefig([datapath_write_fig filesep expname '_charge_distribution'])
-
 
 %% Start the filtering 
 if strcmpi(mode,'Loaded')
@@ -790,7 +788,7 @@ if positionAnalysis
             
             %CORRELATION
             [coeff_corr,gof,corr_err,y1_offset,y2_offset] = correlationMethod(timescale,INC_c',timescale,REF_c',wind,winStart_corr);
-            delay = round(coeff_corr(1)); %rounded to integer [ns]
+            delay = round(coeff_corr(1))*1e-9; %rounded to integer [ns]
             failFlag = false;
             
             subplot(4,6,[15 16 21 22])
@@ -885,6 +883,7 @@ if positionAnalysis
             data_struct.(BDs{n}).position.correlation.fail = failFlag;
 
         else % NO PREV PULSE
+            
             %grasp data 
             INC_c_cal = data_struct.(BDs{n}).INC.data_cal;
             TRA_c_cal = data_struct.(BDs{n}).TRA.data_cal;
@@ -974,7 +973,11 @@ if positionAnalysis
             else
                 disp('Please type: ')
                 str = input('time_peak_INC =   ','s');
-                time_inc = str2double(str);
+                if strcmpi(str,'f')
+                    failFlag = true;
+                else
+                    time_inc = str2double(str);
+                end
             end
             delay = time_ref - time_inc;
             delay = round( time_ref-time_inc ,0 );

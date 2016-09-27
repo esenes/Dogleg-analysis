@@ -8,7 +8,7 @@ function [coeff,gof,err,y1_offset,y2_offset] = correlationMethod( x1,y1,x2,y2,wi
 %       - tsignal: the start bin in ns
 %
 %   Outputs:
-%       - coeff: array with the results. First element is delay in bins;
+%       - coeff: array with the results. First element is delay in ns;
 %                Second element is the multiplication factor used.
 %       - gof: (goodness of fit) is the error of the best match found
 %       - err: is the error matrix

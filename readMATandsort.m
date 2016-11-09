@@ -51,16 +51,16 @@ addpath(genpath(dirpath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-startDate = '20160718';
-endDate = '20160719';
-startTime = '15:00:00';
-endTime = '09:30:00';
+startDate = '20161017';
+endDate = '20161028';
+startTime = '17:00:00';
+endTime = '14:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'Loaded38MW_5';
+expName = 'UnLoaded41MW_4';
 
-mode = 'Loaded';
+mode = 'UnLoaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -442,7 +442,7 @@ for j = 1:length(filename) %loop over dates
     disp('Saving normal data ......')
     save([datapath_write filesep 'Norm_' filename{j} '.mat'],'normal_struct');
     fileattrib([datapath_write filesep 'Norm_' filename{j} '.mat'],'-w','a');
-    disp(['Saved normal file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Data_' filename{j} '.mat'])
+    disp(['Saved normal file ' num2str(j) ' on ' num2str(length(filename)) ' : ' 'Norm_' filename{j} '.mat'])
     toc
     disp(' ')
 end

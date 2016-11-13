@@ -37,6 +37,9 @@ for i = 1:length(filename)
     data_struct = rmfield(data_struct,'pulse_delay_from_last');
     data_struct = rmfield(data_struct,'Props');
     
+    disp([num2str(i) ' / ' num2str(length(filename))])
+    
+    
     %select only timestamps in range
     if i == 1 %discard everything before startTime
         %get fnames and reduce it to just the date/timestamps

@@ -27,7 +27,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% Read setup file %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-close all; clearvars; clc;
+%close all; clearvars; clc;
 %include folder to path
 [dirpath,~,~]=fileparts(mfilename('fullpath'));
 addpath(genpath(dirpath))
@@ -37,14 +37,14 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_UnLoaded43MW_4';
+expname = 'Exp_AntiLoaded6_5MW_4';
 savename = expname;
 
 positionAnalysis = true;
 manualCorrection = true;
 doPlots = true;
 
-mode = 'UnLoaded';
+mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -100,7 +100,7 @@ initLog([datapath_write filesep savename '.log'], expname, inc_ref_thr, inc_tra_
 %% Load the BD files
 tic
 disp('Loading the data file ....')
-load([datapath_read filesep expname '.mat']);
+%load([datapath_read filesep expname '.mat']);
 disp('Done.')
 toc
 disp(' ')
@@ -258,7 +258,7 @@ if strcmpi(mode,'Loaded')
         [~, sec_spike_in] = filterSecondary(ts_array(metr_idx),deltaTime_spike,isSpike(metr_idx));
         [~, sec_spike_out] = filterSecondary(ts_array(nonmetr_idx),deltaTime_spike,isSpike(nonmetr_idx));
         sec_spike = recomp_array(sec_spike_in,metr_idx,sec_spike_out,nonmetr_idx);
-        %secondary filter by time after BEAM LOST
+    %secondary filter by time after BEAM LOST
         [~, sec_beam_lost_in] = filterSecondary(ts_array(metr_idx),deltaTime_beam_lost,beam_lost(metr_idx));
         sec_beam_lost = recomp_array(sec_beam_lost_in,metr_idx,zeros(1,length(nonmetr_idx)),nonmetr_idx);
         %secondary after a normal BD WITHOUT BEAM
@@ -750,6 +750,53 @@ if interactivePlot
     end
 end %end user choice
 
+%% Online modification of the BDs list
+
+%ask if manual remove something
+modMan = false;
+while true
+    str_input = input('Need to modify manually the BDs list ? (Y/N)','s');
+    switch lower(str_input)
+        case 'y'
+            modMan = true;
+            break
+        case 'n'
+            modMan = false;
+            break
+        otherwise
+            disp('Enter a valid character')
+            continue
+    end
+end
+
+%build the ts list to remove
+if modMan
+    gone = false;
+    rem_ts = {};
+    while ~gone
+        ts_input = input('Enter the timestamp to remove, q to exit: ','s');
+        switch lower(ts_input)
+        case 'q'
+            gone = true;
+            break
+        otherwise
+            rem_ts = [rem_ts ts_input];
+            continue
+        end
+    end
+end
+
+%remove the timestamps
+rm_idx = [];
+for k = 1:length(rem_ts)
+    [succ, idx] = ismember(rem_ts{k},BDs);
+    if succ == 0
+        warning('Element not found')
+    end
+    rm_idx(k) = idx;
+end
+BDs(rm_idx) = [];
+
 %% Positioning
 if positionAnalysis
     %figure setup
@@ -1093,6 +1140,37 @@ else
     data_struct.Analysis.positioning = false;
 end
 
+%% Add delays lists and plot the distributions
+edge_delay = zeros(1,length(BDs));
+corr_delay = zeros(1,length(BDs));
+corr_fail = zeros(1,length(BDs)); %the fail flag for the correlation method
+for k=1:length(BDs)
+    tR = data_struct.(BDs{k}).position.edge.time_REF;
+    tT = data_struct.(BDs{k}).position.edge.time_TRA;
+    edge_delay(k) = tR-tT;
+    corr_delay(k) = data_struct.(BDs{k}).position.correlation.delay_time;
+    corr_fail(k) = data_struct.(BDs{k}).position.correlation.fail;
+end
+% edge and correlation method plotting
+f12 = figure;
+figure(f12);
+hEdge = histogram(edge_delay);
+hEdge.BinWidth = 4e-9;
+line([68e-9 68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
+line([-68e-9 -68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
+title('Delay edge method')
+xlabel('$$t_{REF} - t_{TRA} $$ (s) ','interpreter','latex')
+ylabel('Counts (arb.u.)')
+
+
+f13 = figure;
+figure(f13);
+hCorr = histogram(corr_delay(not(corr_fail)));
+hCorr.BinWidth = 4e-9;
+title({'Delay correlation method';['Manual fails: ' num2str(find(length(corr_fail))) ' on ' num2str(length(BDs_ts))]})
+xlabel('$$t_{REF} - t_{INC} $$ (s) ','interpreter','latex')
+ylabel('Counts (arb.u.)')
+
 %% Report message and crosscheck of lengths
 disp('Analysis done! ')
 if strcmpi(mode,'Loaded')   
@@ -1188,12 +1266,12 @@ disp('Saving ...')
 if strcmpi(mode,'loaded')
     save([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],...
         'data_struct','BDs_ts','inMetric','isSpike','sec_spike','beam_lost','sec_beam_lost','hasBeam','clusters',...
-        '-v7.3');
+        'edge_delay','corr_delay','corr_fail','-v7.3');
     fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 elseif strcmpi(mode,'unloaded')
     save([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],...
         'data_struct','BDs_ts','inMetric','isSpike','sec_spike',...
-        '-v7.3');
+        'edge_delay','corr_delay','corr_fail','-v7.3');
     fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 end
 disp('Done.')

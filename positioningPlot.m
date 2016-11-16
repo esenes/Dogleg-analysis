@@ -11,6 +11,12 @@
 close all; clc;
 %load part
 
+expname = 'Exp_UnLoaded43MW_9';
+
+
+datapath_write_plot = '/Users/esenes/swap_out/exp/plots';
+datapath_write_fig = '/Users/esenes/swap_out/exp/figs';
+
 
 %check if the positioning has been done
 if data_struct.Analysis.positioning == 0
@@ -48,9 +54,8 @@ line([-68e-9 -68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
 title('Delay edge method')
 xlabel('$$t_{REF} - t_{TRA} $$ (s) ','interpreter','latex')
 ylabel('Counts (arb.u.)')
-
-% savefig([datapath_write_fig filesep expname '_Metric_plot'])
-% print(f0,[datapath_write_plot filesep expname '_Metric_plot'],'-deps')
+savefig(f1,[datapath_write_fig filesep expname '_edge_method'])
+print(f1,[datapath_write_plot filesep expname '_edge_method'],'-dpng')
 
 f2 = figure;
 figure(f2);
@@ -59,3 +64,11 @@ hCorr.BinWidth = 4e-9;
 title({'Delay correlation method';['Manual fails: ' num2str(failCorrCount) ' on ' num2str(length(BDs_ts))]})
 xlabel('$$t_{REF} - t_{INC} $$ (s) ','interpreter','latex')
 ylabel('Counts (arb.u.)')
+savefig(f2,[datapath_write_fig filesep expname '_correlation_method'])
+print(f2,[datapath_write_plot filesep expname '_correlation_method'],'-dpng')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% interlock check
+
+
+

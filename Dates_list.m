@@ -8,7 +8,7 @@ startTime = '19:30:00';
 endTime = '08:00:00';
 
 pulsenum = 1057750;
-BDs = 12;
+BDs = 11;
 
 BDR = BDs/pulsenum
 sigBDR = sqrt(BDs)/pulsenum
@@ -19,7 +19,7 @@ endDate = '20160330';
 startTime = '18:30:00';
 endTime = '16:00:00';
 
-pulsenum = 4070150;
+pulsenum = 4077400;
 BDs = 52;
 
 BDR = BDs/pulsenum
@@ -43,7 +43,7 @@ endDate = '20160416';
 startTime = '18:45:00';
 endTime = '17:00:00';
 
-pulsenum = 1338800;
+pulsenum = 1655650;
 BDs = 12;
 
 BDR = BDs/pulsenum
@@ -67,7 +67,7 @@ endDate = '20160430';
 startTime = '17:00:00';
 endTime = '11:30:00';
 
-pulsenum = 1339500;
+pulsenum = 1383750;
 BDs = 12;
 
 BDR = BDs/pulsenum
@@ -79,7 +79,7 @@ endDate = '20160509';
 startTime = '18:20:00';
 endTime = '09:30:00';
 
-pulsenum = 8391700;
+pulsenum = 6298650;
 BDs = 128;
 
 BDR = BDs/pulsenum
@@ -103,7 +103,7 @@ endDate = '20160523';
 startTime = '18:00:00';
 endTime = '00:20:00';
 
-pulsenum = 3591550;
+pulsenum = 3688000;
 BDs = 18;
 
 BDR = BDs/pulsenum
@@ -166,6 +166,9 @@ endDate = '20160719';
 startTime = '15:40:00';
 endTime = '09:00:00';
 
+
+
+
 %% Anti-loaded 6.5MW
 
 %run1
@@ -173,6 +176,13 @@ startDate = '20160404';
 endDate = '20160408';
 startTime = '18:30:00';
 endTime = '16:00:00';
+
+
+pulsenum = 8115100;
+BDs = 68;
+
+BDR = BDs/pulsenum
+sigBDR = sqrt(BDs)/pulsenum
 
 %run2
 startDate = '20160603';

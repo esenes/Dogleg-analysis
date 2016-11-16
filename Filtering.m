@@ -27,7 +27,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% Read setup file %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%close all; clearvars; clc;
+close all; clearvars; clc;
 %include folder to path
 [dirpath,~,~]=fileparts(mfilename('fullpath'));
 addpath(genpath(dirpath))
@@ -37,7 +37,7 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_AntiLoaded6_5MW_4';
+expname = 'Exp_Loaded38MW_2';
 savename = expname;
 
 positionAnalysis = true;
@@ -100,7 +100,7 @@ initLog([datapath_write filesep savename '.log'], expname, inc_ref_thr, inc_tra_
 %% Load the BD files
 tic
 disp('Loading the data file ....')
-%load([datapath_read filesep expname '.mat']);
+load([datapath_read filesep expname '.mat']);
 disp('Done.')
 toc
 disp(' ')

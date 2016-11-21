@@ -37,7 +37,7 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_Loaded38MW_2';
+expname = 'Exp_Loaded43MW_11';
 savename = expname;
 
 positionAnalysis = true;
@@ -47,12 +47,19 @@ doPlots = true;
 mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+checkMode;% valid mode check
 %%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%
-% METRIC
-inc_ref_thr = 0.48;
-%inc_ref_thr = 0.6; %%antiloaded
-inc_tra_thr = -0.02;
+% METRIC TRESHOLDS
+if strcmpi(mode,'Loaded')
+    inc_ref_thr = 0.48;
+    inc_tra_thr = -0.02;
+elseif strcmpi(mode,'UnLoaded')
+    inc_ref_thr = 0.48;
+    inc_tra_thr = -0.02;
+elseif strcmpi(mode,'Antiloaded')
+    inc_ref_thr = 0.6;
+    inc_tra_thr = -0.02;
+end
 % BPM CHARGE THRESHOLDS
 bpm1_thr = -100;
 bpm2_thr = -90;
@@ -85,13 +92,6 @@ pbeg = 400;
 pend = 474;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% mode check
-if strcmpi(mode,'Loaded') || strcmpi(mode,'UnLoaded') || strcmpi(mode,'AntiLoaded')
-    disp(['Mode = ' mode])
-    disp(' ')
-else
-    error('Invalid mode selected')
-end
 
 %% Create log file
 %create log file and add initial parameters
@@ -243,7 +243,7 @@ print(f1,[datapath_write_plot filesep expname '_charge_distribution'],'-djpeg')
 savefig([datapath_write_fig filesep expname '_charge_distribution'])
 
 %% Start the filtering 
-if strcmpi(mode,'Loaded')
+if strcmpi(mode,'Loaded') || strcmpi(mode,'AntiLoaded')
     % filling bool arrays
         %metric criteria
         [inMetric,~,~] = metricCheck(inc_tra, inc_tra_thr, inc_ref, inc_ref_thr);
@@ -728,17 +728,20 @@ while isempty ( input(prompt,'s') )%keep on spinning while pressing enter
 end
 
 %% Online modification of the BDs list
-
+fprintf(1,'\n')
 %ask if manual remove something
 modMan = false;
+correct = false;
 while true
     str_input = input('Need to modify manually the BDs list ? (Y/N)','s');
     switch lower(str_input)
         case 'y'
             modMan = true;
+            correct = true;
             break
         case 'n'
             modMan = false;
+            correct = false;
             break
         otherwise
             disp('Enter a valid character')
@@ -762,17 +765,22 @@ if modMan
         end
     end
 end
-
-%remove the timestamps
-rm_idx = [];
-for k = 1:length(rem_ts)
-    [succ, idx] = ismember(rem_ts{k},BDs);
-    if succ == 0
-        warning('Element not found')
+if correct
+    %print rem_ts
+    fprintf(1,'\nThe following timestamps are going to be removed: \n')
+    for k = 1:length(rem_ts)
+        fprintf(1,[rem_ts{k} '\n'])
     end
-    rm_idx(k) = idx;
+
+    %remove the timestamps
+    rm_idx = [];
+    for k = 1:length(rem_ts)
+        [succ, idx] = ismember(rem_ts{k},BDs);
+        if succ
+            BDs(idx) = [];
+        end
+    end
 end
-BDs(rm_idx) = [];
 
 %% Positioning
 if positionAnalysis
@@ -1117,10 +1125,11 @@ else
     data_struct.Analysis.positioning = false;
 end
 
-%% Add delays lists and plot the distributions
+%% Add delays lists and plot the delay distributions
 edge_delay = zeros(1,length(BDs));
 corr_delay = zeros(1,length(BDs));
 corr_fail = zeros(1,length(BDs)); %the fail flag for the correlation method
+tR = 0; tT = 0;
 for k=1:length(BDs)
     tR = data_struct.(BDs{k}).position.edge.time_REF;
     tT = data_struct.(BDs{k}).position.edge.time_TRA;
@@ -1129,7 +1138,7 @@ for k=1:length(BDs)
     corr_fail(k) = data_struct.(BDs{k}).position.correlation.fail;
 end
 % edge and correlation method plotting
-f12 = figure;
+f12 = figure;     
 figure(f12);
 hEdge = histogram(edge_delay);
 hEdge.BinWidth = 4e-9;
@@ -1138,15 +1147,18 @@ line([-68e-9 -68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
 title('Delay edge method')
 xlabel('$$t_{REF} - t_{TRA} $$ (s) ','interpreter','latex')
 ylabel('Counts (arb.u.)')
-
+print(f12,[datapath_write_plot filesep expname '_edge_method'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_edge_method'])
 
 f13 = figure;
 figure(f13);
 hCorr = histogram(corr_delay(not(corr_fail)));
 hCorr.BinWidth = 4e-9;
-title({'Delay correlation method';['Manual fails: ' num2str(find(length(corr_fail))) ' on ' num2str(length(BDs_ts))]})
+title({'Delay correlation method';['Manual fails: ' num2str(find(length(corr_fail))) ' on ' num2str(length(BDs))]})
 xlabel('$$t_{REF} - t_{INC} $$ (s) ','interpreter','latex')
 ylabel('Counts (arb.u.)')
+print(f13,[datapath_write_plot filesep expname '_correlation_method'],'-djpeg')
+savefig([datapath_write_fig filesep expname '_correlation_method'])
 
 %% Report message and crosscheck of lengths
 disp('Analysis done! ')
@@ -1237,18 +1249,23 @@ data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
 
 % saving
 BDs_ts = BDs; %copy BDs to BDs_ts to change the name to save
+BDs_ts_new = BDs_ts; %is just legacy now
+BD_struct = struct; %structure with data just for the breakdowns
+for k=1:length(BDs_ts)   
+   BD_struct.(BDs_ts{k}) = data_struct.(BDs_ts{k}); 
+end
 tic
 data_struct.Props.filetype = 'Experiment_analized';
 disp('Saving ...')
-if strcmpi(mode,'loaded')
+if strcmpi(mode,'loaded') || strcmpi(mode,'antiloaded')
     save([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],...
         'data_struct','BDs_ts','inMetric','isSpike','sec_spike','beam_lost','sec_beam_lost','hasBeam','clusters',...
-        'edge_delay','corr_delay','corr_fail','-v7.3');
+        'BD_struct','edge_delay','corr_delay','corr_fail','-v7.3');
     fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 elseif strcmpi(mode,'unloaded')
     save([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],...
         'data_struct','BDs_ts','inMetric','isSpike','sec_spike',...
-        'edge_delay','corr_delay','corr_fail','-v7.3');
+        'BD_struct','edge_delay','corr_delay','corr_fail','-v7.3');
     fileattrib([datapath_write filesep 'Exp_analized' savename(4:end) '.mat'],'-w','a');
 end
 disp('Done.')

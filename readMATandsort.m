@@ -52,19 +52,19 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %run1
-startDate = '20160601';
-endDate = '20160603';
-startTime = '19:17:00';
-endTime = '16:54:00';
+startDate = '20160927';
+endDate = '20161002';
+startTime = '14:30:00';
+endTime = '12:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded43MW_10';
+expName = 'Loaded43MW_12';
 
-mode = 'UnLoaded';
+mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+checkMode;% valid mode check
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %SAMPLING PERIOD
 fs = 1/(4e-9);
@@ -76,8 +76,6 @@ elseif strcmpi(mode,'UnLoaded')
     spike_thr = 4.5;
 elseif strcmpi(mode,'Antiloaded')
     spike_thr = 1;
-else
-    error('Unknown mode')
 end
 % TUNING DETECTION PARAMETERS
 %%windowing (bins)

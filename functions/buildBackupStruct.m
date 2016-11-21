@@ -24,9 +24,10 @@ exp_struct = struct();
 
 for i = 1:length(filename)
     load([datapath filesep fname filename{i} '.mat'])
+    disp([num2str(i) ' / ' num2str(length(filename))])
     %delete the 'Props' field from the struct
     try
-    normal_struct = rmfield(normal_struct,'Props');
+        normal_struct = rmfield(normal_struct,'Props');
     catch
     end
     %select only timestamps in range

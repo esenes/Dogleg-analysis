@@ -37,14 +37,14 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_Loaded43MW_11';
+expname = 'Exp_UnLoaded38MW_5';
 savename = expname;
 
 positionAnalysis = true;
 manualCorrection = true;
 doPlots = true;
 
-mode = 'Loaded';
+mode = 'UnLoaded';
 %%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 checkMode;% valid mode check
@@ -52,6 +52,7 @@ checkMode;% valid mode check
 % METRIC TRESHOLDS
 if strcmpi(mode,'Loaded')
     inc_ref_thr = 0.48;
+    inc_ref_thr = 0.5;
     inc_tra_thr = -0.02;
 elseif strcmpi(mode,'UnLoaded')
     inc_ref_thr = 0.48;
@@ -944,7 +945,7 @@ if positionAnalysis
                             disp('Please type: ')
                             str = input('time_ind_REF =   ','s');
                             time_REF = str2double(str);
-                            time_REF = time_REF/sf +1; %get index from time
+                            ind_REF = time_REF/sf +1; %get index from time
                         end
                     end  
                     str = input('Correct Correlation Method ?   ','s');
@@ -1247,13 +1248,22 @@ data_struct.Analysis.Clusters.deltaTime_spike = deltaTime_spike;
 data_struct.Analysis.Clusters.deltaTime_beam_lost = deltaTime_beam_lost;
 data_struct.Analysis.Clusters.deltaTime_cluster = deltaTime_cluster;
 
-% saving
+%build necessary structures
 BDs_ts = BDs; %copy BDs to BDs_ts to change the name to save
 BDs_ts_new = BDs_ts; %is just legacy now
 BD_struct = struct; %structure with data just for the breakdowns
 for k=1:length(BDs_ts)   
-   BD_struct.(BDs_ts{k}) = data_struct.(BDs_ts{k}); 
+    BD_struct.(BDs_ts{k}) = data_struct.(BDs_ts{k}); 
+    event_L1 = [BDs_ts{k}(1:end-2) 'L1'];
+    event_L2 = [BDs_ts{k}(1:end-2) 'L2'];
+    if isfield(data_struct,event_L1)
+       BD_struct.(event_L1) = data_struct.(event_L1);
+    end
+    if isfield(data_struct,event_L2)
+        BD_struct.(event_L2) = data_struct.(event_L2);
+    end 
 end
+% saving
 tic
 data_struct.Props.filetype = 'Experiment_analized';
 disp('Saving ...')

@@ -52,16 +52,16 @@ addpath(genpath(dirpath))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %run1
-startDate = '20161128';
-endDate = '20161202';
-startTime = '03:00:00';
-endTime = '15:30:00';
+startDate = '20161202';
+endDate = '20161205';
+startTime = '17:55:00';
+endTime = '09:00:00';
 
 buildExperiment = true; %merge all the data files at the end
 buildBackupPulses = true; %merge all the backupd data files at the end
-expName = 'UnLoaded38MW_11';
+expName = 'Loaded38MW_15';
 
-mode = 'UnLoaded';
+mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%%% End of Initialization %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 checkMode;% valid mode check

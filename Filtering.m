@@ -37,14 +37,14 @@ datapath_write = datapath_read;
 %%%%%%%%%%%%%%%%%%%%%%%%% End of setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% User input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-expname = 'Exp_UnLoaded38MW_5';
+expname = 'Exp_Loaded43MW_11';
 savename = expname;
 
 positionAnalysis = true;
 manualCorrection = true;
 doPlots = true;
 
-mode = 'UnLoaded';
+mode = 'Loaded';
 %%%%%%%%%%%%%%%%%%%%%%% End of user input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 checkMode;% valid mode check
@@ -1121,45 +1121,47 @@ if positionAnalysis
     % plot(timescale,(REF_c - REF_prev))
     % xlim([winStart 800*4e-9])
 
+
+
+    %%Add delays lists and plot the delay distributions
+    edge_delay = zeros(1,length(BDs));
+    corr_delay = zeros(1,length(BDs));
+    corr_fail = zeros(1,length(BDs)); %the fail flag for the correlation method
+    tR = 0; tT = 0;
+    for k=1:length(BDs)
+        tR = data_struct.(BDs{k}).position.edge.time_REF;
+        tT = data_struct.(BDs{k}).position.edge.time_TRA;
+        edge_delay(k) = tR-tT;
+        corr_delay(k) = data_struct.(BDs{k}).position.correlation.delay_time;
+        corr_fail(k) = data_struct.(BDs{k}).position.correlation.fail;
+    end
+    % edge and correlation method plotting
+    f12 = figure;     
+    figure(f12);
+    hEdge = histogram(edge_delay);
+    hEdge.BinWidth = 4e-9;
+    line([68e-9 68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
+    line([-68e-9 -68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
+    title('Delay edge method')
+    xlabel('$$t_{REF} - t_{TRA} $$ (s) ','interpreter','latex')
+    ylabel('Counts (arb.u.)')
+    print(f12,[datapath_write_plot filesep expname '_edge_method'],'-djpeg')
+    savefig([datapath_write_fig filesep expname '_edge_method'])
+
+    f13 = figure;
+    figure(f13);
+    hCorr = histogram(corr_delay(not(corr_fail)));
+    hCorr.BinWidth = 4e-9;
+    title({'Delay correlation method';['Manual fails: ' num2str(find(length(corr_fail))) ' on ' num2str(length(BDs))]})
+    xlabel('$$t_{REF} - t_{INC} $$ (s) ','interpreter','latex')
+    ylabel('Counts (arb.u.)')
+    print(f13,[datapath_write_plot filesep expname '_correlation_method'],'-djpeg')
+    savefig([datapath_write_fig filesep expname '_correlation_method'])
+    
 else
     %flag data as positioning not done
     data_struct.Analysis.positioning = false;
 end
-
-%% Add delays lists and plot the delay distributions
-edge_delay = zeros(1,length(BDs));
-corr_delay = zeros(1,length(BDs));
-corr_fail = zeros(1,length(BDs)); %the fail flag for the correlation method
-tR = 0; tT = 0;
-for k=1:length(BDs)
-    tR = data_struct.(BDs{k}).position.edge.time_REF;
-    tT = data_struct.(BDs{k}).position.edge.time_TRA;
-    edge_delay(k) = tR-tT;
-    corr_delay(k) = data_struct.(BDs{k}).position.correlation.delay_time;
-    corr_fail(k) = data_struct.(BDs{k}).position.correlation.fail;
-end
-% edge and correlation method plotting
-f12 = figure;     
-figure(f12);
-hEdge = histogram(edge_delay);
-hEdge.BinWidth = 4e-9;
-line([68e-9 68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
-line([-68e-9 -68e-9], ylim, 'Color', 'r','LineWidth',2) %vertical line
-title('Delay edge method')
-xlabel('$$t_{REF} - t_{TRA} $$ (s) ','interpreter','latex')
-ylabel('Counts (arb.u.)')
-print(f12,[datapath_write_plot filesep expname '_edge_method'],'-djpeg')
-savefig([datapath_write_fig filesep expname '_edge_method'])
-
-f13 = figure;
-figure(f13);
-hCorr = histogram(corr_delay(not(corr_fail)));
-hCorr.BinWidth = 4e-9;
-title({'Delay correlation method';['Manual fails: ' num2str(find(length(corr_fail))) ' on ' num2str(length(BDs))]})
-xlabel('$$t_{REF} - t_{INC} $$ (s) ','interpreter','latex')
-ylabel('Counts (arb.u.)')
-print(f13,[datapath_write_plot filesep expname '_correlation_method'],'-djpeg')
-savefig([datapath_write_fig filesep expname '_correlation_method'])
 
 %% Report message and crosscheck of lengths
 disp('Analysis done! ')
